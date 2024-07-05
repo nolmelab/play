@@ -15,6 +15,9 @@
         - types, funtions, variables order
     - open a brace at next line 
     - if, while, switch have braces
+    - look at boost.beast 
+        - comment style 
+        - formatting (slightly different)
     
 - c++20 
     - use more recent standard if available

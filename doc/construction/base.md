@@ -9,8 +9,8 @@
 
 - logger
   - system logger with spdlog
-  - LOG() is for a system tagged logger  
+  - LOG() is for a system tagged logger     
   - console and file logging
   - async logger
-    
-- 
+      
+

@@ -3,11 +3,11 @@
 - [coding style](./coding_style.md)
 - [base](./base.md)
 - [net](./net.md)
-- [server](./server.md)
+- [element](./element.md)
+
+- [app](./app.md)
     - [service](./service.md)
-    - [data model](./element.md)
-    - [actor/component](./actor_component.md)
-    - [auth server](./auth_server.md)
+    - [actor](./actor_component.md)
     - [world server](./world_server.md)
     - [game server](./game_server.md)
 

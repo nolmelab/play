@@ -5,7 +5,7 @@
 ### app 
 
 app can be subclassed and can be used as the starting point.
-- app has an executor (io_context, threads)
+- app has an executor 
 - app has services and starts them
 - app has a net::server and setup it to prepare communication
 - app has a net::client and setup it to prepare communication
@@ -43,8 +43,12 @@ server.sub_topic(topic, handler);
 ## impl
 
 - protocol 
-- play::robust::net::executor
-  - executor::get().post() available.
-- 
+
+- playrobust::net::executor<Runner>
+  - thread singleton using thread local pointer
+    - executor::get() returns the current executor for the thread
+  - detail:thead_runner, detail::poll_runner
+
+
 
 
