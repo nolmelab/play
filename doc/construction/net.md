@@ -13,30 +13,37 @@ app can be subclassed and can be used as the starting point.
 ### app::start
 
 ```c++
+using protocol = secure_protocol<uint16_t, flatbuffers::NativeTable>;
+
 server.listen();
-server.add_topic(topic, creator);
-server.add_topic(topic, creator);
-server.add_topic(topic, creator);
+protocol::add_topic(topic, creator);
+protocol::add_topic(topic, creator);
+protocol::add_topic(topic, creator);
 ...
-server.sub_connection(handler);
-server.sub_topic(topic, handler);
-server.sub_topic(topic, handler);
-server.sub_topic(topic, handler);
+protocol::sub_accept(handler);
+protocol::sub_disconnect(handler);
+protocol::sub_topic(topic, handler);
+protocol::sub_topic(topic, handler);
+protocol::sub_topic(topic, handler);
 ... 
 ```
+
 
 ## design 
 
 - play::robust::net namespace
 
-- protocol
+- [protocol](./net/protocol.md)
   - cipher
   - codec
-- session<Protocol, Handler>
+
+- session<Protocol>
   - notifies to handler on events
   - asio::stream_buf 
+
 - client<Protocol>
   - has session<Protocol, client<Protocol>>
+
 - server<Protocol>
   - has session<Protocol, client<Protocol>>
  
