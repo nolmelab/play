@@ -24,11 +24,5 @@
 
 ## setup project 
 
-## write protocol component 
 
-## write client, server, session, protocol 
-
-### plain_protocol 
-
-### secure_protocol 
 
