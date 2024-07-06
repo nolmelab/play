@@ -1,6 +1,6 @@
 # tasks
 
-- [ ] vcpkg 
+- [ ] setup vcpkg 
 - [ ] project setup
 
 - [ ] base 
@@ -14,7 +14,7 @@
             - [ ] sodium_cipher 
         - [ ] codec 
             - [ ] length_delimited_codec
-            - [ ] mark_delimited_codec
+            - [ ] line_codec
         - [ ] header<Topic, size_t length_field_size = 4>
         - [ ] state 
             - handshaking
