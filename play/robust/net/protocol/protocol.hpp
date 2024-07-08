@@ -7,6 +7,7 @@ namespace play { namespace robust { namespace net {
 // type used to mark empty topic (topic not used)
 struct empty_topic {};
 
+template <typename Topic, typename Frame>
 class protocol
 {
 public:

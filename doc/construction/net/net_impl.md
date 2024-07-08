@@ -20,9 +20,4 @@
       - secure_protocol<uint16_t, flatbuffers::NativeTable>
     - skeletal, unit tests, fill the gap
 
-## setup vcpkg
-
-## setup project 
-
-
 
