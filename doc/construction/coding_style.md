@@ -8,6 +8,7 @@
     - except 
         - macros 
         - template parameter types
+    - start PLAY_ for macros
 
 - formatting of source code
     - class

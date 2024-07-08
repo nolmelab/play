@@ -1,0 +1,18 @@
+{
+    "cmake.sourceDirectory": "C:/nolmelab/playrobust/play",
+    "cmake.configureSettings": {
+        "CMAKE_TOOLCHAIN_FILE" : "c:/app/vcpkg/scripts/buildsystems/vcpkg.cmake", 
+        "VCPKG_TARGET_TRIPLET" : "x64-windows-static"
+    },
+    "cmake.outputLogEncoding": "utf8",
+    "files.associations": {
+        "filesystem": "cpp",
+        "type_traits": "cpp",
+        "*.ipp": "cpp",
+        "vector": "cpp",
+        "array": "cpp",
+        "expected": "cpp",
+        "iosfwd": "cpp",
+        "streambuf": "cpp"
+    }
+}

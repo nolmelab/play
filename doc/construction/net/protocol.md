@@ -26,7 +26,7 @@ protocol is application specific payload management layer.
 
 ## protocl examples 
 
-- plain_protocol<Topic, Frame> : frame_factory<Frame>, frame_dispathcer<Frame>
+- plain_protocol<Topic, Frame> : frame_factory<Topic, Frame>, frame_dispathcer<Topic, Frame>
     - length_delimited 
 
 - secure_protocol<Topic, Frame>
@@ -34,10 +34,9 @@ protocol is application specific payload management layer.
     - sodidum_cipher 
     - cipher_handshaker
 
-- secure_mark_protocol<Frame>
+- json_protocol<Topic, Frame>
+    - topic field
     - mark_delimited
-    - sodidum_cipher 
-    - cipher_handshaker
 
 - secure_flatbuffers_protocol : secure_protocol<Topic, flatbuffers::NativeTable>
 - secure_json_protocol : secure_mark_protocol<nlohmann::json>
