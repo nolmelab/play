@@ -13,15 +13,20 @@ public:
     : protocol(send)
     {}
 
-    void accepted();
+    void on_accepted();
 
-    void connected();
+    void on_connected();
 
-    void closed();
+    void on_closed();
 
-    void receive(const char* data, size_t len);
+    void on_receive(const char* data, size_t len);
 
 private: 
+    // recv buffer
+    // working buffer
 };
 
 }}} // play::robust::net
+
+// template member function implementation
+#include <play/robust/net/protocol/secure_protocol.ipp>
