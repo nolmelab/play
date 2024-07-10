@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+#include <cstring>
 #include <vector>
 
 namespace play { namespace robust { namespace net { 
@@ -17,7 +19,7 @@ public:
     : size_(size)
     {
         buf_.resize(size_);
-        memcpy(buf_.data(), bytes, size_);
+        std::memcpy(buf_.data(), bytes, size_);
     }
 
     size_t size() const 
