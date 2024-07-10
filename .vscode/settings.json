@@ -1,11 +1,13 @@
 {
-    "cmake.sourceDirectory": "/workspaces/robust/play",
+    "_cmake.sourceDirectory": "/workspaces/robust/play",
+    "cmake.sourceDirectory": "C:/nolmelab/playrobust/play",
     "cmake.configureSettings": {
-        "_CMAKE_TOOLCHAIN_FILE" : "c:/app/vcpkg/scripts/buildsystems/vcpkg.cmake", 
-        "_VCPKG_TARGET_TRIPLET" : "x64-windows-static",
-        "CMAKE_TOOLCHAIN_FILE" : "/var/opt/vcpkg/scripts/buildsystems/vcpkg.cmake", 
-        "CMAKE_MAKE_PROGRAM" : "make",
-        "VCPKG_TARGET_TRIPLET" : "x64-linux"
+        "CMAKE_TOOLCHAIN_FILE" : "c:/app/vcpkg/scripts/buildsystems/vcpkg.cmake", 
+        "VCPKG_TARGET_TRIPLET" : "x64-windows-static",
+        "Codespace" : "",
+        "_CMAKE_TOOLCHAIN_FILE" : "/var/opt/vcpkg/scripts/buildsystems/vcpkg.cmake", 
+        "_CMAKE_MAKE_PROGRAM" : "make",
+        "_VCPKG_TARGET_TRIPLET" : "x64-linux"
     },
     "cmake.outputLogEncoding": "utf8",
     "files.associations": {
@@ -17,6 +19,7 @@
         "expected": "cpp",
         "iosfwd": "cpp",
         "streambuf": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "optional": "cpp"
     }
 }
