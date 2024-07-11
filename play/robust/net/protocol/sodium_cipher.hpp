@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <play/robust/net/protocol/codec.hpp>
+#include <play/robust/net/codec.hpp>
 
 namespace play { namespace robust { namespace net {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <play/robust/net/protocol/protocol.hpp>
+#include <play/robust/net/protocol.hpp>
 
 namespace play { namespace robust { namespace net {
 
