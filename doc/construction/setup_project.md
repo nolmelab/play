@@ -79,6 +79,15 @@ home and codespace
 아직 익숙하지 않기도 하겠으나 intellisense가 잘 동작하지 않는다. 
 vscode에서 빌드 에러 이동이 잘 안 되기 때문에 딜레마이다. 
 
+- 방안: 
+  - 리눅스에서 개발하고 윈도우에서는 빌드와 디버깅, 간단한 수정을 한다. 
+  - vscode에서 개발하고 visual studio에서 빌드 오류 수정과 디버깅을 한다. 
+  - visual studio의 cmake 환경이 제대로 동작하게 한다. 
+
+### vs2022 cmake 설정 
+
+- instellisense가 잘 동작하지 않는 문제 
+
 
 
 
