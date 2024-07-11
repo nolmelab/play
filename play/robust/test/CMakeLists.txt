@@ -3,6 +3,7 @@ project("test_base")
 # find vcpkg packages
 find_package(spdlog CONFIG REQUIRED)
 find_package(doctest CONFIG REQUIRED)
+find_package(boost_asio CONFIG REQUIRED)
 
 # add test target
 add_executable(
@@ -10,6 +11,7 @@ add_executable(
   main.cpp 
   test_logger.cpp
   test_bytes_frame.cpp
+  test_codecs.cpp
   learn_streambuf.cpp
 )
 
@@ -28,6 +30,7 @@ target_link_libraries(
 # add include directories, especially playground
 target_include_directories(
   test
-  PRIVATE "${CMAKE_SOURCE_DIR}/.."
+  PRIVATE 
+  "${CMAKE_SOURCE_DIR}/.."
 )
 

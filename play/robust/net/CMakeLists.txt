@@ -1,11 +1,11 @@
 project("playrobust_base")
 
 find_package(spdlog CONFIG REQUIRED)
-find_package(boost CONFIG REQUIRED)
+find_package(boost_asio CONFIG REQUIRED)
 
 # set sources for playground_core
 set(SOURCE 
-  protocol/length_delimited.cpp
+  protocol/length_delimited.ipp
 )
 
 # set library target with sources

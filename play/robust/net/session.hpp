@@ -20,4 +20,4 @@ private:
 }}} // play::robust::net
 
 // template member function implementation
-#include <play/robust/net/protocol/session.ipp>
+#include <play/robust/net/session.ipp>

@@ -26,3 +26,5 @@ public:
 };
 
 }}} // play::robust::net
+
+#include <play/robust/net/protocol/length_delimited.ipp>

@@ -22,7 +22,7 @@ std::optional<codec::const_buffer> length_delimited::decode(const const_buffer& 
   // src_buf has the payload
   if (src_buf.size() >= len)
   {
-    return const_buffer{ p + length_field_size_, len };
+    return const_buffer{ p + length_field_size, len };
   }
 
   // not sufficient bytes for the payload 
@@ -45,6 +45,8 @@ size_t length_delimited::encode(const const_buffer& src_buf, mutable_buffer& des
   char* dest = p + length_field_size; 
   const char* src = reinterpret_cast<const char*>(src_buf.data());
   std::memcpy(dest, src, src_buf.size());
+
+  return len + length_field_size;
 }
 
 } } } // play::robust::net

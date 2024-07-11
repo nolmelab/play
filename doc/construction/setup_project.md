@@ -87,6 +87,28 @@ vscode에서 빌드 에러 이동이 잘 안 되기 때문에 딜레마이다.
 ### vs2022 cmake 설정 
 
 - instellisense가 잘 동작하지 않는 문제 
+CMakeSettings.json에    
+ "intelliSenseMode" : "windows-msvc-x64",
+추가. 
+
+동작할까? 일단 CMake 구성이 되어야 CMakeCache가 만들어지고 
+CMakeCache가 있어야 intellisense가 동작한다. 
+
+intelliSenseMode를 windows-msvc-x64로 지정하고 동작한다. 
+
+E. #include <boost/asio.hpp> 참조 찾기가 안 된다. 
+> out 폴더를 지우고 cache를 다시 생성하니 된다. 
+> cmake는 캐시에 매우 많이 의존한다. 잘 써야 한다. 
+
+### vcpkg 설치 이슈 
+
+기존에 설치된 vcpkg가 제대로 설치되지 않은 것을 알고 재설치를 진행
+boost의 사용은 개별 라이브러리별로 find_packet()를 하도록 되어 있다. 
+
+find_package(boost_asio CONFIG REQUIRED)
+위와 같이 찾아서 사용한다. 
+
+
 
 
 

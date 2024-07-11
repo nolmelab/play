@@ -1,5 +1,6 @@
 #include <doctest/doctest.h>
 #include <play/robust/net/protocol/length_delimited.hpp>
+#include <play/robust/net/asio.hpp>
 
 using namespace play::robust::net;
 
