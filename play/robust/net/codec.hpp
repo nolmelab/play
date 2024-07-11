@@ -8,9 +8,9 @@ namespace play { namespace robust { namespace net {
 class codec
 {
 public:
-    using streambuf = boost::asio::streambuf;
-    using const_buffer = boost::asio::const_buffer;
-    using mutable_buffer = boost::asio::mutable_buffer;
+  using streambuf = boost::asio::streambuf;
+  using const_buffer = boost::asio::const_buffer;
+  using mutable_buffer = boost::asio::mutable_buffer;
 };
 
 }}} // play::robust::net

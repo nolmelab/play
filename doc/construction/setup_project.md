@@ -108,6 +108,21 @@ boost의 사용은 개별 라이브러리별로 find_packet()를 하도록 되�
 find_package(boost_asio CONFIG REQUIRED)
 위와 같이 찾아서 사용한다. 
 
+### MTd overring MDd option waring 
+
+### asio WINNT definition warning 
+
+### .ipp file intellisense not working
+
+
+## vscode formatting 
+
+- C_Cpp: Formatting : vcFormat 
+- indent 옵션들 지정하면 됨 
+- SHIFT + ALT + F 로 포맷
+
+
+
 
 
 

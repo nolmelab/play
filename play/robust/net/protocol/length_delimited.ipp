@@ -1,8 +1,9 @@
 #include <play/robust/net/protocol/length_delimited.hpp>
 
-namespace play { namespace robust { namespace net {
+namespace play {
+namespace robust {
+namespace net {
 
-const size_t length_field_size = 4;
 
 std::optional<codec::const_buffer> length_delimited::decode(const const_buffer& src_buf)
 {
@@ -12,11 +13,11 @@ std::optional<codec::const_buffer> length_delimited::decode(const const_buffer& 
   }
 
   const char* p = reinterpret_cast<const char*>(src_buf.data());
-  size_t len = 0; 
+  size_t len = 0;
 
   for (int i = 0; i < length_field_size; ++i)
   {
-    len = len << 8 | p[i];
+    len = len | (p[i] << i*8);
   }
 
   // src_buf has the payload
@@ -35,18 +36,20 @@ size_t length_delimited::encode(const const_buffer& src_buf, mutable_buffer& des
 
   char* p = reinterpret_cast<char*>(dest_buf.data());
 
-  for (int i=0; i<length_field_size; ++i)
+  for (int i = 0; i < length_field_size; ++i)
   {
     p[i] = len & 0xFF;
     len >>= 8;
   }
 
   // copy bytes
-  char* dest = p + length_field_size; 
+  char* dest = p + length_field_size;
   const char* src = reinterpret_cast<const char*>(src_buf.data());
   std::memcpy(dest, src, src_buf.size());
 
-  return len + length_field_size;
+  return src_buf.size() + length_field_size;
 }
 
-} } } // play::robust::net
+} // net
+} // robust
+} // play

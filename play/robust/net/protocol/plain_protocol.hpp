@@ -9,22 +9,22 @@ template <typename Topic, typename Frame>
 class plain_protocol : public protocol<Topic, Frame>
 {
 public:
-    using send_fn = std::function<void(const char* data, size_t len)>;
+  using send_fn = std::function<void(const char* data, size_t len)>;
 
 public:
-    plain_protocol(send_fn send)
+  plain_protocol(send_fn send)
     : protocol(send)
-    {}
+  {}
 
-    void accepted();
+  void accepted();
 
-    void connected();
+  void connected();
 
-    void closed();
+  void closed();
 
-    void receive(const char* data, size_t len);
+  void receive(const char* data, size_t len);
 
-private: 
+private:
 };
 
-}}} // play::robust::net
+} } } // play::robust::net

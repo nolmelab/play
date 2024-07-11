@@ -10,7 +10,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "intelliSenseMode" : "windows-msvc-x64",
+      "intelliSenseMode": "windows-msvc-x64",
       "variables": [
         {
           "name": "VCPKG_TARGET_TRIPLET",
