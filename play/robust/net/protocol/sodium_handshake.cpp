@@ -63,10 +63,6 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
       }
       else
       {
-        base::logger::dump_hex(spdlog::level::info,
-                               fmt::format("handle: {}. tx_nonce", handle_),
-                               tx_nonce_, nonce_size);
-
         nonce_received_ = true;
         established_ = true;
         LOG()->debug("handle: {} established", handle_);
@@ -103,16 +99,6 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
       key_received_ = true;
 
       randombytes_buf(rx_nonce_, nonce_size);
-
-      base::logger::dump_hex(spdlog::level::info,
-                             fmt::format("handle: {}. rx_key", handle_),
-                             rx_key_, key_size);
-      base::logger::dump_hex(spdlog::level::info,
-                             fmt::format("handle: {}. tx_key", handle_),
-                             tx_key_, key_size);
-      base::logger::dump_hex(spdlog::level::info,
-                             fmt::format("handle: {}. rx_nonce", handle_),
-                             rx_nonce_, nonce_size);
     }
 
     // 마지막에 consume()으로 읽은 만큼 앞으로 이동
@@ -136,6 +122,22 @@ void sodium_handshake::send(const void* data, size_t len)
   send_fn_(payload.data(), payload.size());
 
   send_stream_buf_.consume(payload.size());
+}
+
+void sodium_handshake::dump_state()
+{
+  base::logger::dump_hex(spdlog::level::info,
+                         fmt::format("handle: {}. rx_key", handle_), rx_key_,
+                         key_size);
+  base::logger::dump_hex(spdlog::level::info,
+                         fmt::format("handle: {}. tx_key", handle_), tx_key_,
+                         key_size);
+  base::logger::dump_hex(spdlog::level::info,
+                         fmt::format("handle: {}. rx_nonce", handle_),
+                         rx_nonce_, nonce_size);
+  base::logger::dump_hex(spdlog::level::info,
+                         fmt::format("handle: {}. tx_nonce", handle_),
+                         tx_nonce_, nonce_size);
 }
 
 }}}  // namespace play::robust::net

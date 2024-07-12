@@ -66,6 +66,8 @@ class sodium_handshake
  private:
   void send(const void* data, size_t len);
 
+  void dump_state();
+
  private:
   size_t handle_;
   bool accepted_;

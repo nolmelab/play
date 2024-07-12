@@ -1,4 +1,5 @@
 #include <doctest/doctest.h>
+#include <chrono>
 #include <play/robust/base/logger.hpp>
 #include <play/robust/net/asio.hpp>
 #include <play/robust/net/protocol/length_delimited.hpp>
@@ -74,6 +75,8 @@ class dummy_peer
   {
     cipher_codec_ = std::make_unique<sodium_cipher>(handle, handshake);
     length_codec_ = std::make_unique<length_delimited>(handle);
+
+    messages_.push_back("empty");
   }
 
   void receive_from_peer(const void* data, size_t len)
@@ -94,12 +97,11 @@ class dummy_peer
       {
         auto final_data = plain_result.value();
         const char* s = reinterpret_cast<const char*>(final_data.data());
-        messages_.push_back(std::string(s, final_data.size() - 1));
+        messages_.front() = (std::string(s, final_data.size() - 1));
       }
 
       // 다음 사용 가능한 데이터로 이동
-      recv_buf_.consume(cipher_buf.size() +
-                        length_delimited::length_field_size);
+      recv_buf_.consume(cipher_buf.size() + length_delimited::length_field_size);
       data_buf = recv_buf_.data();
     }
   }
@@ -145,10 +147,16 @@ TEST_CASE("sodium")
     dummy_handshake c1;
     dummy_handshake c2;
 
-    c1.create(1, true, [&c2](const void* data, size_t len)
-              { c2.receive_from_peer(data, len); });
-    c2.create(2, false, [&c1](const void* data, size_t len)
-              { c1.receive_from_peer(data, len); });
+    c1.create(1, true,
+              [&c2](const void* data, size_t len)
+              {
+                c2.receive_from_peer(data, len);
+              });
+    c2.create(2, false,
+              [&c1](const void* data, size_t len)
+              {
+                c1.receive_from_peer(data, len);
+              });
 
     c1.get_handshake().prepare();
     c2.get_handshake().prepare();
@@ -170,10 +178,16 @@ TEST_CASE("sodium")
     dummy_handshake c1;
     dummy_handshake c2;
 
-    c1.create(1, true, [&c2](const void* data, size_t len)
-              { c2.receive_from_peer(data, len); });
-    c2.create(2, false, [&c1](const void* data, size_t len)
-              { c1.receive_from_peer(data, len); });
+    c1.create(1, true,
+              [&c2](const void* data, size_t len)
+              {
+                c2.receive_from_peer(data, len);
+              });
+    c2.create(2, false,
+              [&c1](const void* data, size_t len)
+              {
+                c1.receive_from_peer(data, len);
+              });
 
     c1.get_handshake().prepare();
     c2.get_handshake().prepare();
@@ -193,20 +207,30 @@ TEST_CASE("sodium")
     p1.start(1, c1.get_handshake());
     p2.start(2, c2.get_handshake());  // c2를 c1으로 하여 2시간 헤맸다.
 
-    const int test_count = 1000;
+    const int test_count = 10;
+
+    std::chrono::time_point start = std::chrono::steady_clock::now();
 
     for (int i = 0; i < test_count; ++i)
     {
       auto m = fmt::format("hello {}", i);
       p2.send_to_peer(reinterpret_cast<const void*>(m.c_str()), m.length() + 1,
                       [&p1](const void* data, size_t len)
-                      { p1.receive_from_peer(data, len); });
+                      {
+                        p1.receive_from_peer(data, len);
+                      });
 
       const auto& messages = p1.get_messages();
-      bool result = messages[i] == m;
+      bool result = messages.front() == m;
       CHECK(result);
-
-      LOG()->flush();
     }
+
+    std::chrono::time_point end = std::chrono::steady_clock::now();
+
+    auto diff = end - start;
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(diff).count();
+
+    LOG()->info("send_to_peer. elapsed: {}, count: {}", elapsed, test_count);
+    // 초당 3백만 건 정도를 처리한다. dummy 코드이므로 최적의 구현에서는 더 빠를 듯.
   }
 }

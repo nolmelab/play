@@ -1,0 +1,52 @@
+# 일정 
+
+- 2024/07 
+  - net completed
+  - secure_protocol 
+  - plain_protocol 
+  - flatbuffers
+  - json / string
+  - element completed
+  - csv
+  - constraints 
+  - excel export 
+  - load and manage
+
+- 2024/08
+  - app start 
+  - server, client
+  - system 
+  - actor / component 
+  - property
+  - auth, world, game 
+  - skeleton completed
+
+- 2024/09
+  - imgui client
+  - bot 
+    - behaviortree based 
+  - tracy like gui
+    - technical, but impressing
+
+- 2024/10
+  - rpg
+  - character / pc / npc 
+  - level
+  - ability 
+  - recastdetour 
+  - box2d 
+  - quadtree
+  - behaviortree  
+  - spawn / move
+
+- 2024/11
+  - item / inven
+  - skill 
+  - battle 
+  - death / revival
+  - town
+
+- 2024/12 
+  - enhance 
+  - schedule buffer
+
