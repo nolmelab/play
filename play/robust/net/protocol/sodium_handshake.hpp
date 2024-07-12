@@ -9,7 +9,7 @@
 namespace play { namespace robust { namespace net {
 
 // sodium 암호화 처리를 위한 정보 교환을 담당한다.
-class sodium_handshaker
+class sodium_handshake
 {
  public:
   using send_fn = std::function<void(const void* data, size_t len)>;
@@ -28,7 +28,7 @@ class sodium_handshaker
   static const size_t nonce_size = crypto_stream_chacha20_NONCEBYTES;
 
  public:
-  sodium_handshaker(size_t handle, bool accepted, send_fn send_fn);
+  sodium_handshake(size_t handle, bool accepted, send_fn send_fn);
 
   // recv from peer
   /**
