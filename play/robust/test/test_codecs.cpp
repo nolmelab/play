@@ -87,6 +87,7 @@ class dummy_peer
     recv_buf_.commit(len);  // make it available
 
     auto data_buf = recv_buf_.data();
+    // 프레임이 있으면 계속 읽음
     while (auto result = length_codec_->decode(data_buf))
     {
       auto cipher_buf = result.value();
@@ -100,10 +101,21 @@ class dummy_peer
     }
   }
 
+  void send_to_peer(const void* data, size_t len)
+  {
+    auto payload_buf = const_buffer{data, len};
+    auto len = cipher_codec_->encode(payload_buf, send_buf_);
+    if (len > 0)
+    {
+      // length_codec_->encode()
+    }
+  }
+
  private:
   std::unique_ptr<sodium_cipher> cipher_codec_;
   std::unique_ptr<length_delimited> length_codec_;
   asio::streambuf recv_buf_;
+  asio::streambuf send_buf_;
 };
 
 }  // namespace
@@ -137,5 +149,11 @@ TEST_CASE("sodium")
 
     CHECK(c1.get_handshake().is_established());
     CHECK(c2.get_handshake().is_established());
+
+    dummy_peer p1;
+    dummy_peer p2;
+
+    p1.start(1, c1.get_handshake());
+    p2.start(2, c1.get_handshake());
   }
 }

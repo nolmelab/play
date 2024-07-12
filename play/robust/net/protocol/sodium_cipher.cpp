@@ -46,6 +46,9 @@ size_t sodium_cipher::encode(const const_buffer& src_buf,
     throw exception(m);
   }
 
+  // make the payload available for reading
+  dest_stream_buf.commit(src_buf.size());
+
   handshake_.inc_tx_nonce();
 
   return src_buf.size();
@@ -56,3 +59,4 @@ size_t sodium_cipher::encode(const const_buffer& src_buf,
 // note:
 // - crypto_stream_chacha20_xor()은 inplace encryption/decryption이 가능.
 // - xor의 뜻은 암복호화에 같이 쓰임
+// - streambuf의 prepare()에서 호출하는 reserve가 메모리를 이동하여 확보.
