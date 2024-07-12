@@ -15,14 +15,11 @@ TEST_CASE("codecs")
     const size_t total_len = payload_size + length_delimited::length_field_size;
 
     length_delimited codec;
-    std::array<char, payload_size> payload = {1, 2, 3, 4, 5};
+    std::array<char, payload_size> payload = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
     asio::streambuf sbuf;
     auto size = codec.encode(asio::const_buffer{payload.data(), 10}, sbuf);
     CHECK(size == total_len);
-
-    // 쓴 바이트들을 읽기 영역으로 이동한다.
-    sbuf.commit(total_len);
 
     // 현재 읽기 시작점부터 읽기 영역 데이터를 얻는다.
     auto rbuf = sbuf.data();
@@ -45,7 +42,7 @@ class dummy_handshake
  public:
   dummy_handshake() = default;
 
-  void start(size_t handle, bool accepted, sodium_handshake::send_fn fn)
+  void create(size_t handle, bool accepted, sodium_handshake::send_fn fn)
   {
     handshake_ = std::make_unique<sodium_handshake>(handle, accepted, fn);
   }
@@ -141,8 +138,17 @@ TEST_CASE("sodium")
     dummy_handshake c1;
     dummy_handshake c2;
 
-    c1.start(1, true, [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
-    c2.start(2, false, [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
+    c1.create(1, true, [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
+    c2.create(2, false, [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
+
+    c1.get_handshake().prepare();
+    c2.get_handshake().prepare();
+
+    c1.get_handshake().sync_key();
+    c2.get_handshake().sync_key();
+
+    c1.get_handshake().sync_nonce();
+    c2.get_handshake().sync_nonce();
 
     CHECK(c1.get_handshake().is_established());
     CHECK(c2.get_handshake().is_established());
@@ -153,8 +159,17 @@ TEST_CASE("sodium")
     dummy_handshake c1;
     dummy_handshake c2;
 
-    c1.start(1, true, [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
-    c2.start(2, false, [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
+    c1.create(1, true, [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
+    c2.create(2, false, [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
+
+    c1.get_handshake().prepare();
+    c2.get_handshake().prepare();
+
+    c1.get_handshake().sync_key();
+    c2.get_handshake().sync_key();
+
+    c1.get_handshake().sync_nonce();
+    c2.get_handshake().sync_nonce();
 
     CHECK(c1.get_handshake().is_established());
     CHECK(c2.get_handshake().is_established());

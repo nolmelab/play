@@ -27,8 +27,7 @@ inline std::optional<codec::const_buffer> length_delimited::decode(const const_b
   return {};
 }
 
-inline size_t length_delimited::encode(const const_buffer& src_buf,
-                                       asio::streambuf& dest_stream_buf)
+inline size_t length_delimited::encode(const const_buffer& src_buf, asio::streambuf& dest_stream_buf)
 {
   const size_t total_len = length_field_size + src_buf.size();
   auto dest_buf = dest_stream_buf.prepare(total_len);
@@ -48,7 +47,7 @@ inline size_t length_delimited::encode(const const_buffer& src_buf,
   std::memcpy(dest, src, src_buf.size());
 
   // make the payload available for reading
-  dest_stream_buf.commit(src_buf.size());
+  dest_stream_buf.commit(total_len);
 
   return src_buf.size() + length_field_size;
 }

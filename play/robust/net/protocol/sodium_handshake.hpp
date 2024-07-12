@@ -30,6 +30,15 @@ class sodium_handshake
  public:
   sodium_handshake(size_t handle, bool accepted, send_fn send_fn);
 
+  // 공개키를 생성
+  void prepare();
+
+  // 피어에 공개키 전송
+  void sync_key();
+
+  // 피어에 rx_nonce를 전송하여 tx_nonce로 쓸 수 있게 함
+  void sync_nonce();
+
   // recv from peer
   /**
    * @throws potocol_exception이 협상 실패시 발생
@@ -55,6 +64,9 @@ class sodium_handshake
   void inc_rx_nonce() { sodium_increment(rx_nonce_, nonce_size); }
 
  private:
+  void send(const void* data, size_t len);
+
+ private:
   size_t handle_;
   bool accepted_;
   send_fn send_fn_;
@@ -64,10 +76,12 @@ class sodium_handshake
   bool established_;
 
   asio::streambuf recv_stream_buf_;
+  asio::streambuf send_stream_buf_;
   length_delimited length_codec_;
 
   uint8_t pub_key_[key_size];
   uint8_t sec_key_[key_size];
+  uint8_t peer_pub_key_[key_size];
 
   uint8_t rx_key_[key_size];
   uint8_t tx_key_[key_size];
