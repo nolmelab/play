@@ -4,6 +4,7 @@ project("test_base")
 find_package(spdlog CONFIG REQUIRED)
 find_package(doctest CONFIG REQUIRED)
 find_package(boost_asio CONFIG REQUIRED)
+find_package(unofficial-sodium CONFIG REQUIRED)
 
 # add test target
 add_executable(
@@ -23,8 +24,10 @@ endif()
 target_link_libraries(
   test
   play_robust_base 
+  play_robust_net
   spdlog::spdlog 
   doctest::doctest
+  unofficial-sodium::sodium
 )
 
 # add include directories, especially playground

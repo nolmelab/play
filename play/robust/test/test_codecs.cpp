@@ -1,11 +1,11 @@
 #include <doctest/doctest.h>
+#include <play/robust/base/logger.hpp>
 #include <play/robust/net/asio.hpp>
 #include <play/robust/net/protocol/length_delimited.hpp>
 #include <play/robust/net/protocol/sodium_cipher.hpp>
 #include <play/robust/net/protocol/sodium_handshake.hpp>
 
 using namespace play::robust::net;
-using namespace boost::asio;
 
 TEST_CASE("codecs")
 {
@@ -17,8 +17,8 @@ TEST_CASE("codecs")
     length_delimited codec;
     std::array<char, payload_size> payload = {1, 2, 3, 4, 5};
 
-    streambuf sbuf;
-    auto size = codec.encode(const_buffer{payload.data(), 10}, sbuf);
+    asio::streambuf sbuf;
+    auto size = codec.encode(asio::const_buffer{payload.data(), 10}, sbuf);
     CHECK(size == total_len);
 
     // 쓴 바이트들을 읽기 영역으로 이동한다.
@@ -52,11 +52,11 @@ class dummy_handshake
 
   void receive_from_peer(const void* data, size_t len)
   {
-    const_buffer recv_buf{data, len};
+    asio::const_buffer recv_buf{data, len};
     handshake_->on_receive(recv_buf);
   }
 
-  const sodium_handshake& get_handshake() const { return *handshake_.get(); }
+  sodium_handshake& get_handshake() const { return *handshake_.get(); }
 
  private:
   std::unique_ptr<sodium_handshake> handshake_;
@@ -73,7 +73,7 @@ class dummy_peer
  public:
   dummy_peer() = default;
 
-  void start(size_t handle, const sodium_handshake& handshake)
+  void start(size_t handle, sodium_handshake& handshake)
   {
     cipher_codec_ = std::make_unique<sodium_cipher>(handle, handshake);
     length_codec_ = std::make_unique<length_delimited>();
@@ -96,26 +96,39 @@ class dummy_peer
       if (plain_result)
       {
         auto final_data = plain_result.value();
-        // TODO: how to CHECK?
+        const char* s = reinterpret_cast<const char*>(final_data.data());
+        messages_.push_back(std::string(s, final_data.size()));
       }
     }
   }
 
-  void send_to_peer(const void* data, size_t len)
+  void send_to_peer(const void* data, size_t len, codec::send_fn fn)
   {
-    auto payload_buf = const_buffer{data, len};
-    auto len = cipher_codec_->encode(payload_buf, send_buf_);
-    if (len > 0)
+    auto payload_buf = asio::const_buffer{data, len};
+    auto enc_len = cipher_codec_->encode(payload_buf, enc_buf_);
+    if (enc_len > 0)
     {
-      // length_codec_->encode()
+      auto enc_buf = enc_buf_.data();
+      auto result = length_codec_->encode(enc_buf, send_buf_);
+      if (result)
+      {
+        auto send_data = send_buf_.data();
+        fn(send_data.data(), send_data.size());
+      }
+
+      enc_buf_.consume(enc_buf.size());
     }
   }
+
+  auto get_messages() { return messages_; }
 
  private:
   std::unique_ptr<sodium_cipher> cipher_codec_;
   std::unique_ptr<length_delimited> length_codec_;
   asio::streambuf recv_buf_;
+  asio::streambuf enc_buf_;
   asio::streambuf send_buf_;
+  std::vector<std::string> messages_;
 };
 
 }  // namespace
@@ -128,10 +141,8 @@ TEST_CASE("sodium")
     dummy_handshake c1;
     dummy_handshake c2;
 
-    c1.start(1, true,
-             [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
-    c2.start(2, false,
-             [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
+    c1.start(1, true, [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
+    c2.start(2, false, [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
 
     CHECK(c1.get_handshake().is_established());
     CHECK(c2.get_handshake().is_established());
@@ -142,10 +153,8 @@ TEST_CASE("sodium")
     dummy_handshake c1;
     dummy_handshake c2;
 
-    c1.start(1, true,
-             [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
-    c2.start(2, false,
-             [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
+    c1.start(1, true, [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
+    c2.start(2, false, [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
 
     CHECK(c1.get_handshake().is_established());
     CHECK(c2.get_handshake().is_established());
@@ -155,5 +164,11 @@ TEST_CASE("sodium")
 
     p1.start(1, c1.get_handshake());
     p2.start(2, c1.get_handshake());
+
+    auto m = fmt::format("hello {}", 1);
+    p2.send_to_peer(reinterpret_cast<const void*>(m.c_str()), m.length() + 1,
+                    [&p1](const void* data, size_t len) { p1.receive_from_peer(data, len); });
+
+    CHECK(p1.get_messages()[0] == m);
   }
 }

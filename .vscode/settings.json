@@ -1,5 +1,5 @@
 {
-    "cmake.sourceDirectory": "/workspaces/robust/play",
+    "cmake.sourceDirectory": "/home/kdpark/playrobust/play",
     "_cmake.sourceDirectory": "/mnt/c/nolmelab/playrobust/play",
     "--cmake.sourceDirectory": "C:/nolmelab/playrobust/play",
     "cmake.configureSettings": {

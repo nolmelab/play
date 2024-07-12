@@ -24,7 +24,14 @@ home and codespace
 ### formatting 
 
 linux-clang-x64 형식으로 지정 
-google 포맷으로 지정 
+
+google 포맷으로 지정하여 사용해 보았는데 잘 안 맞는 부분들이 있어서 
+대신 google 포맷의 .clang-format 파일을 구한 후 몇 가지 손을 보아서 
+어느 정도 마음에 드는 형식을 찾았습니다. 
+
+포맷기는 clangformat이 있고 vcFormat이 있는데 리눅스에서는 clangformat이 
+좋습니다. codespace와 WSL 간에 일관성 유지도 수월합니다. 
+
 
 ### squiggle again
 

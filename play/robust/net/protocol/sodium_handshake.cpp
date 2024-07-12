@@ -41,8 +41,7 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
       PLAY_CHECK(data[0] == 'n');
 
       size_t size = payload.size();
-      auto result =
-          crypto_box_seal_open(tx_nonce_, data + 1, size - 1, pub_key_, sec_key_);
+      auto result = crypto_box_seal_open(tx_nonce_, data + 1, size - 1, pub_key_, sec_key_);
 
       if (result != 0)
       {
@@ -62,13 +61,22 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
       PLAY_CHECK(!established_);
       PLAY_CHECK(data[0] == 'k');
 
+      int result = 0;
+
       if (accepted_)
       {
-        crypto_kx_server_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+        result = crypto_kx_server_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
       }
       else
       {
-        crypto_kx_client_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+        result = crypto_kx_client_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+      }
+
+      if (result != 0)
+      {
+        auto m = fmt::format("handle: {} failed to setup sodium keys", handle_);
+        LOG()->error(m);
+        throw exception(m);
       }
 
       key_received_ = true;

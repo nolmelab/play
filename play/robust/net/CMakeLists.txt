@@ -6,6 +6,7 @@ find_package(boost_asio CONFIG REQUIRED)
 # set sources for playground_core
 set(SOURCE 
   protocol/sodium_handshake.cpp
+  protocol/sodium_cipher.cpp
 )
 
 # set library target with sources

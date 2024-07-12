@@ -2,7 +2,7 @@
 
 namespace play { namespace robust { namespace net {
 
-std::optional<codec::const_buffer> length_delimited::decode(const const_buffer& src_buf)
+inline std::optional<codec::const_buffer> length_delimited::decode(const const_buffer& src_buf)
 {
   if (src_buf.size() < length_field_size)
   {
@@ -27,8 +27,8 @@ std::optional<codec::const_buffer> length_delimited::decode(const const_buffer& 
   return {};
 }
 
-size_t length_delimited::encode(const const_buffer& src_buf,
-                                asio::streambuf& dest_stream_buf)
+inline size_t length_delimited::encode(const const_buffer& src_buf,
+                                       asio::streambuf& dest_stream_buf)
 {
   const size_t total_len = length_field_size + src_buf.size();
   auto dest_buf = dest_stream_buf.prepare(total_len);
