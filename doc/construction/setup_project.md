@@ -21,6 +21,20 @@ home and codespace
 - cmake project 
 - vcpkg
 
+### formatting 
+
+linux-clang-x64 형식으로 지정 
+google 포맷으로 지정 
+
+### squiggle again
+
+intellisense가 codespace에서 동작하지 않는다. 
+
+c_cpp_properties 파일에 c++ 표준이 c++17이라 c++20 기능인 optional이 
+지원되지 않았다. 
+
+include 폴더를 지정하니 잘 된다. linux-clang-x64 intellisense는 잘 동작한다.  
+
 ## directory structure 
 
 - doc 

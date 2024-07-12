@@ -13,7 +13,7 @@
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
       "_intelliSenseMode": "windows-msvc-x64",
-      "intelliSenseMode": "android-clang-x64",
+      "intelliSenseMode": "linux-clang-x64",
       "variables": [
         {
           "name": "VCPKG_TARGET_TRIPLET",

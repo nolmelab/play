@@ -5,7 +5,7 @@ find_package(boost_asio CONFIG REQUIRED)
 
 # set sources for playground_core
 set(SOURCE 
-  protocol/length_delimited.ipp
+  protocol/sodium_handshaker.cpp
 )
 
 # set library target with sources
