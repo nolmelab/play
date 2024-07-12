@@ -3,15 +3,28 @@
 
 namespace play { namespace robust { namespace net {
 
-std::optional<codec::const_buffer> sodium_cipher::decode(const const_buffer& src_buf)
+std::optional<codec::const_buffer> sodium_cipher::decode(
+    const const_buffer& src_buf)
 {
   auto mut_buf = encode_buf_.prepare(src_buf.size());
+
+  base::logger::dump_hex(spdlog::level::info, "decode input", src_buf.data(),
+                         src_buf.size());
 
   const uint8_t* src = reinterpret_cast<const uint8_t*>(src_buf.data());
   uint8_t* dest = reinterpret_cast<uint8_t*>(mut_buf.data());
 
-  int result = crypto_stream_chacha20_xor(
-      dest, src, src_buf.size(), handshake_.get_rx_nonce(), handshake_.get_rx_key());
+  int result = crypto_stream_chacha20_xor(dest, src, src_buf.size(),
+                                          handshake_.get_rx_nonce(),
+                                          handshake_.get_rx_key());
+
+  base::logger::dump_hex(spdlog::level::info,
+                         fmt::format("handle: {}. rx_nonce", handle_),
+                         handshake_.get_rx_nonce(), handshake_.nonce_size);
+
+  base::logger::dump_hex(spdlog::level::info,
+                         fmt::format("handle: {}. rx_key", handle_),
+                         handshake_.get_rx_key(), handshake_.key_size);
 
   if (result != 0)
   {
@@ -20,7 +33,11 @@ std::optional<codec::const_buffer> sodium_cipher::decode(const const_buffer& src
     throw exception(m);
   }
 
+  base::logger::dump_hex(spdlog::level::info, "decode", dest, src_buf.size());
+
   encode_buf_.commit(src_buf.size());
+
+  handshake_.inc_rx_nonce();
 
   auto recv_buf = encode_buf_.data();
   encode_buf_.consume(src_buf.size());
@@ -31,20 +48,33 @@ std::optional<codec::const_buffer> sodium_cipher::decode(const const_buffer& src
 size_t sodium_cipher::encode(const const_buffer& src_buf,
                              asio::streambuf& dest_stream_buf)
 {
+  base::logger::dump_hex(spdlog::level::info, "encode input", src_buf.data(),
+                         src_buf.size());
+
   auto dest_buf = dest_stream_buf.prepare(src_buf.size());
 
   const uint8_t* src = reinterpret_cast<const uint8_t*>(src_buf.data());
   uint8_t* dest = reinterpret_cast<uint8_t*>(dest_buf.data());
 
-  int result = crypto_stream_chacha20_xor(
-      dest, src, src_buf.size(), handshake_.get_tx_nonce(), handshake_.get_tx_key());
+  int result = crypto_stream_chacha20_xor(dest, src, src_buf.size(),
+                                          handshake_.get_tx_nonce(),
+                                          handshake_.get_tx_key());
 
+  base::logger::dump_hex(spdlog::level::info,
+                         fmt::format("handle: {}. tx_nonce", handle_),
+                         handshake_.get_tx_nonce(), handshake_.nonce_size);
+
+  base::logger::dump_hex(spdlog::level::info,
+                         fmt::format("handle: {}. tx_key", handle_),
+                         handshake_.get_tx_key(), handshake_.key_size);
   if (result != 0)
   {
     auto m = fmt::format("handle: {} failed to encode", handle_);
     LOG()->error(m);
     throw exception(m);
   }
+
+  base::logger::dump_hex(spdlog::level::info, "encode", dest, src_buf.size());
 
   // make the payload available for reading
   dest_stream_buf.commit(src_buf.size());

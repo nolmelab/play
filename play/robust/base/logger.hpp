@@ -1,8 +1,8 @@
-#pragma once 
+#pragma once
 
+#include <spdlog/spdlog.h>
 #include <atomic>
 #include <memory>
-#include <spdlog/spdlog.h>
 
 namespace play { namespace robust { namespace base {
 
@@ -12,17 +12,21 @@ namespace play { namespace robust { namespace base {
  */
 class logger
 {
-public:
-  static std::shared_ptr<spdlog::logger> get(); 
+ public:
+  static std::shared_ptr<spdlog::logger> get();
 
-private:
+  static void dump_hex(spdlog::level::level_enum lvl, std::string_view m, const void* data, size_t len);
+
+  static void dump_hex(spdlog::level::level_enum lvl, std::string_view m, const char* data, size_t len);
+
+ private:
   static logger& get_instance();
   static void setup();
 
-private:
+ private:
   std::atomic<bool> initialized_{false};
 };
 
-} } } // play::robust::base
+}}}  // namespace play::robust::base
 
 #define LOG() play::robust::base::logger::get()

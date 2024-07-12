@@ -48,4 +48,33 @@ chacha20을 암호화에 주로 사용하는데 xor이 붙은 함수로 암복�
 간결하게 하거나 람다 함수를 사용할 수 있도록 하는 방법으로 클래스 구현을 
 하면 더 편리합니다. 
 
+- streambuf 처리에서 consume이나 commit을 잊는 경우가 있다. 
+- 단위 테스트에서 통신 처럼 처리하려니 함수를 분리해야 했다. 
+  - send_key(), send_nonce()로 분리 
+- 통신 디버깅은 hex로 dump해야 볼 수 있다. 
+  - logger::dump_hex() 추가
+- 송수신 키, nonce가 같은데 암호화가 깨진다. 
 
+2. rx_key. dump: 73|ed|5e|82|8a|35|b9|cf|eb|68| e|24|a5|30| 6|cb|64|b8|a3|39| 4|9e|c4|f0|7e|80|6d|1a|72|93| 4|51|
+1. tx_key. dump: 73|ed|5e|82|8a|35|b9|cf|eb|68| e|24|a5|30| 6|cb|64|b8|a3|39| 4|9e|c4|f0|7e|80|6d|1a|72|93| 4|51|
+
+2. tx_key. dump: de|c5|7b|ea|1f|89| c|5b|80|51|8e|4d|10|b4|1a| 1|8f|59|e3| 8|11|67|61|92|74|b8| 7| f|bb|76|d8|7c|
+1. rx_key. dump: de|c5|7b|ea|1f|89| c|5b|80|51|8e|4d|10|b4|1a| 1|8f|59|e3| 8|11|67|61|92|74|b8| 7| f|bb|76|d8|7c|
+
+2. rx_nonce. dump: c3|51|b5|3f|96|5e|96|63|
+1. tx_nonce. dump: c3|51|b5|3f|96|5e|96|63|
+
+2. tx_nonce. dump: fb|f1|84|de|5c|a3|eb|a0|
+1. rx_nonce. dump: fb|f1|84|de|5c|a3|eb|a0|
+
+- 사소한 실수로 handshake를 같은 걸 써서 헤맸다. 그런 일은 많다. 
+- \0를 문자열에 포함해서 보내고 std::string을 만든 오류도 있다. 
+
+- 이런 과정을 밟으면서 asio::streambuf, sodium에 많이 익숙해졌다. 
+- 단위 테스트와 디버깅을 위한 로그를 깔끔하게 만들고 추가 테스트를 한다. 
+  - sodium_protocol을 잘 만들 수 있을 지 확인한다. 
+  - sodium_protocol도 단위 테스트 가능하게 한다. 
+
+
+- [x] cipher 반복 테스트 OK
+- [ ] 로그 정리

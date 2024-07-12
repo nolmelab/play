@@ -1,11 +1,14 @@
+#include <play/robust/base/logger.hpp>
 #include <play/robust/base/macros.hpp>
 #include <play/robust/net/protocol/sodium_handshake.hpp>
 
 namespace play { namespace robust { namespace net {
 
-sodium_handshake::sodium_handshake(size_t handle, bool accepted, send_fn send_fn)
+sodium_handshake::sodium_handshake(size_t handle, bool accepted,
+                                   send_fn send_fn)
     : handle_{handle},
       accepted_{accepted},
+      length_codec_{handle},
       send_fn_{send_fn},
       key_received_{false},
       nonce_received_{false},
@@ -30,7 +33,8 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
 {
   // reserve buffer for the recv_buf
   recv_stream_buf_.prepare(recv_buf.size());
-  recv_stream_buf_.sputn(reinterpret_cast<const char*>(recv_buf.data()), recv_buf.size());
+  recv_stream_buf_.sputn(reinterpret_cast<const char*>(recv_buf.data()),
+                         recv_buf.size());
   // sputn changes writer pointer, pptr(). commit() 불필요.
 
   auto buf = recv_stream_buf_.data();  // 읽기 영역 범위를 얻음
@@ -48,7 +52,8 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
       PLAY_CHECK(data[0] == 'n');
 
       size_t size = payload.size();
-      auto result = crypto_box_seal_open(tx_nonce_, data + 1, size - 1, pub_key_, sec_key_);
+      auto result = crypto_box_seal_open(tx_nonce_, data + 1, size - 1,
+                                         pub_key_, sec_key_);
 
       if (result != 0)
       {
@@ -58,6 +63,10 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
       }
       else
       {
+        base::logger::dump_hex(spdlog::level::info,
+                               fmt::format("handle: {}. tx_nonce", handle_),
+                               tx_nonce_, nonce_size);
+
         nonce_received_ = true;
         established_ = true;
         LOG()->debug("handle: {} established", handle_);
@@ -73,11 +82,13 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
 
       if (accepted_)
       {
-        result = crypto_kx_server_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+        result = crypto_kx_server_session_keys(rx_key_, tx_key_, pub_key_,
+                                               sec_key_, data + 1);
       }
       else
       {
-        result = crypto_kx_client_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+        result = crypto_kx_client_session_keys(rx_key_, tx_key_, pub_key_,
+                                               sec_key_, data + 1);
       }
 
       if (result != 0)
@@ -92,6 +103,16 @@ void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
       key_received_ = true;
 
       randombytes_buf(rx_nonce_, nonce_size);
+
+      base::logger::dump_hex(spdlog::level::info,
+                             fmt::format("handle: {}. rx_key", handle_),
+                             rx_key_, key_size);
+      base::logger::dump_hex(spdlog::level::info,
+                             fmt::format("handle: {}. tx_key", handle_),
+                             tx_key_, key_size);
+      base::logger::dump_hex(spdlog::level::info,
+                             fmt::format("handle: {}. rx_nonce", handle_),
+                             rx_nonce_, nonce_size);
     }
 
     // 마지막에 consume()으로 읽은 만큼 앞으로 이동

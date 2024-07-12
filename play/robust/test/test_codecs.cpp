@@ -14,7 +14,7 @@ TEST_CASE("codecs")
     const size_t payload_size = 10;
     const size_t total_len = payload_size + length_delimited::length_field_size;
 
-    length_delimited codec;
+    length_delimited codec{1};
     std::array<char, payload_size> payload = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
     asio::streambuf sbuf;
@@ -73,7 +73,7 @@ class dummy_peer
   void start(size_t handle, sodium_handshake& handshake)
   {
     cipher_codec_ = std::make_unique<sodium_cipher>(handle, handshake);
-    length_codec_ = std::make_unique<length_delimited>();
+    length_codec_ = std::make_unique<length_delimited>(handle);
   }
 
   void receive_from_peer(const void* data, size_t len)
@@ -81,7 +81,7 @@ class dummy_peer
     const char* payload = reinterpret_cast<const char*>(data);
     auto mut_buf = recv_buf_.prepare(len);
     recv_buf_.sputn(payload, len);
-    recv_buf_.commit(len);  // make it available
+    // commit() 불필요
 
     auto data_buf = recv_buf_.data();
     // 프레임이 있으면 계속 읽음
@@ -94,8 +94,13 @@ class dummy_peer
       {
         auto final_data = plain_result.value();
         const char* s = reinterpret_cast<const char*>(final_data.data());
-        messages_.push_back(std::string(s, final_data.size()));
+        messages_.push_back(std::string(s, final_data.size() - 1));
       }
+
+      // 다음 사용 가능한 데이터로 이동
+      recv_buf_.consume(cipher_buf.size() +
+                        length_delimited::length_field_size);
+      data_buf = recv_buf_.data();
     }
   }
 
@@ -111,8 +116,10 @@ class dummy_peer
       {
         auto send_data = send_buf_.data();
         fn(send_data.data(), send_data.size());
+        send_buf_.consume(send_data.size());
       }
 
+      // 사용한 만큼 읽기 포인터를 앞으로 이동해야 함
       enc_buf_.consume(enc_buf.size());
     }
   }
@@ -138,8 +145,10 @@ TEST_CASE("sodium")
     dummy_handshake c1;
     dummy_handshake c2;
 
-    c1.create(1, true, [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
-    c2.create(2, false, [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
+    c1.create(1, true, [&c2](const void* data, size_t len)
+              { c2.receive_from_peer(data, len); });
+    c2.create(2, false, [&c1](const void* data, size_t len)
+              { c1.receive_from_peer(data, len); });
 
     c1.get_handshake().prepare();
     c2.get_handshake().prepare();
@@ -156,11 +165,15 @@ TEST_CASE("sodium")
 
   SUBCASE("sodium cipher")
   {
+    LOG()->info("sodium cipher");
+
     dummy_handshake c1;
     dummy_handshake c2;
 
-    c1.create(1, true, [&c2](const void* data, size_t len) { c2.receive_from_peer(data, len); });
-    c2.create(2, false, [&c1](const void* data, size_t len) { c1.receive_from_peer(data, len); });
+    c1.create(1, true, [&c2](const void* data, size_t len)
+              { c2.receive_from_peer(data, len); });
+    c2.create(2, false, [&c1](const void* data, size_t len)
+              { c1.receive_from_peer(data, len); });
 
     c1.get_handshake().prepare();
     c2.get_handshake().prepare();
@@ -178,12 +191,22 @@ TEST_CASE("sodium")
     dummy_peer p2;
 
     p1.start(1, c1.get_handshake());
-    p2.start(2, c1.get_handshake());
+    p2.start(2, c2.get_handshake());  // c2를 c1으로 하여 2시간 헤맸다.
 
-    auto m = fmt::format("hello {}", 1);
-    p2.send_to_peer(reinterpret_cast<const void*>(m.c_str()), m.length() + 1,
-                    [&p1](const void* data, size_t len) { p1.receive_from_peer(data, len); });
+    const int test_count = 1000;
 
-    CHECK(p1.get_messages()[0] == m);
+    for (int i = 0; i < test_count; ++i)
+    {
+      auto m = fmt::format("hello {}", i);
+      p2.send_to_peer(reinterpret_cast<const void*>(m.c_str()), m.length() + 1,
+                      [&p1](const void* data, size_t len)
+                      { p1.receive_from_peer(data, len); });
+
+      const auto& messages = p1.get_messages();
+      bool result = messages[i] == m;
+      CHECK(result);
+
+      LOG()->flush();
+    }
   }
 }

@@ -42,7 +42,7 @@ BreakBeforeBinaryOperators: None
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
-ColumnLimit: 120
+ColumnLimit: 80
 CompactNamespaces: true       # true: 한줄에 표시
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
