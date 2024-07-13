@@ -16,7 +16,6 @@ public:
   size_t poll()
   {
     get_ioc().restart();  // stopped_ 상태를 false로 만들어 실행 가능하게 함
-
     return get_ioc().run();
   }
 };

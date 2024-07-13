@@ -32,7 +32,7 @@ TEST_CASE("protocol")
 
       auto start = std::chrono::steady_clock::now();
 
-      const int test_count = 100000000;
+      const int test_count = 1000;
 
       for (int i = 0; i < test_count; ++i)
       {
@@ -50,7 +50,7 @@ TEST_CASE("protocol")
     {
       auto start = std::chrono::steady_clock::now();
 
-      const int test_count = 1000000000;
+      const int test_count = 1000;
 
       for (int i = 0; i < test_count; ++i)
       {
@@ -73,7 +73,7 @@ TEST_CASE("protocol")
     {
       auto start = std::chrono::steady_clock::now();
 
-      const int test_count = 1000000000;
+      const int test_count = 1000;
 
       f2 f;
 

@@ -30,6 +30,8 @@ thread_runner::thread_runner(size_t thread_count)
 
 void thread_runner::stop()
 {
+  PLAY_RETURN_IF(stop_);
+
   stop_ = true;
   guard_.reset();
 
