@@ -14,9 +14,13 @@ class object_pool
 public:
   struct deleter
   {
-    deleter(object_pool* p) : p_{p} {}
-    void operator()(const T* obj) { p_->release(const_cast<T*>(obj)); }
-    object_pool* p_;
+    deleter(object_pool* pool) : pool_{pool} {}
+    void operator()(const T* obj)
+    {
+      obj->~T();
+      pool_->release(const_cast<T*>(obj));
+    }
+    object_pool* pool_;
   };
 
 public:

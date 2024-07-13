@@ -58,6 +58,7 @@ struct simple
 {
   simple(int v) : v_{v} {}
   simple(int v, float f) : v_{v} {}
+  ~simple() { /* LOG()->info("simple destructor called"); */ }
 
   int v_;
 };
