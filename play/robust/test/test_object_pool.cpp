@@ -4,6 +4,40 @@
 #include <memory>
 #include <play/robust/base/logger.hpp>
 
+#include <play/robust/base/object_pool.hpp>
+
+using namespace play::robust::base;
+
+TEST_CASE("object_pool")
+{
+  SUBCASE("basic")
+  {
+    object_pool<simple> pool;
+
+    const int test_count = 1000000;
+
+    auto start = std::chrono::steady_clock::now();
+
+    CHECK(pool.get_pool_size() == 0);
+
+    for (int i = 0; i < test_count; ++i)
+    {
+      auto sp = pool.construct(1);
+    }
+
+    CHECK(pool.get_alloc_count() == test_count);
+    CHECK(pool.get_free_count() == test_count);
+    CHECK(pool.get_pool_size() == 1);
+
+    auto end = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    LOG()->info("pool. elapsed: {}", elapsed);
+  }
+}
+
+// 아래는 아이디어 테스트 코드
+
 namespace {
 
 template <typename T>
@@ -74,33 +108,4 @@ TEST_CASE("idea")
     auto s1 = p.make_shared(1);
     CHECK(s1->v_ == 1);
   }
-}
-
-#include <play/robust/base/object_pool.hpp>
-
-using namespace play::robust::base;
-
-TEST_CASE("object_pool")
-{
-  object_pool<simple> pool;
-
-  const int test_count = 1000000;
-
-  auto start = std::chrono::steady_clock::now();
-
-  CHECK(pool.get_pool_size() == 0);
-
-  for (int i = 0; i < test_count; ++i)
-  {
-    auto sp = pool.construct(1);
-  }
-
-  CHECK(pool.get_alloc_count() == test_count);
-  CHECK(pool.get_free_count() == test_count);
-  CHECK(pool.get_pool_size() == 1);
-
-  auto end = std::chrono::steady_clock::now();
-  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-
-  LOG()->info("pool. elapsed: {}", elapsed);
 }

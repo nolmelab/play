@@ -5,7 +5,7 @@
 
 namespace play { namespace robust { namespace net {
 
-// length delimited and sodium_cipher optional topic field protocol
+// length delimited and topic field protocol
 /**
  * session이 바이트 스트림의 송수신을 담당하고 protocol은 형식에 따른 처리를 하여 
  * 프레임을 전송하거나 프레임을 얻어 전달한다. 
@@ -31,8 +31,7 @@ public:
 
   // listen()에서 받은 세션에서 통지
   /**
-   * 암호화 협상을 키를 생성하고 전송하여 시작
-   * receive()로 세션에서 전달된 값들로 완료하고 established가 되면 adapter로 알림
+   * 별도 협상이 필요 없어 바로 established 상태가 됨
    */
   void accepted();
 
@@ -43,17 +42,9 @@ public:
   void closed();
 
   // topic과 길이를 추가하여 send_fn을 통해 전송
-  /**
-   * encrypt에 따라 암호화 여부를 결정. topic 바로 뒤에 한 바이트로 기록
-   * 길이 추가하고 암호화 필요시 암호화한 후에 adapter::send_로 전송
-   */
   void send(Topic topic, const char* data, size_t len, bool encrypt = false);
 
   // 세션에서 받은 바이트를 전달. 프로토콜 협상 처리. 최종적으로 recv_fn을 통해 전달
-  /**
-   * sodium_handshake를 통해 협상 진행. 완료되면 adapter::established_를 통해 알림 
-   * 협상 완료 후에는 adatper::forward_ 함수를 통해 프레임을 만들어 전달
-   */
   void receive(const char* data, size_t len);
 
   bool is_established() const { return (accepted_ || connected_) && !closed_; }

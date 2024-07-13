@@ -6,9 +6,6 @@
 namespace play { namespace robust { namespace net {
 
 // io_context를 여러 쓰레드에서 실행
-/**
- * 
- */
 class thread_runner : public runner
 {
 public:

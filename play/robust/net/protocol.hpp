@@ -13,7 +13,7 @@ struct empty_topic
 template <typename Topic>
 class protocol
 {
- public:
+public:
   using topic = Topic;
 
   // 프로토콜을 위한 함수들 제공
@@ -37,7 +37,7 @@ class protocol
     established_fn established_;
   };
 
- public:
+public:
   protocol(adapter adapter) : adapter_{adapter} {}
 
   // 비트 연산을 제공하는 값 타잎들에 대해 직렬화
@@ -52,10 +52,10 @@ class protocol
 
   void deserialize(const asio::const_buffer& cbuf, bool& v);
 
- protected:
+protected:
   adapter& get_adapter() const { return adapter_; }
 
- private:
+private:
   adapter adapter_;
 };
 
