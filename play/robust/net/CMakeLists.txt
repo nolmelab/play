@@ -7,6 +7,8 @@ find_package(boost_asio CONFIG REQUIRED)
 set(SOURCE 
   protocol/sodium_handshake.cpp
   protocol/sodium_cipher.cpp
+  runner/thread_runner.cpp
+  runner.cpp
 )
 
 # set library target with sources

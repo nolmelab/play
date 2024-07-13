@@ -8,7 +8,7 @@ namespace play { namespace robust { namespace net {
 
 class sodium_cipher : public codec
 {
- public:
+public:
   struct exception : public std::exception
   {
     exception(const std::string& what) : what_{what} {}
@@ -18,9 +18,8 @@ class sodium_cipher : public codec
     std::string what_;
   };
 
- public:
-  sodium_cipher(size_t handle, sodium_handshake& handshake)
-      : handle_{handle}, handshake_{handshake}
+public:
+  sodium_cipher(size_t handle, sodium_handshake& handshake) : handle_{handle}, handshake_{handshake}
   {
   }
 
@@ -36,7 +35,7 @@ class sodium_cipher : public codec
    */
   size_t encode(const const_buffer& src_buf, asio::streambuf& dest_stream_buf);
 
- private:
+private:
   size_t handle_;
   sodium_handshake& handshake_;
   asio::streambuf decode_buf_;

@@ -84,3 +84,15 @@ protocol is application specific payload management layer.
   - This is unavoidable dependency 
   - Hence, utility functions can be implemented in protocol 
 
+## adapter 구현 
+
+std::function을 갖고 있도록 일단 했다. std::function은 함수 호출보다는 비용이 높다. 
+따라서, 함수 포인터나 람다를 직접 갖도록 하는 것이 좋겠다. 
+람다도 함수 포인터로 변환이 가능하므로 타잎을 맞춰서 지정할 수 있다. 
+
+가상 함수도 함수 호출만큼 빠르다. 호출 비용은 거의 없다. 
+
+따라서, 일단 std::function으로 구조를 만들고 그 이후에 생각해 본다. 통신 쪽 처리에서는 
+충분한 성능을 제공하기 때문이다. 
+
+

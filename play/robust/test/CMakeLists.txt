@@ -13,6 +13,10 @@ add_executable(
   test_logger.cpp
   test_bytes_frame.cpp
   test_codecs.cpp
+  test_protocol.cpp
+  test_plain_protocol.cpp
+  test_runner.cpp
+  test_secure_protocol.cpp
   learn_streambuf.cpp
 )
 

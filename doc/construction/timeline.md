@@ -2,15 +2,10 @@
 
 - 2024/07 
   - net completed
-  - secure_protocol 
-  - plain_protocol 
-  - flatbuffers
-  - json / string
-  - element completed
-  - csv
-  - constraints 
-  - excel export 
-  - load and manage
+    - secure_protocol 
+    - plain_protocol 
+    - flatbuffers
+    - json / string
 
 - 2024/08
   - app start 
@@ -27,6 +22,13 @@
     - behaviortree based 
   - tracy like gui
     - technical, but impressing
+  - element completed
+    - csv
+    - constraints 
+    - excel export 
+    - load and manage
+      - code generation
+      - use boost::multiindex
 
 - 2024/10
   - rpg
