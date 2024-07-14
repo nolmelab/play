@@ -82,11 +82,7 @@ namespace {
 template <typename Topic>
 struct protocol_adapter_base
 {
-  void (*send_t)(const void* data, size_t len);
-
-  void (*forward_t)(Topic topic, const void* data, size_t len);
-
-  void (*established_t)(size_t handle);
+  void (*send)(void* ss, const void* data, size_t len);
 };
 
 using topic = uint32_t;
@@ -94,28 +90,16 @@ using topic = uint32_t;
 struct session
 {
   void send(const void* data, size_t len) {}
-
-  void forward(topic topic, const void* data, size_t len) {}
-
-  void established(size_t handle) {}
 };
 
 struct protocol_adapter : public protocol_adapter_base<topic>
 {
-  protocol_adapter(session* ss_)
+  protocol_adapter() { send = send_impl; }
+  static void send_impl(void* s, const void* data, size_t len)
   {
-    send_t = send_impl;
-    forward = forward_impl;
-    established = established_impl;
+    session* ss = reinterpret_cast<session*>(s);
+    ss->send(data, len);
   }
-
-  void send_impl(const void* data, size_t len) { ss_->send(data, len); }
-
-  void forward_impl(topic topic, const void* data, size_t len) { ss_->forward(topic, data, len); }
-
-  void established_impl(size_t handle) { ss_->established(0); }
-
-  session* ss_;
 };
 
 }  // namespace
@@ -124,5 +108,22 @@ TEST_CASE("manual inheritance")
 {
   session ss;
 
-  protocol_adapter adapter(&ss);
+  protocol_adapter adapter;
+
+  auto start = std::chrono::steady_clock::now();
+
+  const int test_count = 100000000;
+
+  for (int i = 0; i < test_count; ++i)
+  {
+    adapter.send(&ss, "", 0);
+  }
+
+  auto end = std::chrono::steady_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+  LOG()->info("static function call. elapsed: {}", elapsed);
 }
+
+// 타잎을 void*로 과감하게 지우고, static 함수를 사용하여 캐스팅한다.
+// 아주 과격한 방법이지만 잘 동작할 것이다.

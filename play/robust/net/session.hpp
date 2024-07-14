@@ -28,6 +28,14 @@ public:
   /**
    * app에서 이를 기본 어댑터로 사용하거나 상속하여 구현하여 처리할 수 있음. 
    * Protocol::adapter 타잎의 생성자에 항상 session::ptr을 넘겨줌
+   * 
+   * note on performance:
+   * - virtual 함수를 사용하는 것이 걸리긴 한데 base가 추상클래스이고 
+   * - 별도 테스트에서 함수 호출과 거의 비슷한 성능을 보여준다. 
+   * - 정적 함수 포인터로 하고 session 타잎을 지우는 것도 테스트를 
+   * - 해보았으나 추상 베이스를 갖는 가상 함수보다 느리다. 
+   * - @see test_protocol.cpp 
+   * - @see learn_function_ptr.cpp
    */
   struct protocol_adapter : public protocol_adapter_base<topic>
   {
