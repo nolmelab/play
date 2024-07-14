@@ -15,14 +15,14 @@ namespace play { namespace robust { namespace net {
  * 프레임의 형식은 아래와 같다
  * - topic{sizeof(Topic)} | length{4} | enc{1} | payload
  */
-template <typename Topic, typename Adapter = protocol_default_adapter<Topic>>
-class secure_protocol : public protocol<Topic, Adapter>
+template <typename Topic>
+class secure_protocol : public protocol<Topic>
 {
 public:
   using adapter = typename protocol<Topic>::adapter;
 
 public:
-  secure_protocol(size_t handle, adapter adapter)
+  secure_protocol(size_t handle, adapter& adapter)
       : protocol<Topic>(adapter),
         handle_{handle},
         accepted_{false},
@@ -61,7 +61,7 @@ public:
   bool is_established() const { return cipher_handshake_->is_established(); }
 
 private:
-  adapter& get_adapter() const { return protocol<Topic>::get_adapter(); }
+  adapter& get_adapter() const { return protocol<Topic, Adapter>::get_adapter(); }
 
   size_t get_min_size() const { return length_codec_->length_field_size + sizeof(Topic); }
 

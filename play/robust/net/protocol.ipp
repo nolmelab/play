@@ -3,9 +3,9 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Topic, typename Adapter>
+template <typename Topic>
 template <typename Value>
-inline void protocol<Topic, Adapter>::serialize(asio::mutable_buffer& mbuf, Value v)
+inline void protocol<Topic>::serialize(asio::mutable_buffer& mbuf, Value v)
 {
   PLAY_CHECK(mbuf.size() >= sizeof(Value));
 
@@ -19,16 +19,16 @@ inline void protocol<Topic, Adapter>::serialize(asio::mutable_buffer& mbuf, Valu
   }
 }
 
-template <typename Topic, typename Adapter>
-inline void protocol<Topic, Adapter>::serialize(asio::mutable_buffer& mbuf, bool v)
+template <typename Topic>
+inline void protocol<Topic>::serialize(asio::mutable_buffer& mbuf, bool v)
 {
   uint8_t tv = v ? 1 : 0;
   serialize(mbuf, tv);
 }
 
-template <typename Topic, typename Adapter>
+template <typename Topic>
 template <typename Value>
-inline void protocol<Topic, Adapter>::deserialize(const asio::const_buffer& cbuf, Value& v)
+inline void protocol<Topic>::deserialize(const asio::const_buffer& cbuf, Value& v)
 {
   const char* p = reinterpret_cast<const char*>(cbuf.data());
   v = 0;
@@ -39,8 +39,8 @@ inline void protocol<Topic, Adapter>::deserialize(const asio::const_buffer& cbuf
   }
 }
 
-template <typename Topic, typename Adapter>
-inline void protocol<Topic, Adapter>::deserialize(const asio::const_buffer& cbuf, bool& v)
+template <typename Topic>
+inline void protocol<Topic>::deserialize(const asio::const_buffer& cbuf, bool& v)
 {
   uint8_t tv = 0;
   deserialize(cbuf, tv);

@@ -22,4 +22,17 @@ server와 client의 기반 클래스로 session_handler는 의미가 있다.
 상속을 통한 인터페이스 제공 대신에 인터페이스 타잎을 제공하는 방법이고 
 이렇게 분리하면 어디서나 사용할 수 있게 된다. 
 
+```c++
+struct test_adapter : session::protocol_adater
+{
 
+}
+```
+
+위와 같은 상속으로 기본 어댑터를 활용하면서 필요한 기능을 추가할 수 있습니다. 
+session_handler를 통한 virtual 함수로 프레임을 받는 것이 마음에 들지 않으면 직접 
+앱에서 받도록 함수를 제공할 수 있습니다. 
+
+## protocol 호출 
+
+session에서 accepted / connected / closed를 호출합니다. 

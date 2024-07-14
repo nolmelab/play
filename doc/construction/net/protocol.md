@@ -15,8 +15,7 @@ protocol is application specific payload management layer.
   - sodium_cipher  
 
 - frame is a packet
-- frame_factory<Frame>
-- frame_dispatcher<Frame>
+
 
 ## responsibility 
 
@@ -26,63 +25,22 @@ protocol is application specific payload management layer.
 
 ## protocl examples 
 
-- plain_protocol<Topic, Frame> : frame_factory<Topic, Frame>, frame_dispathcer<Topic, Frame>
+- plain_protocol<Topic, Adatper> 
     - length_delimited 
 
-- secure_protocol<Topic, Frame>
+- secure_protocol<Topic, Adapter>
     - length_delimited 
     - sodidum_cipher 
     - cipher_handshaker
 
-- json_protocol<Topic, Frame>
+- json_protocol<Topic, Adapter>
     - topic field
     - mark_delimited
 
-- secure_flatbuffers_protocol : secure_protocol<Topic, flatbuffers::NativeTable>
-- secure_json_protocol : secure_mark_protocol<nlohmann::json>
 
-## relations
-
-- automating composition is hard 
-    - it can make code convoluted and hard to debug 
-    - build robust components and composition class manually
-
-- session and protocol relation 
-    - protocol::send(Frame::ptr f), orprotocol::send(Frame const& f) 
-        - encode
-        - put header 
-        - session::send(bytes)
-    - session::handle_receive(bytes)
-        - protocol::receive(bytes)
-        - put to pending buffer? 
-        - get frame bytes from codec 
-        - create frame from frame_fractory<Frame>
-        - dispatch with frame_dispatcher<Frame>::dispatch(Frame::ptr)
-
-- session_handler and protocol relation 
-    - the same session events are forwarded to protocol 
-    - those events can be made into Frame and dispatched 
-    - protocol::handle_accepted() 
-    - protocol::handle_connected() 
-    - protocol::handle_error()
-
-- protocol can be either topic based or not
-    - topic based protocol 
-      - uses topic field in header or in frame payload 
-      - then dispatches with it 
-    - this handling of topic field is implemented in protocol 
-  
-## limitations 
-
-- std::shared_ptr<Frame> is Frame::ptr
-- Frame::ptr is used to dispatch Frames 
-- Frame& or Frame::Ptr is used to send 
-
-## extensions
-
-- Application depends on the specific protocol 
-  - This is unavoidable dependency 
-  - Hence, utility functions can be implemented in protocol 
+Adapter는 협상 완료 통지와 바이트 전송, 프레임 바이트 수신을 처리하는 함수를 제공합니다. 
+이를 통해 Protocol과 session 처리를 분리합니다. 이런 적응층이 없으면 session 내에 프로토콜 
+코드가 혼재하게 됩니다. 
 
 ## adapter 구현 
 
@@ -118,4 +76,23 @@ struct session_protocol_adatper_1
 
 기존의 std::function 기반 Adapter는 기본 어댑터로 남겨둡니다. 가장 유연하고 사용하기 편리하기 
 때문에 쓰일 곳이 있을 듯 합니다. 
+
+### session_handler와 함께 사용 
+
+Protocol의 구현은 Adapter와 함께 session_handler를 사용합니다. 
+
+협상과 변환을 처리하는 Protocol과 session 목록을 관리하는 개념과 잘 맞지 않기 때문에 
+핸들러로 분리하는 것이 더 명확합니다. 
+
+### 안 됨 
+
+session::protocol_adapter가 session에 의존하고 다시 protocol은 adapter에 의존하므로 
+상호 의존 문제가 발생했습니다. 
+
+문제의 원인은 session에서만 send를 할 수 있어 어떻게든 session에 접근해야 하고 
+protocol은 session의 템플릿 파라미터가 되어야 하기 때문입니다. 
+
+결국 타잎을 지운 구조만 가능하고 virtual 클래스로 해야 하겠습니다. 
+
+
 

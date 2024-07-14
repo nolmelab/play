@@ -16,6 +16,8 @@ thread_runner::thread_runner(size_t thread_count)
   std::vector<std::thread> threads;
   threads.resize(thread_count_);
 
+  stop_ = false;
+
   for (size_t i = 0; i < thread_count_; ++i)
   {
     threads[i] = std::thread(

@@ -5,6 +5,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(doctest CONFIG REQUIRED)
 find_package(boost_asio CONFIG REQUIRED)
 find_package(unofficial-sodium CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 # add test target
 add_executable(
@@ -12,12 +13,11 @@ add_executable(
   main.cpp 
   test_logger.cpp
   test_bytes_frame.cpp
+  test_client_server.cpp
   test_codecs.cpp
   test_object_pool.cpp
   test_protocol.cpp
-  test_plain_protocol.cpp
   test_runner.cpp
-  test_secure_protocol.cpp
   test_timer.cpp
   learn_streambuf.cpp
   learn_function_ptr.cpp
@@ -35,6 +35,7 @@ target_link_libraries(
   spdlog::spdlog 
   doctest::doctest
   unofficial-sodium::sodium
+  nlohmann_json::nlohmann_json
 )
 
 # add include directories, especially playground

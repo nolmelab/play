@@ -3,8 +3,8 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Topic, typename Adapter>
-inline void secure_protocol<Topic, Adapter>::accepted()
+template <typename Topic>
+inline void secure_protocol<Topic>::accepted()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -22,12 +22,10 @@ inline void secure_protocol<Topic, Adapter>::accepted()
 
   cipher_handshake_->prepare();
   cipher_handshake_->sync_key();
-
-  get_adapter().accepted(handle_);
 }
 
-template <typename Topic, typename Adapter>
-inline void secure_protocol<Topic, Adapter>::connected()
+template <typename Topic>
+inline void secure_protocol<Topic>::connected()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -45,27 +43,28 @@ inline void secure_protocol<Topic, Adapter>::connected()
 
   cipher_handshake_->prepare();
   cipher_handshake_->sync_key();
-
-  get_adapter().connected(handle_);
 }
 
-template <typename Topic, typename Adapter>
-inline void secure_protocol<Topic, Adapter>::closed()
+template <typename Topic>
+inline void secure_protocol<Topic>::closed()
 {
-  PLAY_CHECK(!closed_);
+  PLAY_RETURN_IF(closed_);
   closed_ = true;
-
-  get_adapter().closed(handle_);
 }
 
-template <typename Topic, typename Adapter>
-inline void secure_protocol<Topic, Adapter>::send(Topic topic, const char* data, size_t len,
-                                                  bool encrypt)
+template <typename Topic>
+inline void secure_protocol<Topic>::send(Topic topic, const char* data, size_t len, bool encrypt)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
   {
     LOG()->warn("send called on closed session. handle: {}", handle_);
+    return;
+  }
+
+  if (!is_established())
+  {
+    LOG()->warn("send called on handshaking session. handle: {}", handle_);
     return;
   }
 
@@ -95,8 +94,8 @@ inline void secure_protocol<Topic, Adapter>::send(Topic topic, const char* data,
   }
 }
 
-template <typename Topic, typename Adapter>
-inline void secure_protocol<Topic, Adapter>::receive(const char* data, size_t len)
+template <typename Topic>
+inline void secure_protocol<Topic>::receive(const char* data, size_t len)
 {
   const char* payload = reinterpret_cast<const char*>(data);
   auto mut_buf = recv_buf_.prepare(len);
@@ -132,7 +131,7 @@ inline void secure_protocol<Topic, Adapter>::receive(const char* data, size_t le
   auto next_frame = [&topic, &encrypt, this]() -> asio::const_buffer
   {
     auto d_1 = recv_buf_.data();
-    if (d_1.size() < get_min_size())
+    if (d_1.size() <= get_min_size())
     {
       return {};
     }

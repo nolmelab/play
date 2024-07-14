@@ -3,8 +3,8 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Topic, typename Adapter>
-inline void plain_protocol<Topic, Adapter>::accepted()
+template <typename Topic>
+inline void plain_protocol<Topic>::accepted()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -15,12 +15,10 @@ inline void plain_protocol<Topic, Adapter>::accepted()
   closed_ = false;
 
   length_codec_ = std::make_unique<length_delimited>(handle_);
-
-  get_adapter().accepted(handle_);
 }
 
-template <typename Topic, typename Adapter>
-inline void plain_protocol<Topic, Adapter>::connected()
+template <typename Topic>
+inline void plain_protocol<Topic>::connected()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -32,21 +30,18 @@ inline void plain_protocol<Topic, Adapter>::connected()
 
   length_codec_ = std::make_unique<length_delimited>(handle_);
 
-  get_adapter().connected(handle_);
   get_adapter().established(handle_);
 }
 
-template <typename Topic, typename Adapter>
-inline void plain_protocol<Topic, Adapter>::closed()
+template <typename Topic>
+inline void plain_protocol<Topic>::closed()
 {
-  PLAY_CHECK(!closed_);
+  PLAY_RETURN_IF(closed_);
   closed_ = true;
-
-  get_adapter().closed(handle_);
 }
 
-template <typename Topic, typename Adapter>
-inline void plain_protocol<Topic, Adapter>::send(Topic topic, const char* data, size_t len, bool encrypt)
+template <typename Topic>
+inline void plain_protocol<Topic>::send(Topic topic, const char* data, size_t len, bool encrypt)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -54,6 +49,8 @@ inline void plain_protocol<Topic, Adapter>::send(Topic topic, const char* data, 
     LOG()->warn("send called on closed session. handle: {}", handle_);
     return;
   }
+
+  PLAY_CHECK(is_established());
 
   auto m_1 = send_buf_.prepare(sizeof(Topic));
   serialize(m_1, topic);
@@ -69,8 +66,8 @@ inline void plain_protocol<Topic, Adapter>::send(Topic topic, const char* data, 
   send_buf_.consume(send_data.size());
 }
 
-template <typename Topic, typename Adapter>
-inline void plain_protocol<Topic, Adapter>::receive(const char* data, size_t len)
+template <typename Topic>
+inline void plain_protocol<Topic>::receive(const char* data, size_t len)
 {
   const char* payload = reinterpret_cast<const char*>(data);
   auto mut_buf = recv_buf_.prepare(len);
@@ -82,11 +79,11 @@ inline void plain_protocol<Topic, Adapter>::receive(const char* data, size_t len
   auto next_frame = [&topic, this]() -> asio::const_buffer
   {
     auto d_1 = recv_buf_.data();
-    if (d_1.size() < get_min_size())
+    if (d_1.size() <= get_min_size())
     {
       return {};
     }
-    deserialize(d_1, topic);
+    this->deserialize(d_1, topic);
     recv_buf_.consume(sizeof(topic));
 
     return recv_buf_.data();

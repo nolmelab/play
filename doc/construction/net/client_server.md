@@ -27,3 +27,25 @@
   - stream_protocol 추가 
   - 간단한 bypass 프로토콜 
 
+## 테스트 
+
+```c++
+
+using server = server<stream_protocol<void, test_server_adapter>>;
+using client = client<stream_protocol<void, test_client_adapter>>;
+
+server server(R"(
+{ 
+"listen":"0.0.0.0:7000"
+}
+)");
+
+auto result_1 = server.start();
+CHECK(result_1);
+
+client client();
+auto result_2 = client.connect("127.0.0.1:7000");
+
+// wait on test result from adapters
+```
+
