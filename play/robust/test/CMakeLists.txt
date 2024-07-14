@@ -20,6 +20,7 @@ add_executable(
   test_secure_protocol.cpp
   test_timer.cpp
   learn_streambuf.cpp
+  learn_function_ptr.cpp
 )
 
 if (MSVC)

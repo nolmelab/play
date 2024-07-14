@@ -8,6 +8,17 @@
 
 using namespace play::robust::base;
 
+namespace {
+struct simple
+{
+  simple(int v) : v_{v} {}
+  simple(int v, float f) : v_{v} {}
+  ~simple() { /* LOG()->info("simple destructor called"); */ }
+
+  int v_;
+};
+}  // namespace
+
 TEST_CASE("object_pool")
 {
   SUBCASE("basic")
@@ -86,15 +97,6 @@ private:
 
 private:
   std::deque<T*> pool_;
-};
-
-struct simple
-{
-  simple(int v) : v_{v} {}
-  simple(int v, float f) : v_{v} {}
-  ~simple() { /* LOG()->info("simple destructor called"); */ }
-
-  int v_;
 };
 
 }  // namespace

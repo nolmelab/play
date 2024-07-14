@@ -86,13 +86,36 @@ protocol is application specific payload management layer.
 
 ## adapter 구현 
 
-std::function을 갖고 있도록 일단 했다. std::function은 함수 호출보다는 비용이 높다. 
-따라서, 함수 포인터나 람다를 직접 갖도록 하는 것이 좋겠다. 
-람다도 함수 포인터로 변환이 가능하므로 타잎을 맞춰서 지정할 수 있다. 
+std::function을 갖고 있도록 일단 했습니다. std::function은 함수 호출보다는 비용이 높습니다.  
+따라서, 함수 포인터나 람다를 직접 갖도록 하는 것이 좋겠습니다.  
+람다도 함수 포인터로 변환이 가능하므로 타잎을 맞춰서 지정할 수 있습니다. 
 
-가상 함수도 함수 호출만큼 빠르다. 호출 비용은 거의 없다. 
+가상 함수도 함수 호출만큼 빠릅니다. 호출 비용은 거의 없습니다. 코드에 따라 변화는 있겠고 
+결국 컴파일러의 최적화에 의존합니다. 
 
-따라서, 일단 std::function으로 구조를 만들고 그 이후에 생각해 본다. 통신 쪽 처리에서는 
-충분한 성능을 제공하기 때문이다. 
+따라서, 일단 std::function으로 구조를 만들고 그 이후에 생각해 봅니다. 통신 쪽 처리에서는 
+충분한 성능을 제공하기 때문입니다. 
 
+### 템플릿 파라미터로 전달 
+
+duck typing을 사용하고 template parameter로 전달하여 적합한 구조를 선택하도록 합니다. 
+
+이와 같이 선택 가능한 옵션을 템플릿 파라미터로 다양하게 제공할 수 있다는 점이 C++의 
+최대 강점입니다. boost나 stl 모두 템플릿인 점은 시사하는 바가 큽니다. 
+
+session을 작성할 때 protocol에 전달하는 Adapter는 어떤 형태가 가장 좋을까요? 
+
+```c++
+struct session_protocol_adatper_1
+{
+  session_protocol_adatper_1(session& s) : s_(s) {}
+
+  void send(...) { s_.send(...); }
+  void forward(...) { s_.forward(...); }
+  // 나머지 함수들도 유사하게 구현 가능합니다. 
+};
+```
+
+기존의 std::function 기반 Adapter는 기본 어댑터로 남겨둡니다. 가장 유연하고 사용하기 편리하기 
+때문에 쓰일 곳이 있을 듯 합니다. 
 

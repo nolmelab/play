@@ -18,9 +18,7 @@ struct f2 : public functor
 
 TEST_CASE("protocol")
 {
-  SUBCASE("serialize") {}
-
-  SUBCASE("deserialize") {}
+  const int test_count = 100000000;
 
   SUBCASE("adapter performance")
   {
@@ -31,8 +29,6 @@ TEST_CASE("protocol")
       };
 
       auto start = std::chrono::steady_clock::now();
-
-      const int test_count = 1000;
 
       for (int i = 0; i < test_count; ++i)
       {
@@ -49,8 +45,6 @@ TEST_CASE("protocol")
     SUBCASE("function")
     {
       auto start = std::chrono::steady_clock::now();
-
-      const int test_count = 1000;
 
       for (int i = 0; i < test_count; ++i)
       {
@@ -73,8 +67,6 @@ TEST_CASE("protocol")
     {
       auto start = std::chrono::steady_clock::now();
 
-      const int test_count = 1000;
-
       f2 f;
 
       for (int i = 0; i < test_count; ++i)
@@ -90,3 +82,7 @@ TEST_CASE("protocol")
     }
   }
 }
+
+// note: function2
+// - 개선된 std::function이라고 하여 간단한 성능 테스트를 진행
+// - std::function보다 약간 느리다. inline, 다른 최적화가 안 돼서 그런 듯

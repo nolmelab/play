@@ -3,8 +3,8 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Topic>
-inline void plain_protocol<Topic>::accepted()
+template <typename Topic, typename Adapter>
+inline void plain_protocol<Topic, Adapter>::accepted()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -16,11 +16,11 @@ inline void plain_protocol<Topic>::accepted()
 
   length_codec_ = std::make_unique<length_delimited>(handle_);
 
-  get_adapter().accepted_(handle_);
+  get_adapter().accepted(handle_);
 }
 
-template <typename Topic>
-inline void plain_protocol<Topic>::connected()
+template <typename Topic, typename Adapter>
+inline void plain_protocol<Topic, Adapter>::connected()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -32,20 +32,21 @@ inline void plain_protocol<Topic>::connected()
 
   length_codec_ = std::make_unique<length_delimited>(handle_);
 
-  get_adapter().connected_(handle_);
+  get_adapter().connected(handle_);
+  get_adapter().established(handle_);
 }
 
-template <typename Topic>
-inline void plain_protocol<Topic>::closed()
+template <typename Topic, typename Adapter>
+inline void plain_protocol<Topic, Adapter>::closed()
 {
   PLAY_CHECK(!closed_);
   closed_ = true;
 
-  get_adapter().closed_(handle_);
+  get_adapter().closed(handle_);
 }
 
-template <typename Topic>
-inline void plain_protocol<Topic>::send(Topic topic, const char* data, size_t len, bool encrypt)
+template <typename Topic, typename Adapter>
+inline void plain_protocol<Topic, Adapter>::send(Topic topic, const char* data, size_t len, bool encrypt)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -64,12 +65,12 @@ inline void plain_protocol<Topic>::send(Topic topic, const char* data, size_t le
   PLAY_CHECK(result);  // 여기서 실패하는 경우는 없다
 
   auto send_data = send_buf_.data();
-  get_adapter().send_(send_data.data(), send_data.size());
+  get_adapter().send(send_data.data(), send_data.size());
   send_buf_.consume(send_data.size());
 }
 
-template <typename Topic>
-inline void plain_protocol<Topic>::receive(const char* data, size_t len)
+template <typename Topic, typename Adapter>
+inline void plain_protocol<Topic, Adapter>::receive(const char* data, size_t len)
 {
   const char* payload = reinterpret_cast<const char*>(data);
   auto mut_buf = recv_buf_.prepare(len);
@@ -104,7 +105,7 @@ inline void plain_protocol<Topic>::receive(const char* data, size_t len)
   while (auto result = length_codec_->decode(data_buf))
   {
     auto length_buf = result.value();
-    get_adapter().forward_(topic, length_buf.data(), length_buf.size());
+    get_adapter().forward(topic, length_buf.data(), length_buf.size());
 
     // 다음 사용 가능한 데이터로 이동
     recv_buf_.consume(length_buf.size() + length_codec_->length_field_size);

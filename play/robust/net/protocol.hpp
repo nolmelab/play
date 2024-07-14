@@ -10,32 +10,38 @@ struct empty_topic
 {
 };
 
+// 프로토콜을 위한 함수들 제공
+/**
+ * duck typing을 사용하므로 동일한 함수 호출만 제공 가능하면 adapter가 됨
+ * std::function, 함수 포인터, 멤버 함수로 제공 가능.
+ */
 template <typename Topic>
+struct protocol_default_adapter
+{
+  // send function provided by session
+  using send_fn = std::function<void(const void* data, size_t len)>;
+  // forward function provided by session to pass to session_handler
+  using forward_fn = std::function<void(Topic topic, const void* data, size_t len)>;
+  // state listener
+  using accepted_fn = std::function<void(size_t handle)>;
+  using connected_fn = std::function<void(size_t handle)>;
+  using closed_fn = std::function<void(size_t handle)>;
+  using established_fn = std::function<void(size_t handle)>;
+
+  send_fn send;
+  forward_fn forward;
+  accepted_fn accepted;
+  connected_fn connected;
+  closed_fn closed;
+  established_fn established;
+};
+
+template <typename Topic, typename Adapter = protocol_default_adapter<Topic>>
 class protocol
 {
 public:
   using topic = Topic;
-
-  // 프로토콜을 위한 함수들 제공
-  struct adapter
-  {
-    // send function provided by session
-    using send_fn = std::function<void(const void* data, size_t len)>;
-    // forward function provided by session to pass to session_handler
-    using forward_fn = std::function<void(Topic topic, const void* data, size_t len)>;
-    // state listener
-    using accepted_fn = std::function<void(size_t handle)>;
-    using connected_fn = std::function<void(size_t handle)>;
-    using closed_fn = std::function<void(size_t handle)>;
-    using established_fn = std::function<void(size_t handle)>;
-
-    send_fn send_;
-    forward_fn forward_;
-    accepted_fn accepted_;
-    connected_fn connected_;
-    closed_fn closed_;
-    established_fn established_;
-  };
+  using adapter = Adapter;
 
 public:
   protocol(adapter adapter) : adapter_{adapter} {}

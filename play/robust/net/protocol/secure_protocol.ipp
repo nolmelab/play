@@ -3,8 +3,8 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Topic>
-inline void secure_protocol<Topic>::accepted()
+template <typename Topic, typename Adapter>
+inline void secure_protocol<Topic, Adapter>::accepted()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -23,11 +23,11 @@ inline void secure_protocol<Topic>::accepted()
   cipher_handshake_->prepare();
   cipher_handshake_->sync_key();
 
-  get_adapter().accepted_(handle_);
+  get_adapter().accepted(handle_);
 }
 
-template <typename Topic>
-inline void secure_protocol<Topic>::connected()
+template <typename Topic, typename Adapter>
+inline void secure_protocol<Topic, Adapter>::connected()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -46,20 +46,21 @@ inline void secure_protocol<Topic>::connected()
   cipher_handshake_->prepare();
   cipher_handshake_->sync_key();
 
-  get_adapter().connected_(handle_);
+  get_adapter().connected(handle_);
 }
 
-template <typename Topic>
-inline void secure_protocol<Topic>::closed()
+template <typename Topic, typename Adapter>
+inline void secure_protocol<Topic, Adapter>::closed()
 {
   PLAY_CHECK(!closed_);
   closed_ = true;
 
-  get_adapter().closed_(handle_);
+  get_adapter().closed(handle_);
 }
 
-template <typename Topic>
-inline void secure_protocol<Topic>::send(Topic topic, const char* data, size_t len, bool encrypt)
+template <typename Topic, typename Adapter>
+inline void secure_protocol<Topic, Adapter>::send(Topic topic, const char* data, size_t len,
+                                                  bool encrypt)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -86,7 +87,7 @@ inline void secure_protocol<Topic>::send(Topic topic, const char* data, size_t l
     PLAY_CHECK(result);  // 여기서 실패하는 경우는 없다
 
     auto send_data = send_buf_.data();
-    get_adapter().send_(send_data.data(), send_data.size());
+    get_adapter().send(send_data.data(), send_data.size());
     send_buf_.consume(send_data.size());
 
     // 사용한 만큼 읽기 포인터를 앞으로 이동해야 함
@@ -94,8 +95,8 @@ inline void secure_protocol<Topic>::send(Topic topic, const char* data, size_t l
   }
 }
 
-template <typename Topic>
-inline void secure_protocol<Topic>::receive(const char* data, size_t len)
+template <typename Topic, typename Adapter>
+inline void secure_protocol<Topic, Adapter>::receive(const char* data, size_t len)
 {
   const char* payload = reinterpret_cast<const char*>(data);
   auto mut_buf = recv_buf_.prepare(len);
@@ -109,7 +110,7 @@ inline void secure_protocol<Topic>::receive(const char* data, size_t len)
 
     if (cipher_handshake_->is_established())
     {
-      get_adapter().established_(handle_);
+      get_adapter().established(handle_);
     }
     else
     {
