@@ -36,8 +36,10 @@ public:
    * - 해보았으나 추상 베이스를 갖는 가상 함수보다 느리다. 
    * - @see test_protocol.cpp 
    * - @see learn_function_ptr.cpp
+   * - final 추가로 devirtualization이 가능하다. (clang, gcc, MSVC)
+   * - @see https://devblogs.microsoft.com/cppblog/the-performance-benefits-of-final-classes/
    */
-  struct protocol_adapter : public protocol_adapter_base<topic>
+  struct protocol_adapter final : public protocol_adapter_base<topic>
   {
     protocol_adapter(ptr session) : session_{session} {}
 
