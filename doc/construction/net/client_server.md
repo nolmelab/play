@@ -29,23 +29,30 @@
 
 ## 테스트 
 
+adapter 기반으로 하기 어려워졌다. 그 부분은 그냥 그렇게 놔둔다. 
+
 ```c++
+class server : server<stream_protocol>
+{
+public: 
+  // ...
+  void on_established() final;
+  void on_closed() final;
+  void on_receive() final;
+};
 
-using server = server<stream_protocol<void, test_server_adapter>>;
-using client = client<stream_protocol<void, test_client_adapter>>;
+class client : client<stream_protocol>
+{
+public:
 
-server server(R"(
-{ 
-"listen":"0.0.0.0:7000"
-}
-)");
-
-auto result_1 = server.start();
-CHECK(result_1);
-
-client client();
-auto result_2 = client.connect("127.0.0.1:7000");
-
-// wait on test result from adapters
+private:
+  void on_established() final;
+  void on_closed() final;
+  void on_receive() final;
+};
 ```
+
+하위 클래스에서 정보를 만들고 테스트를 진행할 수 있게 한다. 
+
+
 

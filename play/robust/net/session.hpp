@@ -57,22 +57,10 @@ public:
   };
 
 public:
-  session(session_handler<Protocol>& handler, tcp::socket&& socket, bool accepted)
-      : handler_{handler},
-        socket_{std::move(socket)},
-        accepted_{accepted},
-        adapter_{this->shared_from_this()}
-  {
-    handle_ = socket_.native_handle();
-    protocol_ = std::make_unique<Protocol>(handle_, adapter_);
+  // 프로토콜 생성. 프로토콜에 알림. 수신 시작
+  session(session_handler<Protocol>& handler, tcp::socket&& socket, bool accepted);
 
-    if (accepted_)
-      protocol_->accepted();
-    else
-      protocol_->connected();
-
-    start_recv();
-  }
+  ~session();
 
   // 바이트를 쓴다. 앱에서는 protocol_.send()를 사용
   void send(const void* data, size_t len);

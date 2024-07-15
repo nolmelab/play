@@ -30,6 +30,9 @@ public:
   // listen()부터 시작하여 서버를 시작
   bool start();
 
+  // 세션 맵에서 세션을 찾아서 돌려줌
+  session_ptr get_session(size_t handle);
+
   // 서버를 종료
   void stop();
 
@@ -43,6 +46,7 @@ protected:
 
   void on_closed(session_ptr session, boost::system::error_code ec) override;
 
+  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
   void on_receive(session_ptr session, topic topic, const void* data, size_t len) override;
 
 private:

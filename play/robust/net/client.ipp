@@ -8,7 +8,7 @@ client<Protocol>::client(runner& runner) : runner_{runner}
 }
 
 template <typename Protocol>
-void client<Protocol>::connect(std::string_view addr)
+void client<Protocol>::connect(std::string_view addr, uint16_t port)
 {
   if (session_->is_open())
   {
@@ -16,7 +16,13 @@ void client<Protocol>::connect(std::string_view addr)
     session_->close();
   }
 
+  addr_ = addr;
+  port_ = port;
+
   socket_ = std::make_unique<tcp::socket>();
+  auto ip_addr = asio::ip::address::from_string(addr_);
+  endpoint_.address(ip_addr);
+  endpoint_.port(port);
 
   boost::asio::async_connect(*socket_, endpoint_,
                              [this](boost::system::error_code ec, tcp::endpoint)
@@ -79,8 +85,11 @@ void client<Protocol>::on_established(session_ptr session)
 template <typename Protocol>
 void client<Protocol>::on_closed(session_ptr session, boost::system::error_code ec)
 {
-  LOG()->info("session closed. handle: {}  remote: {}", session->get_handle(),
-              session->get_endpoint());
+  LOG()->info("session closed. handle: {}  remote: {} error: {}", session->get_handle(),
+              session->get_endpoint(), ec.message());
+
+  session_.reset();
+  socket_.reset();
 }
 
 template <typename Protocol>

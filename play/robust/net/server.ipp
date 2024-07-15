@@ -45,6 +45,18 @@ bool server<Protocol>::start()
 }
 
 template <typename Protocol>
+server<Protocol>::session_ptr server<Protocol>::get_session(size_t handle)
+{
+  std::shared_lock(shared_mutex) guard(mutex_);
+  auto iter = sessions_.find(handle);
+  if ( iter == sessions_.end())
+  {
+    return {};
+  }
+  return iter->second;
+}
+
+template <typename Protocol>
 void server<Protocol>::stop()
 {
   on_stop();
@@ -89,8 +101,8 @@ void server<Protocol>::on_closed(session_ptr session, boost::system::error_code 
     sessions_.erase(session->get_handle());
   }
 
-  LOG()->info("session closed. handle: {}  remote: {}", session->get_handle(),
-              session->get_endpoint());
+  LOG()->info("session closed. handle: {}  remote: {} error: {}", session->get_handle(),
+              session->get_endpoint(), ec.message());
 }
 
 template <typename Protocol>

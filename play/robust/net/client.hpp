@@ -27,7 +27,13 @@ public:
   client(runner& runner);
 
   // 연결을 시작. ip:port 형식 주소.
-  void connect(std::string_view addr);
+  /**
+   * client는 비동기 연결만 지원
+   */
+  void connect(std::string_view addr, uint16_t port);
+
+  // 현재 세션을 얻음. 통신 등에 사용
+  session_ptr get_session() { return session_; }
 
   // 연결 종료
   void close();
@@ -42,13 +48,16 @@ private:
   // 프로토콜에서 Protocol::adatper를 통해서 전달
   void on_established(session_ptr session) override;
 
+  // 세션에서 연결 종료 통지
   void on_closed(session_ptr session, boost::system::error_code ec) override;
 
+  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
   void on_receive(session_ptr session, topic topic, const void* data, size_t len) override;
 
 private:
   runner& runner_;
   std::string addr_;
+  uint16_t port_;
   tcp::endpoint endpoint_;
   session_ptr session_;
   std::unique_ptr<tcp::socket> socket_;
