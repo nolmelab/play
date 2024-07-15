@@ -105,13 +105,13 @@ void server<Protocol>::on_receive(session_ptr session, topic topic, const void* 
 template <typename Protocol>
 void server<Protocol>::start_accept()
 {
-  auto session = std::make_shared<session>(*this, true);
+  auto se = std::make_shared<session>(*this, runner_.get_ioc(), true);
 
-  acceptor_->async_accept(
-      [this](boost::system::error_code ec, tcp::socket socket)
-      {
-        handle_accept(ec, std::move(socket));
-      });
+  acceptor_->async_accept(se->get_socket(),
+                          [this, se](boost::system::error_code ec)
+                          {
+                            handle_accept(se, ec);
+                          });
 }
 
 template <typename Protocol>
@@ -122,12 +122,12 @@ void server<Protocol>::handle_accept(session_ptr se, boost::system::error_code e
     // add
     {
       std::unique_lock<shared_mutex> guard(mutex_);
-      sessions_.insert(std::pair(ss->get_handle(), se));
+      sessions_.insert(std::pair(se->get_handle(), se));
     }
 
     se->start();
 
-    LOG()->info("session accepted. remote: {}", ss->get_endpoint());
+    LOG()->info("session accepted. remote: {}", se->get_endpoint());
   }
   else
   {

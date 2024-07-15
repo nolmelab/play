@@ -54,6 +54,11 @@ struct test_client : public client<stream_protocol>
 
   test_client(runner& runner) : client(runner) {}
 
+  void send(const char* data, size_t len)
+  {
+    get_session()->get_protocol().send(reinterpret_cast<const char*>(data), len);  // echo back
+  }
+
   void handle_established(session_ptr session) final {}
 
   void handle_closed(session_ptr session, boost::system::error_code ec) final {}
@@ -61,6 +66,7 @@ struct test_client : public client<stream_protocol>
   void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
+    session->get_protocol().send(reinterpret_cast<const char*>(data), len);  // echo back
   }
 
   size_t recv_bytes_{0};
@@ -74,13 +80,13 @@ TEST_CASE("communication")
   {
     poll_runner runner;
 
-    server<stream_protocol> server(runner, R"(
+    test_server server(runner, R"(
     {
       "port" : 7000, 
       "concurrency" : 8
     })");
 
-    client<stream_protocol> client(runner);
+    test_client client(runner);
 
     auto rc = server.start();
 

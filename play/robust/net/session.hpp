@@ -64,7 +64,7 @@ public:
 
 public:
   // 프로토콜 생성. 프로토콜에 알림. 수신 시작
-  session(session_handler<Protocol>& handler, bool accepted);
+  session(session_handler<Protocol>& handler, asio::io_context& ioc, bool accepted);
 
   ~session();
 
@@ -95,7 +95,7 @@ public:
 
   Protocol& get_protocol()
   {
-    return protocol_;
+    return *protocol_.get();
   }
 
 private:

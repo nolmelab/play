@@ -52,8 +52,6 @@ protected:
   virtual void handle_receive(session_ptr, topic, const void* data, size_t) {};
 
 private:
-  void start_connect();
-
   void reconnect();
 
   void handle_connect(boost::system::error_code ec);

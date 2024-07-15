@@ -3,14 +3,14 @@
 namespace play { namespace robust { namespace net {
 
 template <typename Protocol>
-client<Protocol>::client(runner& runner) : runner_{runner}, socket_{runner_.get_ioc()}
+client<Protocol>::client(runner& runner) : runner_{runner}
 {
 }
 
 template <typename Protocol>
 void client<Protocol>::connect(std::string_view addr, uint16_t port)
 {
-  if (sesion_ && session_->is_open())
+  if (session_ && session_->is_open())
   {
     LOG()->warn("current sesion is open. closing it. handle: {}", session_->get_handle());
     session_->close();
@@ -24,13 +24,13 @@ void client<Protocol>::connect(std::string_view addr, uint16_t port)
   endpoint_.address(ip_addr);
   endpoint_.port(port);
 
-  session_ = std::make_shared<session>(*this, false);
+  session_ = std::make_shared<session>(*this, runner_.get_ioc(), false);
 
-  boost::asio::async_connect(se->get_socket(), endpoint_,
-                             [this, se](boost::system::error_code ec, tcp::endpoint)
-                             {
-                               handle_connect(ec);
-                             });
+  session_->get_socket().async_connect(endpoint_,
+                                       [this](boost::system::error_code ec)
+                                       {
+                                         handle_connect(ec);
+                                       });
 }
 
 template <typename Protocol>
@@ -50,23 +50,11 @@ void client<Protocol>::reconnect()
   PLAY_CHECK(!session_->is_open());
 
   // reuse socket
-  boost::asio::async_connect(socket_, endpoint_,
-                             [this](boost::system::error_code ec, tcp::endpoint)
-                             {
-                               handle_connect(ec);
-                             });
-}
-
-template <typename Protocol>
-void client<Protocol>::start_connect()
-{
-  PLAY_CHECK(!socket_.is_open())
-
-  boost::asio::async_connect(socket_, endpoint_,
-                             [this](boost::system::error_code ec, tcp::endpoint)
-                             {
-                               handle_connect(ec);
-                             });
+  session_->get_socket().async_connect(endpoint_,
+                                       [this](boost::system::error_code ec)
+                                       {
+                                         handle_connect(ec);
+                                       });
 }
 
 template <typename Protocol>
