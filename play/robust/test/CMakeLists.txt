@@ -12,7 +12,6 @@ add_executable(
   test
   main.cpp 
   test_logger.cpp
-  test_bytes_frame.cpp
   test_client_server.cpp
   test_codecs.cpp
   test_object_pool.cpp

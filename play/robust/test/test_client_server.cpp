@@ -1,6 +1,8 @@
 #include <doctest/doctest.h>
 #include <play/robust/net/client.hpp>
 #include <play/robust/net/protocol/plain_protocol.hpp>
+#include <play/robust/net/protocol/stream_protocol.hpp>
+#include <play/robust/net/runner/poll_runner.hpp>
 #include <play/robust/net/server.hpp>
 
 using namespace play::robust::net;
@@ -9,8 +11,8 @@ TEST_CASE("client & server")
 {
   SUBCASE("compile server")
   {
-
-    server<plain_protocol<uint32_t>> server(R"(
+    poll_runner runner;
+    server<plain_protocol<uint32_t>> server(runner, R"(
     {
       "port" : 7000, 
       "concurrency" : 8
@@ -24,31 +26,74 @@ TEST_CASE("client & server")
     //   - 최적은 무엇일까? 함수 포인터로 만든다. 그러면 가상 함수도 필요없다.
     //   - C의 접근이 최적일 때가 있다. 돌아서 여기에 왔다.
   }
+}
 
-  SUBCASE("start server")
+namespace {
+
+struct test_server : public server<stream_protocol>
+{
+  using server = server<stream_protocol>;
+
+  test_server(runner& runner, std::string_view json) : server(runner, json) {}
+
+  void handle_established(session_ptr session) final {}
+
+  void handle_closed(session_ptr session, boost::system::error_code ec) final {}
+
+  void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
   {
-    server<plain_protocol<uint32_t>> server(R"(
+    recv_bytes_ += len;
+  }
+
+  size_t recv_bytes_;
+};
+
+struct test_client : public client<stream_protocol>
+{
+  using client = client<stream_protocol>;
+
+  test_client(runner& runner) : client(runner) {}
+
+  void handle_established(session_ptr session) final {}
+
+  void handle_closed(session_ptr session, boost::system::error_code ec) final {}
+
+  void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
+  {
+    recv_bytes_ += len;
+  }
+
+  size_t recv_bytes_{0};
+};
+
+}  // namespace
+
+TEST_CASE("communication")
+{
+  SUBCASE("stream_protocol")
+  {
+    poll_runner runner;
+
+    server<stream_protocol> server(runner, R"(
     {
       "port" : 7000, 
       "concurrency" : 8
     })");
 
-    // auto rc = server.start();
+    client<stream_protocol> client(runner);
 
-    // runner::sleep(100000);
+    auto rc = server.start();
 
-    // server.stop();
-  }
+    client.connect("127.0.0.1", 7000);
 
-  SUBCASE("compile client")
-  {
-    //
-  }
+    bool end = false;
 
-  SUBCASE("stream_protocol")
-  {
-    // bypass bytes
-    // lookup pattern and make frames
-    // 상위 단에서 처리하는 예시를 만들면서 사용성 검토가 됨
+    while (!end)
+    {
+      if (runner.poll() == 0)
+      {
+        runner.sleep(1);
+      }
+    }
   }
 }

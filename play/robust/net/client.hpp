@@ -33,10 +33,23 @@ public:
   void connect(std::string_view addr, uint16_t port);
 
   // 현재 세션을 얻음. 통신 등에 사용
-  session_ptr get_session() { return session_; }
+  session_ptr get_session()
+  {
+    return session_;
+  }
 
   // 연결 종료
   void close();
+
+protected:
+  // 하위 클래스에 협상 완료 처리 전달
+  virtual void handle_established(session_ptr){};
+
+  // 하위 클래스에 연결 종료 처리 전달
+  virtual void handle_closed(session_ptr, boost::system::error_code) {}
+
+  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
+  virtual void handle_receive(session_ptr, topic, const void* data, size_t) {};
 
 private:
   void start_connect();
@@ -46,13 +59,13 @@ private:
   void handle_connect(boost::system::error_code ec);
 
   // 프로토콜에서 Protocol::adatper를 통해서 전달
-  void on_established(session_ptr session) override;
+  void on_established(session_ptr se) override;
 
   // 세션에서 연결 종료 통지
-  void on_closed(session_ptr session, boost::system::error_code ec) override;
+  void on_closed(session_ptr se, boost::system::error_code ec) override;
 
   // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
-  void on_receive(session_ptr session, topic topic, const void* data, size_t len) override;
+  void on_receive(session_ptr se, topic topic, const void* data, size_t len) override;
 
 private:
   runner& runner_;
@@ -60,7 +73,6 @@ private:
   uint16_t port_;
   tcp::endpoint endpoint_;
   session_ptr session_;
-  std::unique_ptr<tcp::socket> socket_;
 };
 
 }}}  // namespace play::robust::net

@@ -45,12 +45,21 @@ public:
   // 세션에서 받은 바이트를 전달.
   void receive(const char* data, size_t len);
 
-  bool is_established() const { return (accepted_ || connected_) && !closed_; }
+  bool is_established() const
+  {
+    return (accepted_ || connected_) && !closed_;
+  }
 
 private:
-  adapter& get_adapter() { return protocol<topic>::get_adapter(); }
+  adapter& get_adapter()
+  {
+    return protocol<topic>::get_adapter();
+  }
 
-  size_t get_min_size() const { return 0; }
+  size_t get_min_size() const
+  {
+    return 0;
+  }
 
 private:
   size_t handle_;

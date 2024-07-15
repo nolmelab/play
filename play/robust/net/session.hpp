@@ -39,41 +39,64 @@ public:
    * - final 추가로 devirtualization이 가능하다. (clang, gcc, MSVC)
    * - @see https://devblogs.microsoft.com/cppblog/the-performance-benefits-of-final-classes/
    */
-  struct protocol_adapter : public protocol_adapter_base<topic>
+  struct protocol_adapter final : public protocol_adapter_base<topic>
   {
     protocol_adapter(ptr session) : session_{session} {}
 
     // send는 final로 devirtualization이 가능. 세션의 전용 기능
-    void send(const void* data, size_t len) final { session_->send(data, len); }
+    void send(const void* data, size_t len) final
+    {
+      session_->send(data, len);
+    }
 
-    void forward(topic topic, const void* data, size_t len)
+    void forward(topic topic, const void* data, size_t len) final
     {
       session_->handler_.on_receive(session_, topic, data, len);
     }
 
-    void established(size_t handle) override { session_->handler_.on_established(session_); }
+    void established(size_t handle) final
+    {
+      session_->handler_.on_established(session_);
+    }
 
     ptr session_;
   };
 
 public:
   // 프로토콜 생성. 프로토콜에 알림. 수신 시작
-  session(session_handler<Protocol>& handler, tcp::socket&& socket, bool accepted);
+  session(session_handler<Protocol>& handler, bool accepted);
 
   ~session();
+
+  // kick off protocol and communication
+  void start();
 
   // 바이트를 쓴다. 앱에서는 protocol_.send()를 사용
   void send(const void* data, size_t len);
 
   void close();
 
+  tcp::socket& get_socket()
+  {
+    return socket_;
+  }
+
   std::string get_endpoint() const;
 
-  size_t get_handle() { return handle_; }
+  size_t get_handle()
+  {
+    return handle_;
+  }
 
-  bool is_open() const { return socket_.is_open(); }
+  bool is_open() const
+  {
+    return socket_.is_open();
+  }
 
-  Protocol& get_protocol() { return protocol_; }
+  Protocol& get_protocol()
+  {
+    return protocol_;
+  }
 
 private:
   static constexpr size_t recv_size = 1024 * 8;

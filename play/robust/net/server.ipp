@@ -3,7 +3,7 @@
 namespace play { namespace robust { namespace net {
 
 template <typename Protocol>
-server<Protocol>::server(std::string_view json) : json_{json}
+server<Protocol>::server(runner& runner, std::string_view json) : runner_{runner}, json_{json}
 {
 }
 
@@ -17,16 +17,9 @@ bool server<Protocol>::start()
     jconf_ = nlohmann::json::parse(json_);
 
     auto port = jconf_["listen"].get<uint16_t>();
-    auto concurrency = std::thread::hardware_concurrency();
-    if (jconf_["concurrency"].is_number())
-    {
-      concurrency = jconf_["concurrency"].get<size_t>();
-    }
-
     auto endpoint = tcp::endpoint{{}, port};
 
-    runner_ = std::make_unique<thread_runner>(concurrency);
-    acceptor_ = std::make_unique<acceptor>(runner_->get_ioc());
+    acceptor_ = std::make_unique<acceptor>(runner_.get_ioc());
     acceptor_->open(asio::ip::tcp::v4());
     acceptor_->bind(endpoint);
     acceptor_->listen();
@@ -45,11 +38,11 @@ bool server<Protocol>::start()
 }
 
 template <typename Protocol>
-server<Protocol>::session_ptr server<Protocol>::get_session(size_t handle)
+typename server<Protocol>::session_ptr server<Protocol>::get_session(size_t handle)
 {
-  std::shared_lock(shared_mutex) guard(mutex_);
+  std::shared_lock<shared_mutex> guard(mutex_);
   auto iter = sessions_.find(handle);
-  if ( iter == sessions_.end())
+  if (iter == sessions_.end())
   {
     return {};
   }
@@ -60,12 +53,6 @@ template <typename Protocol>
 void server<Protocol>::stop()
 {
   on_stop();
-
-  if (!!runner_)
-  {
-    runner_->stop();
-    runner_.reset();
-  }
 
   if (!!acceptor_)
   {
@@ -90,6 +77,8 @@ template <typename Protocol>
 void server<Protocol>::on_established(session_ptr session)
 {
   LOG()->info("session: {} established", session->get_handle());
+
+  handle_established(session);
 }
 
 template <typename Protocol>
@@ -103,18 +92,21 @@ void server<Protocol>::on_closed(session_ptr session, boost::system::error_code 
 
   LOG()->info("session closed. handle: {}  remote: {} error: {}", session->get_handle(),
               session->get_endpoint(), ec.message());
+
+  handle_closed(session, ec);
 }
 
 template <typename Protocol>
-void server<Protocol>::on_receive(session_ptr session, typename Protocol::topic topic,
-                                  const void* data, size_t len)
+void server<Protocol>::on_receive(session_ptr session, topic topic, const void* data, size_t len)
 {
-  // TODO: frame_factory<Frame>
+  handle_receive(session, topic, data, len);
 }
 
 template <typename Protocol>
 void server<Protocol>::start_accept()
 {
+  auto session = std::make_shared<session>(*this, true);
+
   acceptor_->async_accept(
       [this](boost::system::error_code ec, tcp::socket socket)
       {
@@ -123,17 +115,17 @@ void server<Protocol>::start_accept()
 }
 
 template <typename Protocol>
-void server<Protocol>::handle_accept(boost::system::error_code ec, tcp::socket&& socket)
+void server<Protocol>::handle_accept(session_ptr se, boost::system::error_code ec)
 {
   if (!ec)
   {
-    auto ss = std::make_shared<session>(*this, std::move(socket), true);
-
     // add
     {
       std::unique_lock<shared_mutex> guard(mutex_);
-      sessions_.insert(std::pair(ss->get_handle(), ss));
+      sessions_.insert(std::pair(ss->get_handle(), se));
     }
+
+    se->start();
 
     LOG()->info("session accepted. remote: {}", ss->get_endpoint());
   }

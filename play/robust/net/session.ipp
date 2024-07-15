@@ -4,13 +4,24 @@
 namespace play { namespace robust { namespace net {
 
 template <typename Protocol>
-session<Protocol>::session(session_handler<Protocol>& handler, tcp::socket&& socket, bool accepted)
-    : handler_{handler},
-      socket_{std::move(socket)},
-      accepted_{accepted},
-      adapter_{this->shared_from_this()}
+session<Protocol>::session(session_handler<Protocol>& handler, bool accepted)
+    : handler_{handler}, accepted_{accepted}, adapter_{this->shared_from_this()}
 {
   handle_ = socket_.native_handle();
+}
+
+template <typename Protocol>
+session<Protocol>::~session()
+{
+  close();
+}
+
+template <typename Protocol>
+void session<Protocol>::start()
+{
+  PLAY_CHECK(handle_ > 0);
+  PLAY_CHECK(!protocol_);
+
   protocol_ = std::make_unique<Protocol>(handle_, adapter_);
 
   if (accepted_)
@@ -19,12 +30,6 @@ session<Protocol>::session(session_handler<Protocol>& handler, tcp::socket&& soc
     protocol_->connected();
 
   start_recv();
-}
-
-template <typename Protocol>
-session<Protocol>::~session()
-{
-  close();
 }
 
 template <typename Protocol>

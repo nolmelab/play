@@ -25,7 +25,7 @@ public:
 
 public:
   // json 문자열에서 읽어 서버를 준비
-  server(std::string_view json);
+  server(runner& runner, std::string_view json);
 
   // listen()부터 시작하여 서버를 시작
   bool start();
@@ -41,13 +41,14 @@ protected:
 
   virtual void on_stop();
 
-  // 프로토콜에서 Protocol::adatper를 통해서 전달
-  void on_established(session_ptr session) override;
+  // 하위 클래스에 협상 완료 처리 전달
+  virtual void handle_established(session_ptr){};
 
-  void on_closed(session_ptr session, boost::system::error_code ec) override;
+  // 하위 클래스에 연결 종료 처리 전달
+  virtual void handle_closed(session_ptr, boost::system::error_code) {}
 
   // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
-  void on_receive(session_ptr session, topic topic, const void* data, size_t len) override;
+  virtual void handle_receive(session_ptr, topic, const void* data, size_t) {};
 
 private:
   using session_map = std::unordered_map<handle, session_ptr>;
@@ -59,12 +60,20 @@ private:
   void start_accept();
 
   // accept를 처리. start_accept() 호출
-  void handle_accept(boost::system::error_code ec, tcp::socket&& socket);
+  void handle_accept(session_ptr se, boost::system::error_code ec);
+
+  // 프로토콜에서 Protocol::adatper를 통해서 전달
+  void on_established(session_ptr se) final;
+
+  void on_closed(session_ptr se, boost::system::error_code ec) final;
+
+  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
+  void on_receive(session_ptr se, topic topic, const void* data, size_t len) final;
 
 private:
+  runner& runner_;
   std::string json_;
   nlohmann::json jconf_;
-  std::unique_ptr<thread_runner> runner_;
   std::unique_ptr<acceptor> acceptor_;
   session_map sessions_;
   shared_mutex mutex_;
