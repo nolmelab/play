@@ -11,6 +11,8 @@ inline void stream_protocol::accepted()
 
   accepted_ = true;
   closed_ = false;
+
+  get_adapter().established(handle_);
 }
 
 inline void stream_protocol::connected()

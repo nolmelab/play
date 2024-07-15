@@ -18,11 +18,12 @@ bool server<Protocol>::start()
   {
     jconf_ = nlohmann::json::parse(json_);
 
-    auto port = jconf_["listen"].get<uint16_t>();
+    auto port = jconf_["port"].get<uint16_t>();
     auto endpoint = tcp::endpoint{{}, port};
 
     acceptor_ = std::make_unique<acceptor>(runner_.get_ioc());
     acceptor_->open(asio::ip::tcp::v4());
+    acceptor_->set_option(tcp::acceptor::reuse_address(true));  //
     acceptor_->bind(endpoint);
     acceptor_->listen();
 
@@ -78,7 +79,8 @@ void server<Protocol>::on_stop()
 template <typename Protocol>
 void server<Protocol>::on_established(session_ptr session)
 {
-  LOG()->info("session: {} established", session->get_handle());
+  LOG()->info("server session: {} established. remote: {}", session->get_handle(),
+              session->get_remote_addr());
 
   handle_established(session);
 }
@@ -93,7 +95,7 @@ void server<Protocol>::on_closed(session_ptr session, boost::system::error_code 
   }
 
   LOG()->info("session closed. handle: {}  remote: {} error: {}", session->get_handle(),
-              session->get_endpoint(), ec.message());
+              session->get_remote_addr(), ec.message());
 
   handle_closed(session, ec);
 }
@@ -129,7 +131,7 @@ void server<Protocol>::handle_accept(session_ptr se, boost::system::error_code e
 
     se->start();
 
-    LOG()->info("session accepted. remote: {}", se->get_endpoint());
+    LOG()->info("session accepted. remote: {}", se->get_remote_addr());
   }
   else
   {

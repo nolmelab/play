@@ -7,10 +7,9 @@ template <typename Protocol>
 session<Protocol>::session(session_handler<Protocol>& handler, asio::io_context& ioc, bool accepted)
     : handler_{handler},
       socket_{ioc},
-      accepted_{accepted},
-      adapter_{this->shared_from_this()}
+      handle_{0},
+      accepted_{accepted}
 {
-  handle_ = socket_.native_handle();
 }
 
 template <typename Protocol>
@@ -22,10 +21,13 @@ session<Protocol>::~session()
 template <typename Protocol>
 void session<Protocol>::start()
 {
-  PLAY_CHECK(handle_ > 0);
   PLAY_CHECK(!protocol_);
 
-  protocol_ = std::make_unique<Protocol>(handle_, adapter_);
+  handle_ = socket_.native_handle();
+  PLAY_CHECK(handle_ > 0);
+
+  adapter_ = std::make_unique<protocol_adapter>(this->shared_from_this());
+  protocol_ = std::make_unique<Protocol>(handle_, *adapter_);
 
   if (accepted_)
     protocol_->accepted();
@@ -41,7 +43,7 @@ void session<Protocol>::send(const void* data, size_t len)
   if (!is_open())
   {
     LOG()->warn("send called on closed session. handle: {}, remote: {}", get_handle(),
-                get_endpoint());
+                get_remote_addr());
     return;
   }
 
@@ -66,18 +68,18 @@ void session<Protocol>::close()
 }
 
 template <typename Protocol>
-std::string session<Protocol>::get_endpoint() const
+std::string session<Protocol>::get_remote_addr() const
 {
-  if (endpoint_.empty())
+  if (remote_addr_.empty())
   {
     tcp::endpoint ep = socket_.remote_endpoint();
 
     auto addr = ep.address().to_string();
     auto port = ep.port();
 
-    endpoint_ = fmt::format("{}:{}", addr, port);
+    remote_addr_ = fmt::format("{}:{}", addr, port);
   }
-  return endpoint_;
+  return remote_addr_;
 }
 
 template <typename Protocol>
@@ -85,18 +87,23 @@ void session<Protocol>::start_send()
 {
   // locked
   PLAY_CHECK(!sending_);
-  sending_ = true;
 
   auto& send_buf = send_bufs_[acc_buf_index_];  // acc buffer becomes send buffer
-  acc_buf_index_ = acc_buf_index_ ^ 1;          // switch send accumulation buffer
+  if (send_buf.size() == 0)
+  {
+    return;  // nothing to send in accumulation buffer
+  }
+
+  sending_ = true;
+  acc_buf_index_ = acc_buf_index_ ^ 1;  // switch send accumulation buffer
 
   auto self(this->shared_from_this());
   auto buf = send_buf.data();
-  boost::asio::async_write(socket_, boost::asio::buffer(buf.data(), buf.size()),
-                           [this, self](boost::system::error_code ec, std::size_t len)
-                           {
-                             handle_send(ec, len);
-                           });
+  socket_.async_send(boost::asio::buffer(buf.data(), buf.size()),
+                     [this, self](boost::system::error_code ec, std::size_t len)
+                     {
+                       handle_send(ec, len);
+                     });
 }
 
 template <typename Protocol>
@@ -104,11 +111,11 @@ void session<Protocol>::start_recv()
 {
   auto self(this->shared_from_this());
   auto buf = recv_buf_.prepare(recv_size);
-  boost::asio::async_read(socket_, boost::asio::buffer(buf.data(), buf.size()),
-                          [this, self](boost::system::error_code ec, std::size_t len)
-                          {
-                            handle_recv(ec, len);
-                          });
+  socket_.async_receive(boost::asio::buffer(buf.data(), buf.size()),
+                        [this, self](boost::system::error_code ec, std::size_t len)
+                        {
+                          handle_recv(ec, len);
+                        });
 }
 
 template <typename Protocol>

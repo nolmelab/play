@@ -41,7 +41,10 @@ public:
    */
   struct protocol_adapter final : public protocol_adapter_base<topic>
   {
-    protocol_adapter(ptr session) : session_{session} {}
+    protocol_adapter(ptr session)
+        : session_{session}
+    {
+    }
 
     // send는 final로 devirtualization이 가능. 세션의 전용 기능
     void send(const void* data, size_t len) final
@@ -81,7 +84,7 @@ public:
     return socket_;
   }
 
-  std::string get_endpoint() const;
+  std::string get_remote_addr() const;
 
   size_t get_handle()
   {
@@ -112,11 +115,11 @@ private:
 private:
   session_handler<Protocol>& handler_;
   tcp::socket socket_;
-  protocol_adapter adapter_;
+  std::unique_ptr<protocol_adapter> adapter_;
   std::unique_ptr<Protocol> protocol_;
   bool accepted_;
   size_t handle_;
-  mutable std::string endpoint_;
+  mutable std::string remote_addr_;
 
   std::recursive_mutex mutex_;
   asio::streambuf recv_buf_;

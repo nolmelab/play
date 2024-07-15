@@ -3,7 +3,8 @@
 namespace play { namespace robust { namespace net {
 
 template <typename Protocol>
-client<Protocol>::client(runner& runner) : runner_{runner}
+client<Protocol>::client(runner& runner)
+    : runner_{runner}
 {
 }
 
@@ -65,7 +66,7 @@ void client<Protocol>::handle_connect(boost::system::error_code ec)
     session_->start();
 
     LOG()->info("session connected. handle: {} remote: {}", session_->get_handle(),
-                session_->get_endpoint());
+                session_->get_remote_addr());
   }
   else
   {
@@ -79,7 +80,8 @@ void client<Protocol>::handle_connect(boost::system::error_code ec)
 template <typename Protocol>
 void client<Protocol>::on_established(session_ptr session)
 {
-  LOG()->info("session: {} established", session->get_handle());
+  LOG()->info("client session: {} established. remote: {}", session->get_handle(),
+              session->get_remote_addr());
 
   handle_established(session);
 }
@@ -88,7 +90,7 @@ template <typename Protocol>
 void client<Protocol>::on_closed(session_ptr session, boost::system::error_code ec)
 {
   LOG()->info("session closed. handle: {}  remote: {} error: {}", session->get_handle(),
-              session->get_endpoint(), ec.message());
+              session->get_remote_addr(), ec.message());
 
   handle_closed(session, ec);
 
