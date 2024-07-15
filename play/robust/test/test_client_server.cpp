@@ -91,15 +91,21 @@ TEST_CASE("communication")
     auto rc = server.start();
 
     client.connect("127.0.0.1", 7000);
+    runner.poll();
+    runner.poll();
 
     bool end = false;
 
-    while (!end)
+    client.send("hello", 5);
+
+    while (client.recv_bytes_ < 1024)
     {
       if (runner.poll() == 0)
       {
         runner.sleep(1);
       }
     }
+
+    server.stop();
   }
 }
