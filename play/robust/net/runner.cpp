@@ -8,7 +8,12 @@
 
 namespace play { namespace robust { namespace net {
 
-runner::runner(std::string_view name) : ioc_{}, name_{name}, timer_service_{ioc_} {}
+runner::runner(std::string_view name)
+    : ioc_{},
+      name_{name},
+      timer_service_{ioc_}
+{
+}
 
 void runner::sleep(int ms)
 {

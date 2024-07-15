@@ -4,7 +4,9 @@
 namespace play { namespace robust { namespace net {
 
 thread_runner::thread_runner(size_t thread_count)
-    : thread_count_{thread_count}, guard_{ioc_.get_executor()}, stop_{false}
+    : thread_count_{thread_count},
+      guard_{ioc_.get_executor()},
+      stop_{false}
 {
   if (thread_count == 0)
   {

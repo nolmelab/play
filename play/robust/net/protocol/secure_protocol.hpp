@@ -58,12 +58,21 @@ public:
    */
   void receive(const char* data, size_t len);
 
-  bool is_established() const { return cipher_handshake_->is_established(); }
+  bool is_established() const
+  {
+    return cipher_handshake_->is_established();
+  }
 
 private:
-  adapter& get_adapter() const { return protocol<Topic, Adapter>::get_adapter(); }
+  adapter& get_adapter() const
+  {
+    return protocol<Topic, Adapter>::get_adapter();
+  }
 
-  size_t get_min_size() const { return length_codec_->length_field_size + sizeof(Topic); }
+  size_t get_min_size() const
+  {
+    return length_codec_->length_field_size + sizeof(Topic);
+  }
 
 private:
   size_t handle_;

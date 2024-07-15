@@ -3,7 +3,9 @@
 namespace play { namespace robust { namespace net {
 
 template <typename Protocol>
-server<Protocol>::server(runner& runner, std::string_view json) : runner_{runner}, json_{json}
+server<Protocol>::server(runner& runner, std::string_view json)
+    : runner_{runner},
+      json_{json}
 {
 }
 

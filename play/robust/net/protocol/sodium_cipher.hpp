@@ -11,7 +11,10 @@ class sodium_cipher : public codec
 public:
   struct exception : public std::exception
   {
-    exception(const std::string& what) : what_{what} {}
+    exception(const std::string& what)
+        : what_{what}
+    {
+    }
 
     const char* what() const noexcept override
     {
@@ -22,7 +25,9 @@ public:
   };
 
 public:
-  sodium_cipher(size_t handle, sodium_handshake& handshake) : handle_{handle}, handshake_{handshake}
+  sodium_cipher(size_t handle, sodium_handshake& handshake)
+      : handle_{handle},
+        handshake_{handshake}
   {
   }
 

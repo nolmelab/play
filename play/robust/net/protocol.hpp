@@ -28,7 +28,10 @@ public:
   using adapter = protocol_adapter_base<Topic>;
 
 public:
-  protocol(adapter& adapter) : adapter_{adapter} {}
+  protocol(adapter& adapter)
+      : adapter_{adapter}
+  {
+  }
 
   // 비트 연산을 제공하는 값 타잎들에 대해 직렬화
   template <typename Value>
@@ -43,7 +46,10 @@ public:
   void deserialize(const asio::const_buffer& cbuf, bool& v);
 
 protected:
-  adapter& get_adapter() { return adapter_; }
+  adapter& get_adapter()
+  {
+    return adapter_;
+  }
 
 private:
   adapter& adapter_;

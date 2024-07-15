@@ -34,7 +34,10 @@ struct test_server : public server<stream_protocol>
 {
   using server = server<stream_protocol>;
 
-  test_server(runner& runner, std::string_view json) : server(runner, json) {}
+  test_server(runner& runner, std::string_view json)
+      : server(runner, json)
+  {
+  }
 
   void handle_established(session_ptr session) final {}
 
@@ -52,7 +55,10 @@ struct test_client : public client<stream_protocol>
 {
   using client = client<stream_protocol>;
 
-  test_client(runner& runner) : client(runner) {}
+  test_client(runner& runner)
+      : client(runner)
+  {
+  }
 
   void send(const char* data, size_t len)
   {

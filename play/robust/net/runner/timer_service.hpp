@@ -12,11 +12,18 @@ public:
 
 public:
   timer(std::reference_wrapper<asio::io_context> ioc)
-      : timer_{ioc.get()}, ms_{0}, set_{false}, once_{false}, repeat_{false}
+      : timer_{ioc.get()},
+        ms_{0},
+        set_{false},
+        once_{false},
+        repeat_{false}
   {
   }
 
-  ~timer() { cancel(); }
+  ~timer()
+  {
+    cancel();
+  }
 
   template <typename CompletionToken>
   void once(asio::chrono::milliseconds ms, CompletionToken&& handler);
@@ -42,7 +49,10 @@ private:
 class timer_service
 {
 public:
-  timer_service(asio::io_context& ioc) : ioc_{ioc} {}
+  timer_service(asio::io_context& ioc)
+      : ioc_{ioc}
+  {
+  }
 
   template <typename CompletionToken>
   timer::ref once(asio::chrono::milliseconds ms, CompletionToken&& handler);

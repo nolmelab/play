@@ -5,7 +5,10 @@ namespace play { namespace robust { namespace net {
 
 template <typename Protocol>
 session<Protocol>::session(session_handler<Protocol>& handler, asio::io_context& ioc, bool accepted)
-    : handler_{handler}, socket_{ioc}, accepted_{accepted}, adapter_{this->shared_from_this()}
+    : handler_{handler},
+      socket_{ioc},
+      accepted_{accepted},
+      adapter_{this->shared_from_this()}
 {
   handle_ = socket_.native_handle();
 }

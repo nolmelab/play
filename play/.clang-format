@@ -59,7 +59,7 @@ MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
-PackConstructorInitializers: NextLine
+PackConstructorInitializers: Never # Never로 하면 원하는 대로 각 라인으로 분리
 PointerAlignment: Left
 ReferenceAlignment: Left
 ReflowComments: false
