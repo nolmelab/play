@@ -94,7 +94,7 @@ void server<Protocol>::on_closed(session_ptr session, boost::system::error_code 
     sessions_.erase(session->get_handle());
   }
 
-  LOG()->info("session closed. handle: {}  remote: {} error: {}", session->get_handle(),
+  LOG()->info("server session closed. handle: {}  remote: {} error: {}", session->get_handle(),
               session->get_remote_addr(), ec.message());
 
   handle_closed(session, ec);
@@ -131,7 +131,7 @@ void server<Protocol>::handle_accept(session_ptr se, boost::system::error_code e
 
     se->start();
 
-    LOG()->info("session accepted. remote: {}", se->get_remote_addr());
+    LOG()->info("session accepted. handle: {} remote: {}", se->get_handle(), se->get_remote_addr());
   }
   else
   {

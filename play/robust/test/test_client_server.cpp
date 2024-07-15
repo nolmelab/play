@@ -1,4 +1,5 @@
 #include <doctest/doctest.h>
+#include <chrono>
 #include <play/robust/net/client.hpp>
 #include <play/robust/net/protocol/plain_protocol.hpp>
 #include <play/robust/net/protocol/stream_protocol.hpp>
@@ -30,6 +31,8 @@ TEST_CASE("client & server")
 
 namespace {
 
+static constexpr int test_bytes = 1 * 1024 * 1024;
+
 struct test_server : public server<stream_protocol>
 {
   using server = server<stream_protocol>;
@@ -49,7 +52,7 @@ struct test_server : public server<stream_protocol>
     session->get_protocol().send(reinterpret_cast<const char*>(data), len);  // echo back
   }
 
-  size_t recv_bytes_;
+  size_t recv_bytes_{0};
 };
 
 struct test_client : public client<stream_protocol>
@@ -69,7 +72,12 @@ struct test_client : public client<stream_protocol>
   void handle_established(session_ptr session) final
   {
     LOG()->info("test_client established. remote: {}", session->get_remote_addr());
-    send("hello", 5);
+    std::string payload;
+    for (int i; i < 100; ++i)
+    {
+      payload.append("hello");
+    }
+    send(payload.c_str(), payload.length());
   }
 
   void handle_closed(session_ptr session, boost::system::error_code ec) final {}
@@ -102,14 +110,13 @@ TEST_CASE("communication")
     auto rc = server.start();
 
     client.connect("127.0.0.1", 7000);
-    runner.poll();
-    runner.poll();
+    runner.poll_one();
 
     bool end = false;
 
-    while (client.recv_bytes_ < 1024)
+    while (client.recv_bytes_ < test_bytes)
     {
-      if (runner.poll() == 0)
+      if (runner.poll_one() == 0)
       {
         runner.sleep(1);
       }
@@ -130,6 +137,54 @@ TEST_CASE("communication")
     //     - 서비스 할 때는 TIME_WAIT 값 조절로 해결해야 함
     //     - 포트를 훔칠 수 있으므로 옵션으로 하는 것 고려
     // [5] 통신 되고 나서 poll()에서 리턴되지 않고 계속 실행됨
-    //     -
+    //     - accept가 요청된 상태에서 run()을 호출하면 대기하게 됨
+    //     - poll_one()을 호출하는 함수를 추가
+    //
+  }
+
+  // echo는 성능 측정용이 아니긴 하나 기본 특성을 살핀다.
+  // send의 시작 크기가 늘어나면 초당 송수신 바이트는 늘어난다.
+  SUBCASE("stream_protocol echo perf")
+  {
+    poll_runner runner;
+
+    test_server server(runner, R"(
+    {
+      "port" : 7000, 
+      "concurrency" : 8
+    })");
+
+    test_client client(runner);
+
+    auto rc = server.start();
+
+    client.connect("127.0.0.1", 7000);
+    runner.poll_one();
+
+    auto start = std::chrono::steady_clock::now();
+
+    while (client.recv_bytes_ < test_bytes)
+    {
+      if (runner.poll_one() == 0)
+      {
+        runner.sleep(1);
+      }
+    }
+
+    server.stop();
+
+    auto end = std::chrono::steady_clock::now();
+
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    LOG()->info("stream recv: {} bytes. elapsed: {}", test_bytes, elapsed);
+
+    // 릴리스 빌드:
+    // [1] 대역 사용 (bandwidth throughput)
+    // - 페이로드 시작을 500 바이트로 늘리면 초당 100메가 바이트를 송수신 한다.
+    // - 에코이므로 실제 성능은 더 늘어난다.
+    // [2] 패킷 사용 (pps throughput)
+    // - 1바이트로 PPS를 측정하면 6초에 10만개 정도이다.
+    // - 에코이므로 마찬가지로 제한되지만 괜찮다.
   }
 }

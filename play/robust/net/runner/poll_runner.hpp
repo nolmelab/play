@@ -18,6 +18,12 @@ public:
     get_ioc().restart();  // stopped_ 상태를 false로 만들어 실행 가능하게 함
     return get_ioc().run();
   }
+
+  size_t poll_one()
+  {
+    get_ioc().restart();
+    return get_ioc().poll_one();
+  }
 };
 
 }}}  // namespace play::robust::net

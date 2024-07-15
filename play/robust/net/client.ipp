@@ -89,7 +89,7 @@ void client<Protocol>::on_established(session_ptr session)
 template <typename Protocol>
 void client<Protocol>::on_closed(session_ptr session, boost::system::error_code ec)
 {
-  LOG()->info("session closed. handle: {}  remote: {} error: {}", session->get_handle(),
+  LOG()->info("client session closed. handle: {}  remote: {} error: {}", session->get_handle(),
               session->get_remote_addr(), ec.message());
 
   handle_closed(session, ec);
