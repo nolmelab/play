@@ -39,13 +39,14 @@ public:
    * - final 추가로 devirtualization이 가능하다. (clang, gcc, MSVC)
    * - @see https://devblogs.microsoft.com/cppblog/the-performance-benefits-of-final-classes/
    */
-  struct protocol_adapter final : public protocol_adapter_base<topic>
+  struct protocol_adapter : public protocol_adapter_base<topic>
   {
     protocol_adapter(ptr session) : session_{session} {}
 
-    void send(const void* data, size_t len) override { session_->send(data, len); }
+    // send는 final로 devirtualization이 가능. 세션의 전용 기능
+    void send(const void* data, size_t len) final { session_->send(data, len); }
 
-    void forward(topic topic, const void* data, size_t len) override
+    void forward(topic topic, const void* data, size_t len)
     {
       session_->handler_.on_receive(session_, topic, data, len);
     }

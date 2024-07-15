@@ -75,6 +75,32 @@ void server<Protocol>::on_stop()
 }
 
 template <typename Protocol>
+void server<Protocol>::on_established(session_ptr session)
+{
+  LOG()->info("session: {} established", session->get_handle());
+}
+
+template <typename Protocol>
+void server<Protocol>::on_closed(session_ptr session, boost::system::error_code ec)
+{
+  // remove
+  {
+    std::unique_lock<shared_mutex> guard(mutex_);
+    sessions_.erase(session->get_handle());
+  }
+
+  LOG()->info("session closed. handle: {}  remote: {}", session->get_handle(),
+              session->get_endpoint());
+}
+
+template <typename Protocol>
+void server<Protocol>::on_receive(session_ptr session, typename Protocol::topic topic,
+                                  const void* data, size_t len)
+{
+  // TODO: frame_factory<Frame>
+}
+
+template <typename Protocol>
 void server<Protocol>::start_accept()
 {
   acceptor_->async_accept(
@@ -105,32 +131,6 @@ void server<Protocol>::handle_accept(boost::system::error_code ec, tcp::socket&&
   }
 
   start_accept();
-}
-
-template <typename Protocol>
-void server<Protocol>::on_established(session_ptr session)
-{
-  LOG()->info("session: {} established", session->get_handle());
-}
-
-template <typename Protocol>
-void server<Protocol>::on_closed(session_ptr session, boost::system::error_code ec)
-{
-  // remove
-  {
-    std::unique_lock<shared_mutex> guard(mutex_);
-    sessions_.erase(session->get_handle());
-  }
-
-  LOG()->info("session closed. handle: {}  remote: {}", session->get_handle(),
-              session->get_endpoint());
-}
-
-template <typename Protocol>
-void server<Protocol>::on_receive(session_ptr session, typename Protocol::topic topic,
-                                  const void* data, size_t len)
-{
-  // TODO: frame_factory<Frame>
 }
 
 }}}  // namespace play::robust::net

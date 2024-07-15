@@ -21,6 +21,7 @@ public:
   using session = session<Protocol>;
   using handle = typename session::handle;
   using session_ptr = typename session_handler<Protocol>::session_ptr;
+  using topic = typename Protocol::topic;
 
 public:
   // json 문자열에서 읽어 서버를 준비
@@ -37,6 +38,13 @@ protected:
 
   virtual void on_stop();
 
+  // 프로토콜에서 Protocol::adatper를 통해서 전달
+  void on_established(session_ptr session) override;
+
+  void on_closed(session_ptr session, boost::system::error_code ec) override;
+
+  void on_receive(session_ptr session, topic topic, const void* data, size_t len) override;
+
 private:
   using session_map = std::unordered_map<handle, session_ptr>;
   using shared_mutex = std::shared_timed_mutex;
@@ -48,14 +56,6 @@ private:
 
   // accept를 처리. start_accept() 호출
   void handle_accept(boost::system::error_code ec, tcp::socket&& socket);
-
-  // 프로토콜에서 Protocol::adatper를 통해서 전달
-  void on_established(session_ptr session) override;
-
-  void on_closed(session_ptr session, boost::system::error_code ec) override;
-
-  void on_receive(session_ptr session, typename Protocol::topic topic, const void* data,
-                  size_t len) override;
 
 private:
   std::string json_;
