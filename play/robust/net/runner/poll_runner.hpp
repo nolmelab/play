@@ -6,7 +6,7 @@ namespace play { namespace robust { namespace net {
 
 // io_context runner base class
 /**
- * poll() 함수를 통해 io_context를 통해 실행
+ * poll() 함수를 통해 io_context를 실행
  */
 class poll_runner : public runner
 {

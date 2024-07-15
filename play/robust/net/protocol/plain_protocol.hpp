@@ -42,18 +42,30 @@ public:
   // 세션 종료를 받음
   void closed();
 
-  // topic과 길이를 추가하여 send_fn을 통해 전송
-  void send(Topic topic, const char* data, size_t len, bool encrypt = false);
+  // topic과 길이를 추가하여 adapter의 send를 통해 전송
+  /**
+   * topic과 길이를 헤더로 추가하여 send_2 함수를 통해 직접 세션 버퍼로 전달
+   */
+  void send(Topic topic, const char* data, size_t len);
 
-  // 세션에서 받은 바이트를 전달. 프로토콜 협상 처리. 최종적으로 recv_fn을 통해 전달
+  // 세션에서 받은 바이트를 전달. 프로토콜 협상 처리. 최종적으로 forward로 전달
   void receive(const char* data, size_t len);
 
-  bool is_established() const { return (accepted_ || connected_) && !closed_; }
+  bool is_established() const
+  {
+    return (accepted_ || connected_) && !closed_;
+  }
 
 private:
-  adapter& get_adapter() { return protocol<Topic>::get_adapter(); }
+  adapter& get_adapter()
+  {
+    return protocol<Topic>::get_adapter();
+  }
 
-  size_t get_min_size() const { return length_codec_->length_field_size + sizeof(Topic); }
+  size_t get_min_size() const
+  {
+    return length_codec_->length_field_size + sizeof(Topic);
+  }
 
 private:
   size_t handle_;

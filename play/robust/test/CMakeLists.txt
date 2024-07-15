@@ -15,6 +15,7 @@ add_executable(
   test_client_server.cpp
   test_codecs.cpp
   test_object_pool.cpp
+  test_plain_protocol.cpp
   test_protocol.cpp
   test_runner.cpp
   test_timer.cpp

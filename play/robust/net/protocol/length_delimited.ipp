@@ -50,7 +50,7 @@ inline size_t length_delimited::encode(const const_buffer& src_buf,
   // make the payload available for reading
   dest_stream_buf.commit(total_len);
 
-  return src_buf.size() + length_field_size;
+  return total_len;
 }
 
 }}}  // namespace play::robust::net
