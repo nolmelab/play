@@ -50,7 +50,7 @@ inline size_t length_delimited::encode(const const_buffer& src_buf, mutable_buff
     std::memcpy(dest, src, src_buf.size());
   }
 
-  return src_buf.size() + length_field_size;
+  return total_len;
 }
 
 }}}  // namespace play::robust::net

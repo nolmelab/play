@@ -4,6 +4,13 @@
 
 using streambuf = boost::asio::streambuf;
 
+/**
+ * streambuf 사용의 핵심은 다음과 같다. 
+ * - gptr()이 읽기(get) 포인터, pptr()이 쓰기(put) 포인터이다. 
+ * - consume()은 읽기 포인터를 앞으로 읽고 이동하는데 쓴다. 
+ * - commit()은 쓰기 완료시 다음 쓸 위치를 앞으로 옮긴다. 
+ * - prepare()에서 빈 곳으로 이동하여 공간을 추가로 확보한다. 
+ */
 TEST_CASE("learn streambuf")
 {
   SUBCASE("basics")

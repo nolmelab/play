@@ -1,6 +1,6 @@
 {
-  "_cmake.sourceDirectory": "/home/kdpark/playrobust/play",
-  "cmake.sourceDirectory": "/workspaces/robust/play",
+  "cmake.sourceDirectory": "/home/kdpark/playrobust/play",
+  "_cmake.sourceDirectory": "/workspaces/robust/play",
   "--cmake.sourceDirectory": "C:/nolmelab/playrobust/play",
   "cmake.configureSettings": {
     "_CMAKE_TOOLCHAIN_FILE": "c:/app/vcpkg/scripts/buildsystems/vcpkg.cmake",

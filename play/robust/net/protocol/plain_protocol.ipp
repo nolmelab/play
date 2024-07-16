@@ -41,7 +41,7 @@ inline void plain_protocol<Topic>::closed()
 }
 
 template <typename Topic>
-inline void plain_protocol<Topic>::send(Topic topic, const char* data, size_t len, bool encrypt)
+inline void plain_protocol<Topic>::send(Topic topic, const char* data, size_t len)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -53,7 +53,7 @@ inline void plain_protocol<Topic>::send(Topic topic, const char* data, size_t le
   PLAY_CHECK(is_established());
 
   auto m_1 = send_buf_.prepare(sizeof(Topic));
-  serialize(m_1, topic);
+  this->serialize(m_1, topic);
   send_buf_.commit(sizeof(Topic));
 
   auto payload_buf = asio::const_buffer{data, len};
