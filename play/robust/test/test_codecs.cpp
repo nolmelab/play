@@ -18,12 +18,15 @@ TEST_CASE("codecs")
     length_delimited codec{1};
     std::array<char, payload_size> payload = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    asio::streambuf sbuf;
-    auto size = codec.encode(asio::const_buffer{payload.data(), 10}, sbuf);
+    asio::streambuf send_buf;
+    auto dest_buf = send_buf.prepare(total_len);
+    auto size = codec.encode(asio::const_buffer{payload.data(), 10}, dest_buf);
     CHECK(size == total_len);
+    send_buf.commit(total_len);
 
+    auto& recv_buf = send_buf;
     // 현재 읽기 시작점부터 읽기 영역 데이터를 얻는다.
-    auto rbuf = sbuf.data();
+    auto rbuf = recv_buf.data();
     auto result = codec.decode(rbuf);
     CHECK(result);
     auto recv_payload = result.value();
@@ -31,8 +34,8 @@ TEST_CASE("codecs")
     CHECK(std::memcmp(payload.data(), recv_payload.data(), payload_size) == 0);
 
     // 사용되었다고 가정한다.
-    sbuf.consume(total_len);
-    CHECK(sbuf.data().size() == 0);
+    recv_buf.consume(total_len);
+    CHECK(recv_buf.data().size() == 0);
   }
 }
 
@@ -40,7 +43,7 @@ namespace {
 
 class dummy_handshake
 {
- public:
+public:
   dummy_handshake() = default;
 
   void create(size_t handle, bool accepted, sodium_handshake::send_fn fn)
@@ -54,9 +57,12 @@ class dummy_handshake
     handshake_->on_receive(recv_buf);
   }
 
-  sodium_handshake& get_handshake() const { return *handshake_.get(); }
+  sodium_handshake& get_handshake() const
+  {
+    return *handshake_.get();
+  }
 
- private:
+private:
   std::unique_ptr<sodium_handshake> handshake_;
 };
 
@@ -68,7 +74,7 @@ class dummy_handshake
  */
 class dummy_peer
 {
- public:
+public:
   dummy_peer() = default;
 
   void start(size_t handle, sodium_handshake& handshake)
@@ -108,14 +114,22 @@ class dummy_peer
 
   void send_to_peer(const void* data, size_t len, codec::send_fn fn)
   {
+    // 실제 프로토콜 구현은 세션의 버퍼를 확보한 후에 포인터에 대한 처리로 해야 한다.
+    // 그래야 여러 번 복사하는 작업을 피할 수 있다. sodium은 in-place 암호화를 한다.
     auto payload_buf = asio::const_buffer{data, len};
-    auto enc_len = cipher_codec_->encode(payload_buf, enc_buf_);
+    auto enc_buf = enc_buf_.prepare(len);
+    auto enc_len = cipher_codec_->encode(payload_buf, enc_buf);
     if (enc_len > 0)
     {
+      enc_buf_.commit(len);
+
       auto enc_buf = enc_buf_.data();
-      auto result = length_codec_->encode(enc_buf, send_buf_);
+      auto len_buf = send_buf_.prepare(len + length_codec_->length_field_size);
+      auto result = length_codec_->encode(enc_buf, len_buf);
       if (result)
       {
+        send_buf_.commit(len + length_codec_->length_field_size);
+
         auto send_data = send_buf_.data();
         fn(send_data.data(), send_data.size());
         send_buf_.consume(send_data.size());
@@ -126,9 +140,12 @@ class dummy_peer
     }
   }
 
-  auto get_messages() { return messages_; }
+  auto get_messages()
+  {
+    return messages_;
+  }
 
- private:
+private:
   std::unique_ptr<sodium_cipher> cipher_codec_;
   std::unique_ptr<length_delimited> length_codec_;
   asio::streambuf recv_buf_;

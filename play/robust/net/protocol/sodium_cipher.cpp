@@ -30,10 +30,8 @@ std::optional<codec::const_buffer> sodium_cipher::decode(const const_buffer& src
 }
 
 // encrypt src_buf into dest_buf
-size_t sodium_cipher::encode(const const_buffer& src_buf, asio::streambuf& dest_stream_buf)
+size_t sodium_cipher::encode(const const_buffer& src_buf, mutable_buffer& dest_buf)
 {
-  auto dest_buf = dest_stream_buf.prepare(src_buf.size());
-
   const uint8_t* src = reinterpret_cast<const uint8_t*>(src_buf.data());
   uint8_t* dest = reinterpret_cast<uint8_t*>(dest_buf.data());
 
@@ -46,9 +44,6 @@ size_t sodium_cipher::encode(const const_buffer& src_buf, asio::streambuf& dest_
     LOG()->error(m);
     throw exception(m);
   }
-
-  // make the payload available for reading
-  dest_stream_buf.commit(src_buf.size());
 
   handshake_.inc_tx_nonce();
 

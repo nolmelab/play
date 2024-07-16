@@ -17,7 +17,7 @@ inline void secure_protocol<Topic>::accepted()
   closed_ = false;
 
   length_codec_ = std::make_unique<length_delimited>(handle_);
-  cipher_handshake_ = std::make_unique<sodium_handshake>(handle_, true, get_adapter().send_);
+  cipher_handshake_ = std::make_unique<sodium_handshake>(handle_, true, send_fn_);
   cipher_codec_ = std::make_unique<sodium_cipher>(handle_, *cipher_handshake_.get());
 
   cipher_handshake_->prepare();
@@ -53,49 +53,41 @@ inline void secure_protocol<Topic>::closed()
 }
 
 template <typename Topic>
-inline void secure_protocol<Topic>::send(Topic topic, const char* data, size_t len, bool encrypt)
+inline size_t secure_protocol<Topic>::encode(Topic topic, const char* data, size_t len,
+                                             codec::mutable_buffer& dest, bool encrypt = false)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
   {
-    LOG()->warn("send called on closed session. handle: {}", handle_);
-    return;
+    LOG()->warn("encode called on closed session. handle: {}", handle_);
+    return 0;
   }
 
   if (!is_established())
   {
-    LOG()->warn("send called on handshaking session. handle: {}", handle_);
-    return;
+    recv(data, len);  // 협상 중이면 handshake가 알아서 처리
+    return 0;
   }
 
-  auto m_1 = send_buf_.prepare(sizeof(Topic));
-  serialize(m_1, topic);
-  send_buf_.commit(sizeof(Topic));
+  PLAY_CHECK(dest.size() >= len + length_codec_->length_field_size);
 
-  auto m_2 = send_buf_.prepare(1);
+  serialize(m_1, topic);
   protocol<Topic>::serialize(m_2, encrypt);
-  send_buf_.commit(1);
 
   auto payload_buf = asio::const_buffer{data, len};
+  auto enc_buf = asio::mutable_buffer(dest_buf.data() + length_codec_->length_field_size,
+                                      dest_buf.size() - length_codec_->length_field_size);
+  auto enc_len = cipher_codec_->encode(payload_buf, enc_buf);
+  PLAY_CHECK(enc_len > 0);
 
-  auto enc_len = cipher_codec_->encode(payload_buf, enc_buf_);
-  if (enc_len > 0)
-  {
-    auto enc_buf = enc_buf_.data();
-    auto result = length_codec_->encode(enc_buf, send_buf_);
-    PLAY_CHECK(result);  // 여기서 실패하는 경우는 없다
+  auto result = length_codec_->encode(enc_buf, dest_buf);
+  PLAY_CHECK(result);  // 여기서 실패하는 경우는 없다
 
-    auto send_data = send_buf_.data();
-    get_adapter().send(send_data.data(), send_data.size());
-    send_buf_.consume(send_data.size());
-
-    // 사용한 만큼 읽기 포인터를 앞으로 이동해야 함
-    enc_buf_.consume(enc_buf.size());
-  }
+  return result.value().size();
 }
 
 template <typename Topic>
-inline void secure_protocol<Topic>::receive(const char* data, size_t len)
+inline void secure_protocol<Topic>::recv(const char* data, size_t len)
 {
   const char* payload = reinterpret_cast<const char*>(data);
   auto mut_buf = recv_buf_.prepare(len);

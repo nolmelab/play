@@ -111,11 +111,13 @@ void sodium_handshake::sync_nonce()
 
 void sodium_handshake::send(const void* data, size_t len)
 {
-  length_codec_.encode(asio::const_buffer{data, len}, send_stream_buf_);
+  auto total_len = len + length_codec_.length_field_size;
+  auto encode_buf = send_stream_buf_.prepare(total_len);
+  length_codec_.encode(asio::const_buffer{data, len}, encode_buf);
+  send_stream_buf_.commit(total_len);
 
   auto payload = send_stream_buf_.data();
   send_fn_(payload.data(), payload.size());
-
   send_stream_buf_.consume(payload.size());
 }
 

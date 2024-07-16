@@ -41,7 +41,7 @@ public:
   /**
    * @throws 암호화 실패 시 예외 발생
    */
-  size_t encode(const const_buffer& src_buf, asio::streambuf& dest_stream_buf);
+  size_t encode(const const_buffer& src_buf, mutable_buffer& dest_buf);
 
 private:
   size_t handle_;

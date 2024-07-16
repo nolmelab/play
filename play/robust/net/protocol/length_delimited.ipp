@@ -1,3 +1,4 @@
+#include <play/robust/base/macros.hpp>
 #include <play/robust/net/protocol/length_delimited.hpp>
 
 namespace play { namespace robust { namespace net {
@@ -27,11 +28,10 @@ inline std::optional<codec::const_buffer> length_delimited::decode(const const_b
   return {};
 }
 
-inline size_t length_delimited::encode(const const_buffer& src_buf,
-                                       asio::streambuf& dest_stream_buf)
+inline size_t length_delimited::encode(const const_buffer& src_buf, mutable_buffer& dest_buf, bool header_only)
 {
   const size_t total_len = length_field_size + src_buf.size();
-  auto dest_buf = dest_stream_buf.prepare(total_len);
+  PLAY_CHECK(dest_buf.size() >= total_len);
 
   size_t len = src_buf.size();
   char* p = reinterpret_cast<char*>(dest_buf.data());
@@ -42,13 +42,13 @@ inline size_t length_delimited::encode(const const_buffer& src_buf,
     len >>= 8;
   }
 
-  // copy bytes
-  char* dest = p + length_field_size;
-  const char* src = reinterpret_cast<const char*>(src_buf.data());
-  std::memcpy(dest, src, src_buf.size());
-
-  // make the payload available for reading
-  dest_stream_buf.commit(total_len);
+  if (header_only)
+  {
+    // copy bytes
+    char* dest = p + length_field_size;
+    const char* src = reinterpret_cast<const char*>(src_buf.data());
+    std::memcpy(dest, src, src_buf.size());
+  }
 
   return src_buf.size() + length_field_size;
 }
