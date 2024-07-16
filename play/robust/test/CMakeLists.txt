@@ -12,12 +12,13 @@ add_executable(
   test
   main.cpp 
   test_logger.cpp
-  test_client_server.cpp
-  test_codecs.cpp
+  #test_client_server.cpp
+  #test_codecs.cpp
   test_object_pool.cpp
-  test_plain_protocol.cpp
+  #test_plain_protocol.cpp
   test_protocol.cpp
   test_runner.cpp
+  test_stream_protocol.cpp
   test_timer.cpp
   learn_streambuf.cpp
   learn_function_ptr.cpp

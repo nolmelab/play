@@ -3,7 +3,6 @@
 #include <nlohmann/json.hpp>
 #include <play/robust/net/runner/thread_runner.hpp>
 #include <play/robust/net/session.hpp>
-#include <play/robust/net/session_handler.hpp>
 #include <shared_mutex>
 #include <string_view>
 #include <unordered_map>
@@ -15,12 +14,12 @@ namespace play { namespace robust { namespace net {
  * 연결이 실패하면 재연결을 시도한다. 연결이 끊어지면 설정에 따라 재연결
  */
 template <typename Protocol>
-class client : public session_handler<Protocol>
+class client
 {
 public:
-  using session = session<Protocol>;
+  using session = session<Protocol, client<Protocol>>;
   using handle = typename session::handle;
-  using session_ptr = typename session_handler<Protocol>::session_ptr;
+  using session_ptr = std::shared_ptr<session>;
   using topic = typename Protocol::topic;
 
 public:
@@ -41,6 +40,15 @@ public:
   // 연결 종료
   void close();
 
+  // 프로토콜에서 Protocol::adatper를 통해서 전달
+  void on_established(session_ptr se);
+
+  // 세션에서 연결 종료 통지
+  void on_closed(session_ptr se, boost::system::error_code ec);
+
+  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
+  void on_receive(session_ptr se, topic topic, const void* data, size_t len);
+
 protected:
   // 하위 클래스에 협상 완료 처리 전달
   virtual void handle_established(session_ptr){};
@@ -55,15 +63,6 @@ private:
   void reconnect();
 
   void handle_connect(boost::system::error_code ec);
-
-  // 프로토콜에서 Protocol::adatper를 통해서 전달
-  void on_established(session_ptr se) override;
-
-  // 세션에서 연결 종료 통지
-  void on_closed(session_ptr se, boost::system::error_code ec) override;
-
-  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
-  void on_receive(session_ptr se, topic topic, const void* data, size_t len) override;
 
 private:
   runner& runner_;

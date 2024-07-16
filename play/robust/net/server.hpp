@@ -3,7 +3,6 @@
 #include <nlohmann/json.hpp>
 #include <play/robust/net/runner/thread_runner.hpp>
 #include <play/robust/net/session.hpp>
-#include <play/robust/net/session_handler.hpp>
 #include <shared_mutex>
 #include <string_view>
 #include <unordered_map>
@@ -15,12 +14,12 @@ namespace play { namespace robust { namespace net {
  *  
  */
 template <typename Protocol>
-class server : public session_handler<Protocol>
+class server
 {
 public:
-  using session = session<Protocol>;
+  using session = session<Protocol, server<Protocol>>;
+  using session_ptr = std::shared_ptr<session>;
   using handle = typename session::handle;
-  using session_ptr = typename session_handler<Protocol>::session_ptr;
   using topic = typename Protocol::topic;
 
 public:
@@ -36,19 +35,24 @@ public:
   // 서버를 종료
   void stop();
 
+  // 프로토콜에서 Protocol::adatper를 통해서 전달
+  void on_established(session_ptr se);
+
+  void on_closed(session_ptr se, boost::system::error_code ec);
+
+  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
+  void on_receive(session_ptr se, topic topic, const void* data, size_t len);
+
 protected:
   virtual bool on_start();
 
   virtual void on_stop();
 
-  // 하위 클래스에 협상 완료 처리 전달
-  virtual void handle_established(session_ptr){};
+  virtual void handle_established(session_ptr se) {}
 
-  // 하위 클래스에 연결 종료 처리 전달
-  virtual void handle_closed(session_ptr, boost::system::error_code) {}
+  virtual void handle_closed(session_ptr se, boost::system::error_code ec) {}
 
-  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
-  virtual void handle_receive(session_ptr, topic, const void* data, size_t) {};
+  virtual void handle_receive(session_ptr se, topic topic, const void* data, size_t len) {}
 
 private:
   using session_map = std::unordered_map<handle, session_ptr>;
@@ -61,14 +65,6 @@ private:
 
   // accept를 처리. start_accept() 호출
   void handle_accept(session_ptr se, boost::system::error_code ec);
-
-  // 프로토콜에서 Protocol::adatper를 통해서 전달
-  void on_established(session_ptr se) final;
-
-  void on_closed(session_ptr se, boost::system::error_code ec) final;
-
-  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
-  void on_receive(session_ptr se, topic topic, const void* data, size_t len) final;
 
 private:
   runner& runner_;

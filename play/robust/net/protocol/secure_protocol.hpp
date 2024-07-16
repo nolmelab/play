@@ -19,9 +19,8 @@ template <typename Topic>
 class secure_protocol : public protocol<Topic>
 {
 public:
-  secure_protocol(size_t handle, sodium_handshake::send_fn send_fn)
-      : protocol<Topic>(adapter),
-        handle_{handle},
+  secure_protocol(size_t handle)
+      : handle_{handle},
         accepted_{false},
         connected_{false},
         closed_{true}

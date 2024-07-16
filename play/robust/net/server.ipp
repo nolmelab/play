@@ -66,17 +66,6 @@ void server<Protocol>::stop()
 }
 
 template <typename Protocol>
-bool server<Protocol>::on_start()
-{
-  return true;
-}
-
-template <typename Protocol>
-void server<Protocol>::on_stop()
-{
-}
-
-template <typename Protocol>
 void server<Protocol>::on_established(session_ptr session)
 {
   LOG()->info("server session: {} established. remote: {}", session->get_handle(),
@@ -104,6 +93,17 @@ template <typename Protocol>
 void server<Protocol>::on_receive(session_ptr session, topic topic, const void* data, size_t len)
 {
   handle_receive(session, topic, data, len);
+}
+
+template <typename Protocol>
+bool server<Protocol>::on_start()
+{
+  return true;
+}
+
+template <typename Protocol>
+void server<Protocol>::on_stop()
+{
 }
 
 template <typename Protocol>

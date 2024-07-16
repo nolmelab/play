@@ -3,7 +3,7 @@
 
 namespace play { namespace robust { namespace net {
 
-inline void stream_protocol::accepted()
+inline asio::const_buffer stream_protocol::accepted()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -12,10 +12,10 @@ inline void stream_protocol::accepted()
   accepted_ = true;
   closed_ = false;
 
-  get_adapter().established(handle_);
+  return {};
 }
 
-inline void stream_protocol::connected()
+inline asio::const_buffer stream_protocol::connected()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -24,7 +24,7 @@ inline void stream_protocol::connected()
   connected_ = true;
   closed_ = false;
 
-  get_adapter().established(handle_);
+  return {};
 }
 
 inline void stream_protocol::closed()
@@ -33,23 +33,34 @@ inline void stream_protocol::closed()
   closed_ = true;
 }
 
-inline void stream_protocol::send(const char* data, size_t len)
+inline size_t stream_protocol::encode(topic pic, const char* data, size_t len,
+                                      asio::streambuf& dest)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
   {
-    LOG()->warn("send called on closed session. handle: {}", handle_);
-    return;
+    LOG()->warn("stream_protocol::send called on closed session. handle: {}", handle_);
+    return 0;
   }
+
   PLAY_CHECK(is_established());
 
-  // bypass
-  get_adapter().send(data, len);
+  auto buf = dest.prepare(len);
+  dest.sputn(data, len);  // auto committed
+
+  return len;
 }
 
-inline void stream_protocol::receive(const char* data, size_t len)
+inline std::tuple<size_t, asio::const_buffer, stream_protocol::topic> stream_protocol::decode(
+    const char* data, size_t len)
 {
   // bypass
-  get_adapter().forward(stream_protocol_topic{}, data, len);
+  return {len, asio::const_buffer{data, len}, {}};
 }
+
+std::pair<size_t, asio::const_buffer> stream_protocol::handshake(const char*, size_t)
+{
+  return {0, {}};
+}
+
 }}}  // namespace play::robust::net

@@ -3,8 +3,8 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Protocol>
-session<Protocol>::session(session_handler<Protocol>& handler, asio::io_context& ioc, bool accepted)
+template <typename Protocol, typename Handler>
+session<Protocol, Handler>::session(Handler& handler, asio::io_context& ioc, bool accepted)
     : handler_{handler},
       socket_{ioc},
       handle_{0},
@@ -12,33 +12,43 @@ session<Protocol>::session(session_handler<Protocol>& handler, asio::io_context&
 {
 }
 
-template <typename Protocol>
-session<Protocol>::~session()
+template <typename Protocol, typename Handler>
+session<Protocol, Handler>::~session()
 {
   close();
 }
 
-template <typename Protocol>
-void session<Protocol>::start()
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::start()
 {
   PLAY_CHECK(!protocol_);
 
   handle_ = socket_.native_handle();
   PLAY_CHECK(handle_ > 0);
 
-  adapter_ = std::make_unique<protocol_adapter>(this->shared_from_this());
-  protocol_ = std::make_unique<Protocol>(handle_, *adapter_);
+  protocol_ = std::make_unique<Protocol>(handle_);
 
   if (accepted_)
-    protocol_->accepted();
+  {
+    auto buf = protocol_->accepted();
+    this->send_handshake(buf);
+  }
   else
-    protocol_->connected();
+  {
+    auto buf = protocol_->connected();
+    this->send_handshake(buf);
+  }
 
-  start_recv();
+  if (protocol_->is_established())
+  {
+    handler_.on_established(this->shared_from_this());
+  }
+
+  this->start_recv();
 }
 
-template <typename Protocol>
-void session<Protocol>::send(const void* data, size_t len)
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::send(const void* data, size_t len)
 {
   if (!is_open())
   {
@@ -58,8 +68,29 @@ void session<Protocol>::send(const void* data, size_t len)
   }
 }
 
-template <typename Protocol>
-void session<Protocol>::close()
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::send(topic pic, const void* data, size_t len)
+{
+  if (!is_open())
+  {
+    LOG()->warn("send w/ topic called on closed session. handle: {}, remote: {}", get_handle(),
+                get_remote_addr());
+    return;
+  }
+
+  std::lock_guard<std::recursive_mutex> guard(mutex_);
+  auto& acc_buf = send_bufs_[acc_buf_index_];  // write to the accumulation buffer
+  // protocol::encode() prepare, encode, and commit
+  auto total_len = protocol_->encode(pic, data, len, acc_buf);
+
+  if (!sending_)
+  {
+    start_send();
+  }
+}
+
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::close()
 {
   if (is_open())
   {
@@ -67,8 +98,8 @@ void session<Protocol>::close()
   }
 }
 
-template <typename Protocol>
-std::string session<Protocol>::get_remote_addr() const
+template <typename Protocol, typename Handler>
+std::string session<Protocol, Handler>::get_remote_addr() const
 {
   if (remote_addr_.empty())
   {
@@ -82,8 +113,8 @@ std::string session<Protocol>::get_remote_addr() const
   return remote_addr_;
 }
 
-template <typename Protocol>
-void session<Protocol>::start_send()
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::start_send()
 {
   // locked
   PLAY_CHECK(!sending_);
@@ -102,24 +133,24 @@ void session<Protocol>::start_send()
   socket_.async_send(boost::asio::buffer(buf.data(), buf.size()),
                      [this, self](boost::system::error_code ec, std::size_t len)
                      {
-                       handle_send(ec, len);
+                       this->handle_send(ec, len);
                      });
 }
 
-template <typename Protocol>
-void session<Protocol>::start_recv()
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::start_recv()
 {
   auto self(this->shared_from_this());
   auto buf = recv_buf_.prepare(recv_size);
   socket_.async_receive(boost::asio::buffer(buf.data(), buf.size()),
                         [this, self](boost::system::error_code ec, std::size_t len)
                         {
-                          handle_recv(ec, len);
+                          this->handle_recv(ec, len);
                         });
 }
 
-template <typename Protocol>
-void session<Protocol>::handle_send(boost::system::error_code ec, size_t len)
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::handle_send(boost::system::error_code ec, size_t len)
 {
   std::lock_guard<std::recursive_mutex> guard(mutex_);
   PLAY_CHECK(sending_);
@@ -140,23 +171,60 @@ void session<Protocol>::handle_send(boost::system::error_code ec, size_t len)
   }
 }
 
-template <typename Protocol>
-void session<Protocol>::handle_recv(boost::system::error_code ec, size_t len)
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_t len)
 {
   if (!ec)
   {
     recv_buf_.commit(len);
     auto payload_buf = recv_buf_.data();
-    protocol_->receive(reinterpret_cast<const char*>(payload_buf.data()), payload_buf.size());
-    recv_buf_.consume(len);  // used in protocol
 
-    start_recv();
+    if (protocol_->is_established())
+    {
+      for (;;)
+      {
+        auto [consumed_len, frame, topic] = protocol_->decode(
+            reinterpret_cast<const char*>(payload_buf.data()), payload_buf.size());
+        handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
+
+        recv_buf_.consume(consumed_len);
+        if (consumed_len == 0)
+        {
+          break;
+        }
+
+        payload_buf = recv_buf_.data();
+      }
+    }
+    else
+    {
+      auto [consumed_len, buf] = protocol_->handshake(
+          reinterpret_cast<const char*>(payload_buf.data()), payload_buf.size());
+      recv_buf_.consume(consumed_len);  // used in protocol
+      this->send_handshake(buf);
+
+      if (protocol_->is_established())
+      {
+        handler_.on_established(this->shared_from_this());
+      }
+    }
+
+    this->start_recv();
   }
   else
   {
     close();  // ensure socket is closed
     protocol_->closed();
     handler_.on_closed(this->shared_from_this(), ec);
+  }
+}
+
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::send_handshake(asio::const_buffer buf)
+{
+  if (buf.size() > 0)
+  {
+    send(buf.data(), buf.size());
   }
 }
 

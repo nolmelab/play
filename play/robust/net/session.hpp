@@ -2,7 +2,6 @@
 
 #include <mutex>
 #include <play/robust/net/protocol.hpp>
-#include <play/robust/net/session_handler.hpp>
 
 using tcp = asio::ip::tcp;
 
@@ -15,67 +14,28 @@ namespace play { namespace robust { namespace net {
  * 
  * session은 바이트 송수신만을 담당하고, 프레임 변환은 Protocol에서 처리한다.
  */
-template <typename Protocol>
-class session : public std::enable_shared_from_this<session<Protocol>>
+template <typename Protocol, typename Handler>
+class session : public std::enable_shared_from_this<session<Protocol, Handler>>
 {
 public:
-  using ptr = std::shared_ptr<session<Protocol>>;
+  using ptr = std::shared_ptr<session<Protocol, Handler>>;
   using handle = size_t;
   using topic = typename Protocol::topic;
 
 public:
-  // session protocol adapter
-  /**
-   * app에서 이를 기본 어댑터로 사용하거나 상속하여 구현하여 처리할 수 있음. 
-   * Protocol::adapter 타잎의 생성자에 항상 session::ptr을 넘겨줌
-   * 
-   * note on performance:
-   * - virtual 함수를 사용하는 것이 걸리긴 한데 base가 추상클래스이고 
-   * - 별도 테스트에서 함수 호출과 거의 비슷한 성능을 보여준다. 
-   * - 정적 함수 포인터로 하고 session 타잎을 지우는 것도 테스트를 
-   * - 해보았으나 추상 베이스를 갖는 가상 함수보다 느리다. 
-   * - @see test_protocol.cpp 
-   * - @see learn_function_ptr.cpp
-   * - final 추가로 devirtualization이 가능하다. (clang, gcc, MSVC)
-   * - @see https://devblogs.microsoft.com/cppblog/the-performance-benefits-of-final-classes/
-   */
-  struct protocol_adapter final : public protocol_adapter_base<topic>
-  {
-    protocol_adapter(ptr session)
-        : session_{session}
-    {
-    }
-
-    // send는 final로 devirtualization이 가능. 세션의 전용 기능
-    void send(const void* data, size_t len) final
-    {
-      session_->send(data, len);
-    }
-
-    void forward(topic topic, const void* data, size_t len) final
-    {
-      session_->handler_.on_receive(session_, topic, data, len);
-    }
-
-    void established(size_t handle) final
-    {
-      session_->handler_.on_established(session_);
-    }
-
-    ptr session_;
-  };
-
-public:
   // 프로토콜 생성. 프로토콜에 알림. 수신 시작
-  session(session_handler<Protocol>& handler, asio::io_context& ioc, bool accepted);
+  session(Handler& handler, asio::io_context& ioc, bool accepted);
 
   ~session();
 
   // kick off protocol and communication
   void start();
 
-  // 바이트를 쓴다. 앱에서는 protocol_.send()를 사용
+  // 바이트를 쓴다.
   void send(const void* data, size_t len);
+
+  // 토픽을 포함하여 전송하는 함수
+  void send(topic pic, const void* data, size_t len);
 
   void close();
 
@@ -112,10 +72,11 @@ private:
 
   void handle_recv(boost::system::error_code ec, size_t len);
 
+  void send_handshake(asio::const_buffer hs);
+
 private:
-  session_handler<Protocol>& handler_;
+  Handler& handler_;
   tcp::socket socket_;
-  std::unique_ptr<protocol_adapter> adapter_;
   std::unique_ptr<Protocol> protocol_;
   bool accepted_;
   size_t handle_;

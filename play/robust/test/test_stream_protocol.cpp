@@ -1,7 +1,6 @@
 #include <doctest/doctest.h>
 #include <chrono>
 #include <play/robust/net/client.hpp>
-#include <play/robust/net/protocol/plain_protocol.hpp>
 #include <play/robust/net/protocol/stream_protocol.hpp>
 #include <play/robust/net/runner/poll_runner.hpp>
 #include <play/robust/net/server.hpp>
@@ -13,7 +12,7 @@ TEST_CASE("client & server")
   SUBCASE("compile server")
   {
     poll_runner runner;
-    server<plain_protocol<uint32_t>> server(runner, R"(
+    server<stream_protocol> server(runner, R"(
     {
       "port" : 7000, 
       "concurrency" : 8
@@ -49,7 +48,7 @@ struct test_server : public server<stream_protocol>
   void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
-    session->get_protocol().send(reinterpret_cast<const char*>(data), len);  // echo back
+    session->send(reinterpret_cast<const char*>(data), len);  // echo back
   }
 
   size_t recv_bytes_{0};
@@ -66,7 +65,7 @@ struct test_client : public client<stream_protocol>
 
   void send(const char* data, size_t len)
   {
-    get_session()->get_protocol().send(reinterpret_cast<const char*>(data), len);  // echo back
+    get_session()->send(reinterpret_cast<const char*>(data), len);  // echo back
   }
 
   void handle_established(session_ptr session) final
@@ -85,7 +84,8 @@ struct test_client : public client<stream_protocol>
   void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
-    session->get_protocol().send(reinterpret_cast<const char*>(data), len);  // echo back
+    session->send(reinterpret_cast<const char*>(data), len);  // echo back
+    // LOG()->info("client. byets: {}", recv_bytes_);
   }
 
   size_t recv_bytes_{0};
