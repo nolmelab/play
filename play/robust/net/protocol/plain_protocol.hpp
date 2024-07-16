@@ -34,22 +34,30 @@ public:
   /**
    * 별도 협상이 필요 없어 바로 established 상태가 됨
    */
-  void accepted();
+  asio::const_buffer accepted();
 
   // listen()과 동일하게 진행. 클라 모드.
-  void connected();
+  asio::const_bufer connected();
 
   // 세션 종료를 받음
   void closed();
 
-  // topic과 길이를 추가하여 adapter의 send를 통해 전송
+  // 토픽을 포함하여 인코딩.
   /**
-   * topic과 길이를 헤더로 추가하여 send_2 함수를 통해 직접 세션 버퍼로 전달
+   * dest 버퍼를 prepare 하고, encode를 하여 dest 버퍼에 쓰고, commit 한다.
+   * @param pic topic
+   * @param data data to send
+   * @param len length of the data
+   * @param dest session accumulation buffer
+   * @return <total length, send payload buffer>
    */
-  void send(Topic topic, const char* data, size_t len);
+  size_t encode(topic pic, const char* data, size_t len, asio::streambuf& dest);
 
-  // 세션에서 받은 바이트를 전달. 프로토콜 협상 처리. 최종적으로 forward로 전달
-  void receive(const char* data, size_t len);
+  // 세션에서 받은 바이트를 전달. (established 이후)
+  std::tuple<size_t, asio::const_buffer, topic> decode(const char* data, size_t len);
+
+  // 세션에서 받은 바이트를 전달. (established 이전). 결과를 세션에서 전송
+  std::pair<size_t, asio::const_buffer> handshake(const char* data, size_t len);
 
   bool is_established() const
   {
@@ -57,11 +65,6 @@ public:
   }
 
 private:
-  adapter& get_adapter()
-  {
-    return protocol<Topic>::get_adapter();
-  }
-
   size_t get_min_size() const
   {
     return length_codec_->length_field_size + sizeof(Topic);
@@ -72,10 +75,6 @@ private:
   bool accepted_;
   bool connected_;
   bool closed_;
-
-  asio::streambuf recv_buf_;
-  asio::streambuf send_buf_;
-  asio::streambuf enc_buf_;
 
   std::unique_ptr<length_delimited> length_codec_;
 };

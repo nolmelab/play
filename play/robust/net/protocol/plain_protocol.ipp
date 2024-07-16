@@ -4,7 +4,7 @@
 namespace play { namespace robust { namespace net {
 
 template <typename Topic>
-inline void plain_protocol<Topic>::accepted()
+inline asio::const_buffer plain_protocol<Topic>::accepted()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -15,10 +15,11 @@ inline void plain_protocol<Topic>::accepted()
   closed_ = false;
 
   length_codec_ = std::make_unique<length_delimited>(handle_);
+  return {};
 }
 
 template <typename Topic>
-inline void plain_protocol<Topic>::connected()
+inline asio::const_buffer plain_protocol<Topic>::connected()
 {
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
@@ -29,8 +30,7 @@ inline void plain_protocol<Topic>::connected()
   closed_ = false;
 
   length_codec_ = std::make_unique<length_delimited>(handle_);
-
-  get_adapter().established(handle_);
+  return {};
 }
 
 template <typename Topic>
@@ -41,29 +41,30 @@ inline void plain_protocol<Topic>::closed()
 }
 
 template <typename Topic>
-inline void plain_protocol<Topic>::send(Topic topic, const char* data, size_t len)
+inline size_t plain_protocol<Topic>::encode(topic pic, const char* data, size_t len,
+                                            asio::streambuf& dest);
 {
   PLAY_CHECK(!closed_);
   if (closed_)
   {
-    LOG()->warn("send called on closed session. handle: {}", handle_);
-    return;
+    LOG()->warn("plain_protocol::encode called on closed session. handle: {}", handle_);
+    return 0;
   }
 
   PLAY_CHECK(is_established());
 
-  auto m_1 = send_buf_.prepare(sizeof(Topic));
-  this->serialize(m_1, topic);
-  send_buf_.commit(sizeof(Topic));
+  auto total_len = length_codec_->length_field_size_ + len + sizeof(topic);
+  auto buf = dest.prepare(total_len);
 
-  auto payload_buf = asio::const_buffer{data, len};
+  auto pbuf = reinterpret_cast<char*>(buf.data());
+  serialize(pbuf, topic);
 
-  auto result = length_codec_->encode(payload_buf, send_buf_);
-  PLAY_CHECK(result);  // 여기서 실패하는 경우는 없다
+  auto sbuf =
+      length_codec_->encode(asio::const_buffer{data, len},
+                            asio::mutable_buffer{pbuf + sizeof(topic)}, total_len - sizeof(topic));
 
-  auto send_data = send_buf_.data();
-  get_adapter().send(send_data.data(), send_data.size());
-  send_buf_.consume(send_data.size());
+  dest.commit(total_len);
+  return total_len;
 }
 
 template <typename Topic>

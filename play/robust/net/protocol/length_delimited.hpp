@@ -24,7 +24,7 @@ public:
    * @param src_buf 받은 데이터
    * @return 길이 필드만큼 데이터가 있으면 해당 지점을 담아서 돌려줌. 
    */
-  std::optional<const_buffer> decode(const const_buffer& src_buf);
+  const_buffer decode(const const_buffer& src_buf);
 
   // sbuf의 길이를 dest_buf에 쓰고, 그 내용도 dest_buf에 쓴다.
   /**
