@@ -30,7 +30,7 @@ TEST_CASE("client & server")
 
 namespace {
 
-static constexpr int test_bytes = 1 * 1024 * 1024;
+static constexpr int test_bytes = 50 * 1024 * 1024;
 
 struct test_server : public server<stream_protocol>
 {
@@ -49,6 +49,7 @@ struct test_server : public server<stream_protocol>
   {
     recv_bytes_ += len;
     session->send(reinterpret_cast<const char*>(data), len);  // echo back
+    // LOG()->info("server. byets: {}", recv_bytes_);
   }
 
   size_t recv_bytes_{0};
@@ -72,7 +73,7 @@ struct test_client : public client<stream_protocol>
   {
     LOG()->info("test_client established. remote: {}", session->get_remote_addr());
     std::string payload;
-    for (int i; i < 100; ++i)
+    for (int i = 0; i < 100; ++i)
     {
       payload.append("hello");
     }
@@ -95,6 +96,8 @@ struct test_client : public client<stream_protocol>
 
 TEST_CASE("communication")
 {
+  LOG()->set_level(spdlog::level::trace);
+
   SUBCASE("stream_protocol")
   {
     poll_runner runner;
@@ -139,7 +142,8 @@ TEST_CASE("communication")
     // [5] 통신 되고 나서 poll()에서 리턴되지 않고 계속 실행됨
     //     - accept가 요청된 상태에서 run()을 호출하면 대기하게 됨
     //     - poll_one()을 호출하는 함수를 추가
-    //
+    // [6] 전체 구조 변경 후 릴리스 모드에서 연결만 되고 통신이 안 됨
+    //    - for 루프에서 i를 초기화 하지 않아서 생긴 문제
   }
 
   // echo는 성능 측정용이 아니긴 하나 기본 특성을 살핀다.

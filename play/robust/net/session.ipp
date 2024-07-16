@@ -39,17 +39,20 @@ void session<Protocol, Handler>::start()
     this->send_handshake(buf);
   }
 
+  // 통지보다 먼저 와야 함
+  this->start_recv();
+
   if (protocol_->is_established())
   {
     handler_.on_established(this->shared_from_this());
   }
-
-  this->start_recv();
 }
 
 template <typename Protocol, typename Handler>
 void session<Protocol, Handler>::send(const void* data, size_t len)
 {
+  //PLAY_CHECK(len > 0);
+
   if (!is_open())
   {
     LOG()->warn("send called on closed session. handle: {}, remote: {}", get_handle(),
