@@ -1,4 +1,5 @@
 #include <doctest/doctest.h>
+#include <play/robust/base/stop_watch.hpp>
 #include <play/robust/net/client.hpp>
 #include <play/robust/net/protocol/plain_protocol.hpp>
 #include <play/robust/net/runner/poll_runner.hpp>
@@ -70,7 +71,7 @@ TEST_CASE("plain_protocol")
 {
   SUBCASE("basics")
   {
-    poll_runner runner;
+    poll_runner runner{"plain_protocol runner"};
 
     test_server server(runner, R"(
     {
@@ -81,6 +82,8 @@ TEST_CASE("plain_protocol")
     test_client client(runner);
 
     auto rc = server.start();
+
+    play::robust::base::stop_watch watch;
 
     client.connect("127.0.0.1", 7000);
     runner.poll_one();
@@ -96,6 +99,10 @@ TEST_CASE("plain_protocol")
     }
 
     server.stop();
+
+    auto elapsed = watch.stop();
+
+    LOG()->info("plain_protocol. elapsed: {}, bytes; {}", elapsed, test_bytes);
 
     // [1] send() 호출이 진행되었으나 통신이 되지 않는다.
     // - 길이가 503으로 오류가 있다.

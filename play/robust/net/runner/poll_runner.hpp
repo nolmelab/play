@@ -11,7 +11,10 @@ namespace play { namespace robust { namespace net {
 class poll_runner : public runner
 {
 public:
-  poll_runner() = default;
+  poll_runner(const std::string& name = "default")
+      : runner(name)
+  {
+  }
 
   size_t poll()
   {

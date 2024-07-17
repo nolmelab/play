@@ -9,9 +9,12 @@ namespace play { namespace robust { namespace net {
 class thread_runner : public runner
 {
 public:
-  thread_runner(size_t thread_count = 0);
+  thread_runner(size_t thread_count = 0, const std::string& name = "default");
 
-  ~thread_runner() { stop(); }
+  ~thread_runner()
+  {
+    stop();
+  }
 
   void stop();
 

@@ -4,121 +4,100 @@
 
 namespace play { namespace robust { namespace net {
 
-sodium_handshake::sodium_handshake(size_t handle, bool accepted, send_fn send_fn)
+sodium_handshake::sodium_handshake(size_t handle, bool accepted)
     : handle_{handle},
       accepted_{accepted},
-      length_codec_{handle},
-      send_fn_{send_fn},
       key_received_{false},
       nonce_received_{false},
       established_{false}
 {
 }
 
-void sodium_handshake::prepare()
+asio::const_buffer sodium_handshake::prepare()
 {
   crypto_kx_keypair(pub_key_, sec_key_);
+  return sync_key();
 }
 
-void sodium_handshake::sync_key()
+std::pair<size_t, asio::const_buffer> sodium_handshake::on_handshake(asio::const_buffer& src)
 {
-  uint8_t payload[key_size + 1];
-  payload[0] = 'k';
-  std::memcpy(payload + 1, pub_key_, key_size);
-  send((const void*)payload, key_size + 1);
-}
+  PLAY_CHECK(src.size() > 0);
+  PLAY_CHECK(src.size() == key_size + 1 || src.size() == nonce_size + 1);
 
-void sodium_handshake::on_receive(asio::const_buffer& recv_buf)
-{
-  // reserve buffer for the recv_buf
-  recv_stream_buf_.prepare(recv_buf.size());
-  recv_stream_buf_.sputn(reinterpret_cast<const char*>(recv_buf.data()), recv_buf.size());
-  // sputn changes writer pointer, pptr(). commit() 불필요.
+  auto& frame = src;
 
-  auto buf = recv_stream_buf_.data();  // 읽기 영역 범위를 얻음
-  auto result = length_codec_.decode(buf);
-  if (result)
+  const uint8_t* data = reinterpret_cast<const uint8_t*>(frame.data());
+
+  if (key_received_)
   {
-    auto payload = result.value();
+    PLAY_CHECK(!nonce_received_);
+    PLAY_CHECK(!established_);
+    PLAY_CHECK(data[0] == 'n');
 
-    const uint8_t* data = reinterpret_cast<const uint8_t*>(payload.data());
+    size_t size = frame.size();
+    auto result = crypto_box_seal_open(tx_nonce_, data + 1, size - 1, pub_key_, sec_key_);
 
-    if (key_received_)
+    if (result != 0)
     {
-      PLAY_CHECK(!nonce_received_);
-      PLAY_CHECK(!established_);
-      PLAY_CHECK(data[0] == 'n');
-
-      size_t size = payload.size();
-      auto result = crypto_box_seal_open(tx_nonce_, data + 1, size - 1, pub_key_, sec_key_);
-
-      if (result != 0)
-      {
-        auto m = fmt::format("handle: {}. failed to open nonce data", handle_);
-        LOG()->error(m);
-        throw exception(m);
-      }
-      else
-      {
-        nonce_received_ = true;
-        established_ = true;
-        LOG()->debug("handle: {} established", handle_);
-      }
+      auto m = fmt::format("handle: {}. failed to open nonce data", handle_);
+      LOG()->error(m);
+      throw exception(m);
     }
     else
     {
-      PLAY_CHECK(!nonce_received_);
-      PLAY_CHECK(!established_);
-      PLAY_CHECK(data[0] == 'k');
-
-      int result = 0;
-
-      if (accepted_)
-      {
-        result = crypto_kx_server_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
-      }
-      else
-      {
-        result = crypto_kx_client_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
-      }
-
-      if (result != 0)
-      {
-        auto m = fmt::format("handle: {} failed to setup sodium keys", handle_);
-        LOG()->error(m);
-        throw exception(m);
-      }
-
-      std::memcpy(peer_pub_key_, data + 1, key_size);
-
-      key_received_ = true;
-
-      randombytes_buf(rx_nonce_, nonce_size);
+      nonce_received_ = true;
+      established_ = true;
+      LOG()->debug("handle: {} established", handle_);
     }
 
-    // 마지막에 consume()으로 읽은 만큼 앞으로 이동
-    recv_stream_buf_.consume(payload.size() + length_codec_.length_field_size);
+    return {src.size(), {}};  // 완료된 상태로 더 이상 전송할 내용 없음
   }
+  // else
+
+  PLAY_CHECK(!nonce_received_);
+  PLAY_CHECK(!established_);
+  PLAY_CHECK(data[0] == 'k');
+
+  int result = 0;
+
+  if (accepted_)
+  {
+    result = crypto_kx_server_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+  }
+  else
+  {
+    result = crypto_kx_client_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+  }
+
+  if (result != 0)
+  {
+    auto m = fmt::format("handle: {} failed to setup sodium keys", handle_);
+    LOG()->error(m);
+    throw exception(m);
+  }
+
+  std::memcpy(peer_pub_key_, data + 1, key_size);
+
+  key_received_ = true;
+
+  randombytes_buf(rx_nonce_, nonce_size);
+
+  // 세션에서 받은 데이터를 재해석하므로 받은만큼 consume하도록 함
+  return {src.size(), sync_nonce()};
 }
 
-void sodium_handshake::sync_nonce()
+asio::const_buffer sodium_handshake::sync_key()
 {
-  uint8_t nonce_payload[crypto_box_SEALBYTES + nonce_size + 1];
-  nonce_payload[0] = 'n';
-  crypto_box_seal(nonce_payload + 1, rx_nonce_, nonce_size, peer_pub_key_);
-  send((const void*)nonce_payload, sizeof(nonce_payload));
+  key_exchange_buf_[0] = 'k';
+  std::memcpy(key_exchange_buf_ + 1, pub_key_, key_size);
+  return {(const void*)key_exchange_buf_, sizeof(key_exchange_buf_)};
 }
 
-void sodium_handshake::send(const void* data, size_t len)
+asio::const_buffer sodium_handshake::sync_nonce()
 {
-  auto total_len = len + length_codec_.length_field_size;
-  auto encode_buf = send_stream_buf_.prepare(total_len);
-  length_codec_.encode(asio::const_buffer{data, len}, encode_buf);
-  send_stream_buf_.commit(total_len);
-
-  auto payload = send_stream_buf_.data();
-  send_fn_(payload.data(), payload.size());
-  send_stream_buf_.consume(payload.size());
+  nonce_exchange_buf_[0] = 'n';
+  crypto_box_seal(nonce_exchange_buf_ + 1, rx_nonce_, nonce_size, peer_pub_key_);
+  return {(const void*)nonce_exchange_buf_, sizeof(nonce_exchange_buf_)};
 }
 
 void sodium_handshake::dump_state()

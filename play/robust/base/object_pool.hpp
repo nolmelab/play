@@ -14,7 +14,10 @@ class object_pool
 public:
   struct deleter
   {
-    deleter(object_pool* pool) : pool_{pool} {}
+    deleter(object_pool* pool)
+        : pool_{pool}
+    {
+    }
     void operator()(const T* obj)
     {
       obj->~T();
@@ -24,6 +27,13 @@ public:
   };
 
 public:
+  ~object_pool()
+  {
+    for (auto& p : pool_)
+    {
+      delete p;
+    }
+  }
   template <typename... Args>
   std::shared_ptr<T> construct(Args... args)
   {
@@ -48,9 +58,18 @@ public:
     pool_size_ = pool_.size();
   }
 
-  size_t get_alloc_count() const { return alloc_count_; }
-  size_t get_free_count() const { return free_count_; }
-  size_t get_pool_size() const { return pool_size_; }
+  size_t get_alloc_count() const
+  {
+    return alloc_count_;
+  }
+  size_t get_free_count() const
+  {
+    return free_count_;
+  }
+  size_t get_pool_size() const
+  {
+    return pool_size_;
+  }
 
 private:
   std::deque<T*> pool_;

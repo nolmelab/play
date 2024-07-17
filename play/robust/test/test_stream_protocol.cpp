@@ -100,7 +100,7 @@ TEST_CASE("communication")
 
   SUBCASE("stream_protocol")
   {
-    poll_runner runner;
+    poll_runner runner{"stream_protocol runner"};
 
     test_server server(runner, R"(
     {
@@ -150,7 +150,7 @@ TEST_CASE("communication")
   // send의 시작 크기가 늘어나면 초당 송수신 바이트는 늘어난다.
   SUBCASE("stream_protocol echo perf")
   {
-    poll_runner runner;
+    poll_runner runner{"stream_protocol runner"};
 
     test_server server(runner, R"(
     {

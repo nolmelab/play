@@ -3,8 +3,9 @@
 
 namespace play { namespace robust { namespace net {
 
-thread_runner::thread_runner(size_t thread_count)
-    : thread_count_{thread_count},
+thread_runner::thread_runner(size_t thread_count, const std::string& name)
+    : runner(name),
+      thread_count_{thread_count},
       guard_{ioc_.get_executor()},
       stop_{false}
 {

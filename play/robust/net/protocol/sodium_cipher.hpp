@@ -31,17 +31,18 @@ public:
   {
   }
 
-  // decrypt src_buf with internal buffer and put it into const_buffer
-  /**
-   * @throws 복호화 실패 시 예외 발생
-   */
-  std::optional<const_buffer> decode(const const_buffer& src_buf);
-
   // encrypt src_buf into dest_buf
   /**
    * @throws 암호화 실패 시 예외 발생
    */
-  size_t encode(const const_buffer& src_buf, mutable_buffer& dest_buf);
+  size_t encode(const asio::const_buffer& src, asio::stream_buf& dst);
+
+  // decrypt src_buf with internal buffer and put it into const_buffer
+  /**
+   * @return <consumed_len, frame buffer>를 돌려줌
+   * @throws 복호화 실패 시 예외 발생
+   */
+  std::tuple<size_t, asio::const_buffer> decode(const asio::const_buffer& src);
 
 private:
   size_t handle_;

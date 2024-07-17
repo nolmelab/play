@@ -57,7 +57,7 @@ inline size_t plain_protocol<Topic>::encode(topic pic, const asio::const_buffer&
   auto dst_buf = dst.prepare(total_len);
 
   auto wbuf = reinterpret_cast<char*>(dst_buf.data());
-  this->serialize(wbuf, src.size(), pic);
+  this->serialize(reinterpret_cast<uint8_t*>(wbuf), src.size(), pic);
 
   auto mbuf = asio::mutable_buffer{reinterpret_cast<void*>(wbuf + sizeof(topic)),
                                    total_len - sizeof(topic)};
@@ -77,7 +77,7 @@ inline std::tuple<size_t, asio::const_buffer, Topic> plain_protocol<Topic>::deco
 
   auto rbuf = reinterpret_cast<const char*>(src.data());
   Topic pic{};
-  this->deserialize(rbuf, src.size(), pic);
+  this->deserialize(reinterpret_cast<const uint8_t*>(rbuf), src.size(), pic);
 
   auto cbuf = asio::const_buffer{rbuf + sizeof(Topic), src.size() - sizeof(Topic)};
   auto sbuf = length_codec_->decode(cbuf);

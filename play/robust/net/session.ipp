@@ -198,7 +198,10 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
         auto [consumed_len, frame, topic] = protocol_->decode(cbuf);
         if (consumed_len > 0)
         {
-          handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
+          if (frame.size() > 0)
+          {
+            handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
+          }
           recv_buf_.consume(consumed_len);
         }
         else
