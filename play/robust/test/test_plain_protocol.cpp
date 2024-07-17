@@ -46,7 +46,7 @@ struct test_client : public client<plain_protocol<uint32_t>>
   {
     LOG()->info("test_client established. remote: {}", session->get_remote_addr());
     std::string payload;
-    for (int i; i < 100; ++i)
+    for (int i = 0; i < 100; ++i)
     {
       payload.append("hello");
     }

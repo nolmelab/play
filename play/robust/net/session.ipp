@@ -80,6 +80,13 @@ void session<Protocol, Handler>::send(topic pic, const void* data, size_t len)
                 get_remote_addr());
     return;
   }
+  PLAY_CHECK(len > 0);
+  PLAY_CHECK(data != nullptr);
+  if (len == 0 || data == nullptr)
+  {
+    LOG()->warn("session::send. len: {}, data: {:#x}", len, data);
+    return;
+  }
 
   std::lock_guard<std::recursive_mutex> guard(mutex_);
   auto& acc_buf = send_bufs_[acc_buf_index_];  // write to the accumulation buffer
@@ -189,10 +196,12 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
       {
         auto cbuf = asio::const_buffer{payload_buf.data(), payload_buf.size()};
         auto [consumed_len, frame, topic] = protocol_->decode(cbuf);
-        handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
-
-        recv_buf_.consume(consumed_len);
-        if (consumed_len == 0)
+        if (consumed_len > 0)
+        {
+          handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
+          recv_buf_.consume(consumed_len);
+        }
+        else
         {
           break;
         }

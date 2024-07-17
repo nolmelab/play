@@ -3,8 +3,8 @@
 #include <play/robust/base/logger.hpp>
 #include <play/robust/net/asio.hpp>
 #include <play/robust/net/protocol/length_delimited.hpp>
-#include <play/robust/net/protocol/sodium_cipher.hpp>
-#include <play/robust/net/protocol/sodium_handshake.hpp>
+//#include <play/robust/net/protocol/sodium_cipher.hpp>
+//#include <play/robust/net/protocol/sodium_handshake.hpp>
 
 using namespace play::robust::net;
 
@@ -12,15 +12,20 @@ TEST_CASE("codecs")
 {
   SUBCASE("length delimited")
   {
-    const size_t payload_size = 10;
+    const size_t payload_size = 500;
     const size_t total_len = payload_size + length_delimited::length_field_size;
 
     length_delimited codec{1};
-    std::array<char, payload_size> payload = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    std::vector<char> payload;
+    for (int i = 0; i < payload_size; ++i)
+    {
+      payload.push_back('a');
+    }
 
     asio::streambuf send_buf;
     auto dest_buf = send_buf.prepare(total_len);
-    auto size = codec.encode(asio::const_buffer{payload.data(), 10}, dest_buf);
+    auto size = codec.encode(asio::const_buffer{payload.data(), payload_size}, dest_buf);
     CHECK(size == total_len);
     send_buf.commit(total_len);
 

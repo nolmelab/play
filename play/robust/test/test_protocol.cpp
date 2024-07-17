@@ -1,6 +1,8 @@
 #include <doctest/doctest.h>
 #include <play/robust/net/protocol.hpp>
 
+using namespace play::robust::net;
+
 namespace {
 void func(int v) {}
 
@@ -17,6 +19,21 @@ struct f2 : public functor
 }  // namespace
 
 TEST_CASE("protocol")
+{
+  SUBCASE("serialize")
+  {
+    uint8_t buf[4] = {};
+
+    protocol<uint32_t> p;
+    p.serialize<uint32_t>((uint8_t*)buf, 4, 500);
+
+    uint32_t v;
+    p.deserialize<uint32_t>((const uint8_t*)buf, 4, v);
+    CHECK(v == 500);
+  }
+}
+
+TEST_CASE("ideation verificaiton")
 {
   const int test_count = 100000000;
 
