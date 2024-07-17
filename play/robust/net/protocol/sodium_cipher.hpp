@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <play/robust/net/asio.hpp>
 #include <play/robust/net/codec.hpp>
 #include <play/robust/net/protocol/sodium_handshake.hpp>
 
@@ -35,7 +36,7 @@ public:
   /**
    * @throws 암호화 실패 시 예외 발생
    */
-  size_t encode(const asio::const_buffer& src, asio::stream_buf& dst);
+  size_t encode(const asio::const_buffer& src, asio::streambuf& dst);
 
   // decrypt src_buf with internal buffer and put it into const_buffer
   /**
@@ -47,8 +48,8 @@ public:
 private:
   size_t handle_;
   sodium_handshake& handshake_;
-  asio::streambuf decode_buf_;
-  static inline thread_local asio::streambuf encode_buf_;
 };
 
 }}}  // namespace play::robust::net
+
+#include <play/robust/net/protocol/sodium_cipher.ipp>

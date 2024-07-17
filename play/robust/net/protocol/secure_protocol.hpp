@@ -29,13 +29,12 @@ public:
 
   // listen()에서 받은 세션에서 통지
   /**
-   * 암호화 협상을 키를 생성하고 전송하여 시작
-   * receive()로 세션에서 전달된 값들로 완료하고 established가 되면 adapter로 알림
+   * 암호화 협상을 키를 생성하고 돌려줌. 그 값을 세션에서 전송
    */
-  void accepted();
+  asio::const_buffer accepted();
 
   // listen()과 동일하게 진행. 클라 모드.
-  void connected();
+  asio::const_buffer connected();
 
   // 세션 종료를 받음
   void closed();
@@ -43,16 +42,31 @@ public:
   // topic과 길이를 추가하여 send_fn을 통해 전송
   /**
    * encrypt에 따라 암호화 여부를 결정. topic 바로 뒤에 한 바이트로 기록
-   * 길이 추가하고 암호화 필요시 암호화한 후에 adapter::send_로 전송
+   * 길이 추가하고 암호화 필요시 암호화한 후 dst에 씀
+   * 
+   * @param pic topic
+   * @param src data buffer to send
+   * @param dst session accumulation buffer
+   * @return <total length, send payload buffer>
    */
-  size_t encode(Topic topic, const char* data, size_t len, codec::mutable_buffer& dest,
+  size_t encode(Topic topic, const asio::const_buffer& src, asio::streambuf& dst,
                 bool encrypt = false);
 
   // 읽기 변환을 프로토콜에 맞게 하여 프레임에 맞게 돌려준다.
   /**
    * 세션에서는 프로토콜 수신하면 이 함수를 호출. 프로토콜이 협상 데이터로 사용 여부 결정
    */
-  std::pair<size_t, std::optional<codec::const_buffer>> decode(const char* data, size_t len);
+  std::pair<size_t, asio::const_buffer> decode(const asio::const_buffer& src);
+
+  // 세션에서 받은 바이트를 전달. (established 이전). 결과를 세션에서 전송
+  /**
+   * sodium_handshake를 통해 협상 진행
+   * 
+   * @param data 세션에서 받은 데이터를 전달
+   * @return <사용한 바이트 수, 전송할 데이터>를 돌려줌. 세션에서 데이터가 있으면 전송. 
+   *         사용한 만큼 consume()
+   */
+  std::pair<size_t, asio::const_buffer> handshake(const asio::const_buffer& src);
 
   bool is_established() const
   {
@@ -60,16 +74,9 @@ public:
   }
 
 private:
-  // 세션에서 받은 바이트를 전달. 프로토콜 협상 처리. 최종적으로 recv_fn을 통해 전달
-  /**
-   * sodium_handshake를 통해 협상 진행. 완료되면 adapter::established_를 통해 알림 
-   * 협상 완료 후에는 adatper::forward_ 함수를 통해 프레임을 만들어 전달
-   */
-  void recv(const char* data, size_t len);
-
   size_t get_min_size() const
   {
-    return length_codec_->length_field_size + sizeof(Topic);
+    return length_codec_->length_field_size + sizeof(Topic) + 1;  // 1 byte encryption flag
   }
 
 private:
@@ -79,9 +86,9 @@ private:
   bool connected_;
   bool closed_;
 
-  asio::stream_buf recv_buf_;  // 협상용 통신 처리에만 사용
+  asio::streambuf recv_buf_;  // 협상 수신용 버퍼
+  asio::streambuf send_buf_;  // 협상 전송용 버퍼
 
-  std::unique_ptr<length_delimited> length_codec_;
   std::unique_ptr<sodium_cipher> cipher_codec_;
   std::unique_ptr<sodium_handshake> cipher_handshake_;
 };

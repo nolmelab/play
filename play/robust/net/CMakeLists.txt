@@ -6,8 +6,6 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 # set sources for playground_core
 set(SOURCE 
-  protocol/sodium_handshake.cpp
-  #protocol/sodium_cipher.cpp
   runner/thread_runner.cpp
   runner.cpp
 )

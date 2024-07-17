@@ -3,7 +3,7 @@
 #include <play/robust/base/logger.hpp>
 #include <play/robust/net/asio.hpp>
 #include <play/robust/net/protocol/length_delimited.hpp>
-//#include <play/robust/net/protocol/sodium_cipher.hpp>
+#include <play/robust/net/protocol/sodium_cipher.hpp>
 #include <play/robust/net/protocol/sodium_handshake.hpp>
 
 using namespace play::robust::net;
@@ -125,33 +125,77 @@ TEST_CASE("sodium_hanshake")
   {
     // key와 nonce를 함수 호출로 하듯이 데이터만 교환
     // 길이를 추가하고 해석하는 것은 프로토콜의 역할
-    auto h1 = std::make_unique<sodium_handshake>(1, true);
-    auto h2 = std::make_unique<sodium_handshake>(2, false);
+    sodium_handshake h1(1, true);
+    sodium_handshake h2(2, false);
 
-    auto k1 = h1->prepare();
-    auto k2 = h2->prepare();
+    auto k1 = h1.prepare();
+    auto k2 = h2.prepare();
 
-    auto n1 = h1->on_handshake(k2);
-    auto n2 = h2->on_handshake(k1);
+    auto n1 = h1.on_handshake(k2);
+    auto n2 = h2.on_handshake(k1);
 
-    auto [len4, c2] = h2->on_handshake(n1.second);
-    auto [len3, c1] = h1->on_handshake(n2.second);
+    auto [len4, c2] = h2.on_handshake(n1.second);
+    auto [len3, c1] = h1.on_handshake(n2.second);
 
-    CHECK(h1->is_established());
-    CHECK(h2->is_established());
+    CHECK(h1.is_established());
+    CHECK(h2.is_established());
+  }
 
-    // [1] 메모리가 깨지는 현상
-    // - h1.on_handshake(), h2.on_handshake()에서 h1의 메모리가 깨짐
-    // - -fstack-protector-all로 확인 안 됨
-    //   - debugging이 안 돼서 -g 옵션 추가
-    // - valgrind를 WSL에 설치하고 실행했으나 디버그 정보 오류가 나옴
-    // [2] unique_ptr로 바꾸고 nonce open에 실패
-    // - 키 값들은 다 맞는데 그런다.
-    // -
-    // 여러가지 문제의 원인이 crypto_box_SEALBYTES를 누락해서 생긴 문제.
-    // C++에서 이와 같은 문제가 쉽게 드러나지 않는다.
-    // Ubuntu + clang에서 더 정확하게 동작한다. 바로 죽어준다.
-    //
-    //
+  SUBCASE("sodium_cipher")
+  {
+    sodium_handshake h1(1, true);
+    sodium_handshake h2(2, false);
+
+    auto k1 = h1.prepare();
+    auto k2 = h2.prepare();
+
+    auto n1 = h1.on_handshake(k2);
+    auto n2 = h2.on_handshake(k1);
+
+    auto [len4, c2] = h2.on_handshake(n1.second);
+    auto [len3, c1] = h1.on_handshake(n2.second);
+
+    CHECK(h1.is_established());
+    CHECK(h2.is_established());
+
+    sodium_cipher cipher1(1, h1);
+    sodium_cipher cipher2(2, h2);
+
+    asio::streambuf b1;
+    asio::streambuf b2;
+
+    std::vector<char> vs;
+    for (int i = 0; i < 1024; ++i)
+    {
+      vs.push_back('a');
+    }
+
+    asio::const_buffer p1{vs.data(), vs.size()};
+
+    auto len = cipher1.encode(p1, b1);
+    CHECK(len == b1.size());
+
+    auto rbuf = b1.data();
+    auto [l_2, frame] = cipher2.decode(rbuf);
+    CHECK(l_2 == frame.size());
+    b1.consume(l_2);
+
+    CHECK(std::memcmp(frame.data(), p1.data(), p1.size()) == 0);
   }
 }
+
+// sodium_handshake:
+// [1] 메모리가 깨지는 현상
+// - h1.on_handshake(), h2.on_handshake()에서 h1의 메모리가 깨짐
+// - -fstack-protector-all로 확인 안 됨
+//   - debugging이 안 돼서 -g 옵션 추가
+// - valgrind를 WSL에 설치하고 실행했으나 디버그 정보 오류가 나옴
+// [2] unique_ptr로 바꾸고 nonce open에 실패
+// - 키 값들은 다 맞는데 그런다.
+// -
+// 여러가지 문제의 원인이 crypto_box_SEALBYTES를 누락해서 생긴 문제.
+// C++에서 이와 같은 문제가 쉽게 드러나지 않는다.
+// Ubuntu + clang에서 더 정확하게 동작한다. 바로 죽어준다.
+
+// sodium_cipher:
+// - 바로 된 듯 하나 secure_protocol로 확인해야 한다.

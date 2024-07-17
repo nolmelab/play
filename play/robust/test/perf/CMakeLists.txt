@@ -1,7 +1,5 @@
 project("test_base")
 
-add_subdirectory(perf)
-
 # find vcpkg packages
 find_package(spdlog CONFIG REQUIRED)
 find_package(doctest CONFIG REQUIRED)
@@ -11,31 +9,19 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 # add test target
 add_executable(
-  test
+  perf 
   main.cpp 
-  test_logger.cpp
-  #test_client_server.cpp
-  test_codecs.cpp
-  test_object_pool.cpp
-  test_plain_protocol.cpp
-  test_protocol.cpp
-  test_runner.cpp
-  test_secure_protocol.cpp
-  test_stream_protocol.cpp
-  test_timer.cpp
-  learn_streambuf.cpp
-  learn_function_ptr.cpp
 )
 
 if (MSVC)
-  target_compile_options(test PRIVATE /MTd /utf-8)
+  target_compile_options(perf PRIVATE /MTd /utf-8)
 else() 
-  target_compile_options(test PRIVATE -g -fstack-protector-all)
+  target_compile_options(perf PRIVATE -g -fstack-protector-all)
 endif()
 
 # add link libraries. playground_core is available with cmake
 target_link_libraries(
-  test
+  perf 
   play_robust_base 
   play_robust_net
   spdlog::spdlog 
@@ -46,7 +32,7 @@ target_link_libraries(
 
 # add include directories, especially playground
 target_include_directories(
-  test
+  perf 
   PRIVATE 
   "${CMAKE_SOURCE_DIR}/.."
 )

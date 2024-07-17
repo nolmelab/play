@@ -14,13 +14,13 @@ sodium_handshake::sodium_handshake(size_t handle, bool accepted)
 {
 }
 
-asio::const_buffer sodium_handshake::prepare()
+inline asio::const_buffer sodium_handshake::prepare()
 {
   crypto_kx_keypair(pub_key_, sec_key_);
   return sync_key();
 }
 
-std::pair<size_t, asio::const_buffer> sodium_handshake::on_handshake(asio::const_buffer& src)
+inline std::pair<size_t, asio::const_buffer> sodium_handshake::on_handshake(asio::const_buffer& src)
 {
   PLAY_CHECK(src.size() > 0);
   PLAY_CHECK(src.size() == key_size + 1 || src.size() == nonce_exchange_size);
@@ -84,14 +84,14 @@ std::pair<size_t, asio::const_buffer> sodium_handshake::on_handshake(asio::const
   return {src.size(), sync_nonce()};
 }
 
-asio::const_buffer sodium_handshake::sync_key()
+inline asio::const_buffer sodium_handshake::sync_key()
 {
   key_exchange_buf_[0] = 'k';
   std::memcpy(key_exchange_buf_ + 1, pub_key_, key_size);
   return {(const void*)key_exchange_buf_, sizeof(key_exchange_buf_)};
 }
 
-asio::const_buffer sodium_handshake::sync_nonce()
+inline asio::const_buffer sodium_handshake::sync_nonce()
 {
   // nonc_exchange_size에 seal 바이트를 포함. 메모리 문제를 포함한 다양한 문제의 원인
   nonce_exchange_buf_[0] = 'n';
@@ -103,7 +103,7 @@ asio::const_buffer sodium_handshake::sync_nonce()
   return {(const void*)nonce_exchange_buf_, sizeof(nonce_exchange_buf_)};
 }
 
-void sodium_handshake::dump_state(std::string_view step)
+inline void sodium_handshake::dump_state(std::string_view step)
 {
   LOG()->info("handshake step: {}", step);
 

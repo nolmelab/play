@@ -134,3 +134,5 @@ private:
 };
 
 }}}  // namespace play::robust::net
+
+#include <play/robust/net/protocol/sodium_handshake.ipp>
