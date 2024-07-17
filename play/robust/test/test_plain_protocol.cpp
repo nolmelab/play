@@ -24,7 +24,7 @@ struct test_server : public server<plain_protocol<uint32_t>>
   void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
-    session->get_protocol().send(1, reinterpret_cast<const char*>(data), len);  // echo back
+    session->send(1, reinterpret_cast<const char*>(data), len);  // echo back
   }
 
   size_t recv_bytes_{0};
@@ -39,7 +39,7 @@ struct test_client : public client<plain_protocol<uint32_t>>
 
   void send(const char* data, size_t len)
   {
-    get_session()->get_protocol().send(1, reinterpret_cast<const char*>(data), len);  // echo back
+    get_session()->send(1, reinterpret_cast<const char*>(data), len);  // echo back
   }
 
   void handle_established(session_ptr session) final
@@ -58,7 +58,7 @@ struct test_client : public client<plain_protocol<uint32_t>>
   void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
-    session->get_protocol().send(1, reinterpret_cast<const char*>(data), len);  // echo back
+    session->send(1, reinterpret_cast<const char*>(data), len);  // echo back
   }
 
   size_t recv_bytes_{0};

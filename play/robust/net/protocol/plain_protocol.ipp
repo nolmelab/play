@@ -41,8 +41,8 @@ inline void plain_protocol<Topic>::closed()
 }
 
 template <typename Topic>
-inline size_t plain_protocol<Topic>::encode(topic pic, const char* data, size_t len,
-                                            asio::streambuf& dest);
+inline size_t plain_protocol<Topic>::encode(topic pic, const asio::const_buffer& src,
+                                            asio::streambuf& dst)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -53,68 +53,49 @@ inline size_t plain_protocol<Topic>::encode(topic pic, const char* data, size_t 
 
   PLAY_CHECK(is_established());
 
-  auto total_len = length_codec_->length_field_size_ + len + sizeof(topic);
-  auto buf = dest.prepare(total_len);
+  auto total_len = length_codec_->length_field_size + src.size() + sizeof(topic);
+  auto dst_buf = dst.prepare(total_len);
 
-  auto pbuf = reinterpret_cast<char*>(buf.data());
-  serialize(pbuf, topic);
+  auto wbuf = reinterpret_cast<char*>(dst_buf.data());
+  this->serialize(wbuf, src.size(), pic);
 
-  auto sbuf =
-      length_codec_->encode(asio::const_buffer{data, len},
-                            asio::mutable_buffer{pbuf + sizeof(topic)}, total_len - sizeof(topic));
-
-  dest.commit(total_len);
+  auto mbuf = asio::mutable_buffer{reinterpret_cast<void*>(wbuf + sizeof(topic)),
+                                   total_len - sizeof(topic)};
+  auto sbuf = length_codec_->encode(src, mbuf);
+  dst.commit(total_len);
   return total_len;
 }
 
 template <typename Topic>
-inline void plain_protocol<Topic>::receive(const char* data, size_t len)
+inline std::tuple<size_t, asio::const_buffer, Topic> plain_protocol<Topic>::decode(
+    const asio::const_buffer& src)
 {
-  const char* payload = reinterpret_cast<const char*>(data);
-  auto mut_buf = recv_buf_.prepare(len);
-  recv_buf_.sputn(payload, len);
-  // commit() 불필요
-
-  Topic topic{0};
-
-  auto next_frame = [&topic, this]() -> asio::const_buffer
+  if (src.size() <= get_min_size())
   {
-    auto d_1 = recv_buf_.data();
-    if (d_1.size() <= get_min_size())
-    {
-      return {};
-    }
-    this->deserialize(d_1, topic);
-    recv_buf_.consume(sizeof(topic));
-
-    return recv_buf_.data();
-  };
-
-  auto data_buf = next_frame();
-  if (data_buf.size() == 0)
-  {
-    return;
+    return {0, {}, {}};  // not enough data to begin decode
   }
 
-  PLAY_CHECK(data_buf.size() > get_min_size());
-  PLAY_CHECK(topic != 0);
+  auto rbuf = reinterpret_cast<const char*>(src.data());
+  Topic pic{};
+  this->deserialize(rbuf, src.size(), pic);
 
-  // 프레임이 있으면 계속 읽음
-  while (auto result = length_codec_->decode(data_buf))
+  auto cbuf = asio::const_buffer{rbuf + sizeof(Topic), src.size() - sizeof(Topic)};
+  auto sbuf = length_codec_->decode(cbuf);
+
+  if (sbuf.size() > 0)
   {
-    auto length_buf = result.value();
-    get_adapter().forward(topic, length_buf.data(), length_buf.size());
-
-    // 다음 사용 가능한 데이터로 이동
-    recv_buf_.consume(length_buf.size() + length_codec_->length_field_size);
-
-    data_buf = next_frame();
-    if (data_buf.size() == 0)
-    {
-      break;
-    }
-    PLAY_CHECK(data_buf.size() > get_min_size());
-    PLAY_CHECK(topic != 0);
+    auto consumed_len = sizeof(Topic) + length_codec_->length_field_size + sbuf.size();
+    return {consumed_len, sbuf, pic};
   }
+
+  return {0, {}, {}};  // a full frame is not received, yet.
 }
+
+template <typename Topic>
+inline std::pair<size_t, asio::const_buffer> plain_protocol<Topic>::handshake(
+    const asio::const_buffer& /* data */)
+{
+  return {0, {}};  // no handshake required
+}
+
 }}}  // namespace play::robust::net

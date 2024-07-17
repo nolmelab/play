@@ -21,15 +21,15 @@ public:
 
   // 비트 연산을 제공하는 값 타잎들에 대해 직렬화
   template <typename Value>
-  void serialize(asio::mutable_buffer& mbuf, Value v);
+  void serialize(char* buf, size_t len, Value v);
 
-  void serialize(asio::mutable_buffer& mbuf, bool v);
+  void serialize(char* buf, size_t len, bool v);
 
   // 비트 연산을 제공하는 값 타잎들에 대해 역직렬화
   template <typename Value>
-  void deserialize(const asio::const_buffer& cbuf, Value& v);
+  void deserialize(const char* buf, size_t len, Value& v);
 
-  void deserialize(const asio::const_buffer& cbuf, bool& v);
+  void deserialize(const char* buf, size_t len, bool& v);
 };
 
 }}}  // namespace play::robust::net

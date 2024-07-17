@@ -18,12 +18,10 @@ class plain_protocol : public protocol<Topic>
 {
 public:
   using topic = Topic;
-  using adapter = typename protocol<Topic>::adapter;
 
 public:
-  plain_protocol(size_t handle, adapter& adapter)
-      : protocol<Topic>(adapter),
-        handle_{handle},
+  plain_protocol(size_t handle)
+      : handle_{handle},
         accepted_{false},
         connected_{false},
         closed_{true}
@@ -37,7 +35,7 @@ public:
   asio::const_buffer accepted();
 
   // listen()과 동일하게 진행. 클라 모드.
-  asio::const_bufer connected();
+  asio::const_buffer connected();
 
   // 세션 종료를 받음
   void closed();
@@ -46,18 +44,22 @@ public:
   /**
    * dest 버퍼를 prepare 하고, encode를 하여 dest 버퍼에 쓰고, commit 한다.
    * @param pic topic
-   * @param data data to send
-   * @param len length of the data
-   * @param dest session accumulation buffer
+   * @param src data buffer to send
+   * @param dst session accumulation buffer
    * @return <total length, send payload buffer>
    */
-  size_t encode(topic pic, const char* data, size_t len, asio::streambuf& dest);
+  size_t encode(topic pic, const asio::const_buffer& src, asio::streambuf& dst);
 
   // 세션에서 받은 바이트를 전달. (established 이후)
-  std::tuple<size_t, asio::const_buffer, topic> decode(const char* data, size_t len);
+  std::tuple<size_t, asio::const_buffer, topic> decode(const asio::const_buffer& src);
 
   // 세션에서 받은 바이트를 전달. (established 이전). 결과를 세션에서 전송
-  std::pair<size_t, asio::const_buffer> handshake(const char* data, size_t len);
+  /**
+   * @param data 세션에서 받은 데이터를 전달
+   * @return <사용한 바이트 수, 전송할 데이터>를 돌려줌. 세션에서 데이터가 있으면 전송. 
+   *         사용한 만큼 consume()
+   */
+  std::pair<size_t, asio::const_buffer> handshake(const asio::const_buffer& src);
 
   bool is_established() const
   {

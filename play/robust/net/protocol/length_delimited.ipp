@@ -3,14 +3,14 @@
 
 namespace play { namespace robust { namespace net {
 
-inline std::optional<codec::const_buffer> length_delimited::decode(const const_buffer& src_buf)
+inline asio::const_buffer length_delimited::decode(const asio::const_buffer& src)
 {
-  if (src_buf.size() < length_field_size)
+  if (src.size() < length_field_size)
   {
     return {};
   }
 
-  const char* p = reinterpret_cast<const char*>(src_buf.data());
+  const char* p = reinterpret_cast<const char*>(src.data());
   size_t len = 0;
 
   for (int i = 0; i < length_field_size; ++i)
@@ -19,22 +19,23 @@ inline std::optional<codec::const_buffer> length_delimited::decode(const const_b
   }
 
   // src_buf has the payload
-  if (src_buf.size() >= len)
+  if (src.size() >= (len + length_field_size))
   {
-    return const_buffer{p + length_field_size, len};
+    return asio::const_buffer{p + length_field_size, len};
   }
 
   // not sufficient bytes for the payload
   return {};
 }
 
-inline size_t length_delimited::encode(const const_buffer& src_buf, mutable_buffer& dest_buf, bool header_only)
+inline size_t length_delimited::encode(const asio::const_buffer& src, asio::mutable_buffer& dest,
+                                       bool header_only)
 {
-  const size_t total_len = length_field_size + src_buf.size();
-  PLAY_CHECK(dest_buf.size() >= total_len);
+  const size_t total_len = length_field_size + src.size();
+  PLAY_CHECK(dest.size() >= total_len);
 
-  size_t len = src_buf.size();
-  char* p = reinterpret_cast<char*>(dest_buf.data());
+  size_t len = src.size();
+  char* p = reinterpret_cast<char*>(dest.data());
 
   for (int i = 0; i < length_field_size; ++i)
   {
@@ -42,12 +43,12 @@ inline size_t length_delimited::encode(const const_buffer& src_buf, mutable_buff
     len >>= 8;
   }
 
-  if (header_only)
+  if (!header_only)
   {
     // copy bytes
     char* dest = p + length_field_size;
-    const char* src = reinterpret_cast<const char*>(src_buf.data());
-    std::memcpy(dest, src, src_buf.size());
+    const char* csrc = reinterpret_cast<const char*>(src.data());
+    std::memcpy(dest, csrc, src.size());
   }
 
   return total_len;

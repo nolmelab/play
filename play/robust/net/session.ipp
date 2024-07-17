@@ -84,7 +84,8 @@ void session<Protocol, Handler>::send(topic pic, const void* data, size_t len)
   std::lock_guard<std::recursive_mutex> guard(mutex_);
   auto& acc_buf = send_bufs_[acc_buf_index_];  // write to the accumulation buffer
   // protocol::encode() prepare, encode, and commit
-  auto total_len = protocol_->encode(pic, data, len, acc_buf);
+  auto cbuf = asio::const_buffer{data, len};
+  auto total_len = protocol_->encode(pic, cbuf, acc_buf);
 
   if (!sending_)
   {
@@ -186,8 +187,8 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
     {
       for (;;)
       {
-        auto [consumed_len, frame, topic] = protocol_->decode(
-            reinterpret_cast<const char*>(payload_buf.data()), payload_buf.size());
+        auto cbuf = asio::const_buffer{payload_buf.data(), payload_buf.size()};
+        auto [consumed_len, frame, topic] = protocol_->decode(cbuf);
         handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
 
         recv_buf_.consume(consumed_len);
@@ -201,8 +202,8 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
     }
     else
     {
-      auto [consumed_len, buf] = protocol_->handshake(
-          reinterpret_cast<const char*>(payload_buf.data()), payload_buf.size());
+      auto cbuf = asio::const_buffer{payload_buf.data(), payload_buf.size()};
+      auto [consumed_len, buf] = protocol_->handshake(cbuf);
       recv_buf_.consume(consumed_len);  // used in protocol
       this->send_handshake(buf);
 

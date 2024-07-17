@@ -33,8 +33,8 @@ inline void stream_protocol::closed()
   closed_ = true;
 }
 
-inline size_t stream_protocol::encode(topic pic, const char* data, size_t len,
-                                      asio::streambuf& dest)
+inline size_t stream_protocol::encode(topic pic, const asio::const_buffer& src,
+                                      asio::streambuf& dst)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -42,23 +42,21 @@ inline size_t stream_protocol::encode(topic pic, const char* data, size_t len,
     LOG()->warn("stream_protocol::send called on closed session. handle: {}", handle_);
     return 0;
   }
-
   PLAY_CHECK(is_established());
 
-  auto buf = dest.prepare(len);
-  dest.sputn(data, len);  // auto committed
-
-  return len;
+  auto wbuf = dst.prepare(src.size());
+  dst.sputn(reinterpret_cast<const char*>(src.data()), src.size());  // auto committed
+  return src.size();
 }
 
 inline std::tuple<size_t, asio::const_buffer, stream_protocol::topic> stream_protocol::decode(
-    const char* data, size_t len)
+    const asio::const_buffer& src)
 {
   // bypass
-  return {len, asio::const_buffer{data, len}, {}};
+  return {src.size(), src, topic{}};
 }
 
-std::pair<size_t, asio::const_buffer> stream_protocol::handshake(const char*, size_t)
+std::pair<size_t, asio::const_buffer> stream_protocol::handshake(const asio::const_buffer&)
 {
   return {0, {}};
 }
