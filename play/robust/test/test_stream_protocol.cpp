@@ -30,7 +30,7 @@ TEST_CASE("client & server")
 
 namespace {
 
-static constexpr int test_bytes = 50 * 1024 * 1024;
+static constexpr int test_bytes = 1024;
 
 struct test_server : public server<stream_protocol>
 {

@@ -26,6 +26,8 @@ add_executable(
 
 if (MSVC)
   target_compile_options(test PRIVATE /MTd /utf-8)
+else() 
+  target_compile_options(test PRIVATE -g -fstack-protector-all)
 endif()
 
 # add link libraries. playground_core is available with cmake

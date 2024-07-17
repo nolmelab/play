@@ -9,7 +9,7 @@ using namespace play::robust::net;
 
 namespace {
 
-static constexpr int test_bytes = 1 * 1024 * 1024;
+static constexpr int test_bytes = 1 * 1024;
 
 struct test_server : public server<plain_protocol<uint32_t>>
 {

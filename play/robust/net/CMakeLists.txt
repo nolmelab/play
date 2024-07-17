@@ -16,7 +16,9 @@ set(SOURCE
 add_library(play_robust_net ${SOURCE})
 
 if (MSVC)
-  target_compile_options(play_robust_net PRIVATE /MTd)
+  target_compile_options(play_robust_net PRIVATE /MTd /utf-8)
+else()
+  target_compile_options(play_robust_net PRIVATE -g -fstack-protector-all)
 endif()
 
 # add include path

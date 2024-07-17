@@ -34,8 +34,9 @@ public:
   };
 
 public:
-  static const size_t key_size = crypto_stream_chacha20_KEYBYTES;
-  static const size_t nonce_size = crypto_stream_chacha20_NONCEBYTES;
+  static constexpr size_t key_size = crypto_stream_chacha20_KEYBYTES;
+  static constexpr size_t nonce_size = crypto_stream_chacha20_NONCEBYTES;
+  static constexpr size_t nonce_exchange_size = crypto_box_SEALBYTES + nonce_size + 1;
 
 public:
   sodium_handshake(size_t handle, bool accepted);
@@ -109,7 +110,7 @@ private:
   // 피어에 rx_nonce를 전송하여 tx_nonce로 쓸 수 있게 함
   asio::const_buffer sync_nonce();
 
-  void dump_state();
+  void dump_state(std::string_view step);
 
 private:
   size_t handle_;
@@ -129,7 +130,7 @@ private:
   uint8_t tx_nonce_[nonce_size];
 
   uint8_t key_exchange_buf_[key_size + 1];
-  uint8_t nonce_exchange_buf_[nonce_size + 1];
+  uint8_t nonce_exchange_buf_[nonce_exchange_size];
 };
 
 }}}  // namespace play::robust::net

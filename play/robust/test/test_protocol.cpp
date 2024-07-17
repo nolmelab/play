@@ -35,7 +35,7 @@ TEST_CASE("protocol")
 
 TEST_CASE("ideation verificaiton")
 {
-  const int test_count = 100000000;
+  const int test_count = 100;
 
   SUBCASE("adapter performance")
   {

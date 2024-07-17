@@ -1,6 +1,7 @@
 #include <play/robust/base/logger.hpp>
 #include <play/robust/base/macros.hpp>
 #include <play/robust/net/protocol/sodium_handshake.hpp>
+#include <string_view>
 
 namespace play { namespace robust { namespace net {
 
@@ -22,11 +23,9 @@ asio::const_buffer sodium_handshake::prepare()
 std::pair<size_t, asio::const_buffer> sodium_handshake::on_handshake(asio::const_buffer& src)
 {
   PLAY_CHECK(src.size() > 0);
-  PLAY_CHECK(src.size() == key_size + 1 || src.size() == nonce_size + 1);
+  PLAY_CHECK(src.size() == key_size + 1 || src.size() == nonce_exchange_size);
 
-  auto& frame = src;
-
-  const uint8_t* data = reinterpret_cast<const uint8_t*>(frame.data());
+  const uint8_t* data = reinterpret_cast<const uint8_t*>(src.data());
 
   if (key_received_)
   {
@@ -34,8 +33,7 @@ std::pair<size_t, asio::const_buffer> sodium_handshake::on_handshake(asio::const
     PLAY_CHECK(!established_);
     PLAY_CHECK(data[0] == 'n');
 
-    size_t size = frame.size();
-    auto result = crypto_box_seal_open(tx_nonce_, data + 1, size - 1, pub_key_, sec_key_);
+    auto result = crypto_box_seal_open(tx_nonce_, data + 1, src.size() - 1, pub_key_, sec_key_);
 
     if (result != 0)
     {
@@ -60,13 +58,15 @@ std::pair<size_t, asio::const_buffer> sodium_handshake::on_handshake(asio::const
 
   int result = 0;
 
+  std::memcpy(peer_pub_key_, data + 1, key_size);
+
   if (accepted_)
   {
-    result = crypto_kx_server_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+    result = crypto_kx_server_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, peer_pub_key_);
   }
   else
   {
-    result = crypto_kx_client_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, data + 1);
+    result = crypto_kx_client_session_keys(rx_key_, tx_key_, pub_key_, sec_key_, peer_pub_key_);
   }
 
   if (result != 0)
@@ -75,8 +75,6 @@ std::pair<size_t, asio::const_buffer> sodium_handshake::on_handshake(asio::const
     LOG()->error(m);
     throw exception(m);
   }
-
-  std::memcpy(peer_pub_key_, data + 1, key_size);
 
   key_received_ = true;
 
@@ -95,19 +93,35 @@ asio::const_buffer sodium_handshake::sync_key()
 
 asio::const_buffer sodium_handshake::sync_nonce()
 {
+  // nonc_exchange_size에 seal 바이트를 포함. 메모리 문제를 포함한 다양한 문제의 원인
   nonce_exchange_buf_[0] = 'n';
   crypto_box_seal(nonce_exchange_buf_ + 1, rx_nonce_, nonce_size, peer_pub_key_);
+
+  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. nonce sealed", handle_),
+                         nonce_exchange_buf_, sizeof(nonce_exchange_buf_));
+
   return {(const void*)nonce_exchange_buf_, sizeof(nonce_exchange_buf_)};
 }
 
-void sodium_handshake::dump_state()
+void sodium_handshake::dump_state(std::string_view step)
 {
+  LOG()->info("handshake step: {}", step);
+
+  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. pub_key", handle_), pub_key_,
+                         key_size);
+
+  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. peer_pub_key", handle_),
+                         peer_pub_key_, key_size);
+
   base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. rx_key", handle_), rx_key_,
                          key_size);
+
   base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. tx_key", handle_), tx_key_,
                          key_size);
+
   base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. rx_nonce", handle_),
                          rx_nonce_, nonce_size);
+
   base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. tx_nonce", handle_),
                          tx_nonce_, nonce_size);
 }

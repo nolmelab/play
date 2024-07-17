@@ -84,7 +84,8 @@ void session<Protocol, Handler>::send(topic pic, const void* data, size_t len)
   PLAY_CHECK(data != nullptr);
   if (len == 0 || data == nullptr)
   {
-    LOG()->warn("session::send. len: {}, data: {:#x}", len, data);
+    // NOTE: fmt :#x가 버전별 지원이 다르다.
+    LOG()->warn("session::send. len: {}, data: {}", len, data);
     return;
   }
 
