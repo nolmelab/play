@@ -13,7 +13,7 @@ public:
   static const size_t length_field_size = 4;
 
 public:
-  length_delimited(size_t handle)
+  length_delimited(size_t handle = 0)
       : handle_{handle}
   {
   }

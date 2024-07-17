@@ -22,7 +22,7 @@ struct test_server : public server<secure_protocol<uint32_t>>
 
   void handle_closed(session_ptr session, boost::system::error_code ec) final {}
 
-  void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
+  void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
     session->send(1, reinterpret_cast<const char*>(data), len);  // echo back
@@ -56,7 +56,7 @@ struct test_client : public client<secure_protocol<uint32_t>>
 
   void handle_closed(session_ptr session, boost::system::error_code ec) final {}
 
-  void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
+  void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
     session->send(1, reinterpret_cast<const char*>(data), len);  // echo back

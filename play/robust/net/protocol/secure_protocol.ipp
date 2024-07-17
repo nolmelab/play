@@ -9,7 +9,6 @@ inline asio::const_buffer secure_protocol<Topic>::accepted()
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
   PLAY_CHECK(closed_);
-  PLAY_CHECK(!length_codec_);
   PLAY_CHECK(!cipher_handshake_);
   PLAY_CHECK(!cipher_codec_);
 
@@ -29,7 +28,6 @@ inline asio::const_buffer secure_protocol<Topic>::connected()
   PLAY_CHECK(!accepted_);
   PLAY_CHECK(!connected_);
   PLAY_CHECK(closed_);
-  PLAY_CHECK(!length_codec_);
   PLAY_CHECK(!cipher_handshake_);
   PLAY_CHECK(!cipher_codec_);
 
@@ -51,7 +49,7 @@ inline void secure_protocol<Topic>::closed()
 
 template <typename Topic>
 inline size_t secure_protocol<Topic>::encode(Topic pic, const asio::const_buffer& src,
-                                             asio::streambuf& dst, bool encrypt = false)
+                                             asio::streambuf& dst, bool encrypt)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -66,31 +64,40 @@ inline size_t secure_protocol<Topic>::encode(Topic pic, const asio::const_buffer
     return 0;
   }
 
-  auto total_len = len + length_codec_->length_field_size + sizeof(Topic) + 1;
+  auto total_len = src.size() + length_field_size + sizeof(Topic) + 1;
   auto wdst = dst.prepare(total_len);
 
   auto pdst = reinterpret_cast<uint8_t*>(wdst.data());
-  this->serialize(pdst, pic);
+  this->serialize(pdst, pic, sizeof(pic));
   pdst += sizeof(Topic);
-  this->serialize(pdst, encrypt);
+  this->serialize(pdst, encrypt, 1);
   pdst += 1;
-  this->serialize(pdst + 1, src.size());
+  this->serialize(pdst, src.size(), length_field_size);
   dst.commit(sizeof(Topic) + 1);  // commit topic and encrypt
 
-  // src를 암호화 하여 dst에 prepare를 한 후 쓰고 commit 한다.
-  auto enc_len = cipher_codec_->encode(src, dst);
-  PLAY_CHECK(enc_len > 0);
+  if (encrypt)
+  {
+    // src를 암호화 하여 dst에 prepare를 한 후 쓰고 commit 한다.
+    auto enc_len = cipher_codec_->encode(src, dst);
+    PLAY_CHECK(enc_len > 0);
+  }
+  else
+  {
+    auto pframe = pdst + length_field_size;
+    std::memcpy(pframe, src.data(), src.size());
+    dst.commit(src.size());
+  }
 
   return total_len;
 }
 
 template <typename Topic>
-inline std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::decode(
+inline std::tuple<size_t, asio::const_buffer, Topic> secure_protocol<Topic>::decode(
     const asio::const_buffer& src)
 {
   if (src.size() <= get_min_size())
   {
-    return {0, {}};
+    return {0, {}, 0};
   }
 
   auto psrc = reinterpret_cast<const uint8_t*>(src.data());
@@ -98,16 +105,16 @@ inline std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::decode(
   bool encrypt{false};
   uint32_t len{0};
 
-  this->deserialize(psrc, pic);
+  this->deserialize(psrc, sizeof(pic), pic);
   psrc += sizeof(Topic);
-  this->deserialize(psrc, encrypt);
+  this->deserialize(psrc, 1, encrypt);
   psrc += 1;
-  this->deserialize(psrc, len);
+  this->deserialize(psrc, length_field_size, len);
 
-  auto total_len = len + length_codec_->length_field_size + sizeof(Topic) + 1;
+  auto total_len = len + length_field_size + sizeof(Topic) + 1;
   if (src.size() < total_len)
   {
-    return {0, {}};
+    return {0, {}, Topic{}};
   }
 
   auto pframe = psrc + 4;
@@ -115,18 +122,30 @@ inline std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::decode(
   if (encrypt)
   {
     auto [used_len, dec_buf] = cipher_codec_->decode({pframe, len});
-    return {total_len, dec_buf};  // found one frame
+    return {total_len, dec_buf, pic};  // found one frame
   }
   // else
-  return {total_len, {pframe, len}};
+  return {total_len, {pframe, len}, pic};
 }
 
 template <typename Topic>
 std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::handshake(
     const asio::const_buffer& src)
 {
+  length_delimited codec{};
+
   recv_buf_.prepare(src.size());
-  recv_buf_.sputn(src.data(), len);
+  recv_buf_.sputn(reinterpret_cast<const char*>(src.data()), src.size());
+
+  auto frame = codec.decode(recv_buf_.data());
+  if (frame.size() > 0)
+  {
+    auto [used_len, resp] = cipher_handshake_->on_handshake(frame);
+    recv_buf_.consume(used_len);
+    return {src.size(), resp};
+  }
+  // else - needs to recv more data
+  return {src.size(), {}};
 }
 
 }}}  // namespace play::robust::net

@@ -4,7 +4,7 @@
 namespace play { namespace robust { namespace net {
 
 // encrypt src_buf into dest_buf
-size_t sodium_cipher::encode(const asio::const_buffer& src, asio::streambuf& dst)
+inline size_t sodium_cipher::encode(const asio::const_buffer& src, asio::streambuf& dst)
 {
   const uint8_t* rsrc = reinterpret_cast<const uint8_t*>(src.data());
   auto pbuf = dst.prepare(src.size());
@@ -25,7 +25,7 @@ size_t sodium_cipher::encode(const asio::const_buffer& src, asio::streambuf& dst
   return src.size();
 }
 
-std::tuple<size_t, asio::const_buffer> sodium_cipher::decode(const asio::const_buffer& src)
+inline std::tuple<size_t, asio::const_buffer> sodium_cipher::decode(const asio::const_buffer& src)
 {
   uint8_t* buf = const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(src.data()));
 

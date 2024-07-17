@@ -5,7 +5,7 @@
 
 namespace play { namespace robust { namespace net {
 
-sodium_handshake::sodium_handshake(size_t handle, bool accepted)
+inline sodium_handshake::sodium_handshake(size_t handle, bool accepted)
     : handle_{handle},
       accepted_{accepted},
       key_received_{false},

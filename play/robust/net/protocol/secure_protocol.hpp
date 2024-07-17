@@ -18,6 +18,8 @@ namespace play { namespace robust { namespace net {
 template <typename Topic>
 class secure_protocol : public protocol<Topic>
 {
+  static constexpr size_t length_field_size = 4;
+
 public:
   secure_protocol(size_t handle)
       : handle_{handle},
@@ -56,7 +58,7 @@ public:
   /**
    * 세션에서는 프로토콜 수신하면 이 함수를 호출. 프로토콜이 협상 데이터로 사용 여부 결정
    */
-  std::pair<size_t, asio::const_buffer> decode(const asio::const_buffer& src);
+  std::tuple<size_t, asio::const_buffer, Topic> decode(const asio::const_buffer& src);
 
   // 세션에서 받은 바이트를 전달. (established 이전). 결과를 세션에서 전송
   /**
@@ -76,11 +78,10 @@ public:
 private:
   size_t get_min_size() const
   {
-    return length_codec_->length_field_size + sizeof(Topic) + 1;  // 1 byte encryption flag
+    return length_field_size + sizeof(Topic) + 1;  // 1 byte encryption flag
   }
 
 private:
-  sodium_handshake::send_fn send_fn_;
   size_t handle_;
   bool accepted_;
   bool connected_;
