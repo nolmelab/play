@@ -9,7 +9,7 @@ using namespace play::robust::net;
 
 namespace {
 
-static constexpr int test_bytes = 1 * 1024;
+static constexpr int test_bytes = 2 * 1024;
 
 struct test_server : public server<secure_protocol<uint32_t>>
 {
@@ -28,7 +28,7 @@ struct test_server : public server<secure_protocol<uint32_t>>
   void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
-    session->send(1, reinterpret_cast<const char*>(data), len);  // echo back
+    session->send(1, reinterpret_cast<const char*>(data), len, true);  // echo back
   }
 
   size_t recv_bytes_{0};
@@ -43,18 +43,17 @@ struct test_client : public client<secure_protocol<uint32_t>>
 
   void send(const char* data, size_t len)
   {
-    get_session()->send(1, reinterpret_cast<const char*>(data), len);  // echo back
+    get_session()->send(1, reinterpret_cast<const char*>(data), len, true);  // echo back
   }
 
   void handle_established(session_ptr session) final
   {
     LOG()->info("test_client established. remote: {}", session->get_remote_addr());
-    std::string payload;
     for (int i = 0; i < 100; ++i)
     {
-      payload.append("hello");
+      payload_.append(fmt::format("[{} hello]", i));
     }
-    send(payload.c_str(), payload.length());
+    send(payload_.c_str(), payload_.length());
   }
 
   void handle_closed(session_ptr session, boost::system::error_code ec) final {}
@@ -63,9 +62,13 @@ struct test_client : public client<secure_protocol<uint32_t>>
   {
     recv_bytes_ += len;
     session->send(1, reinterpret_cast<const char*>(data), len);  // echo back
+
+    std::string rs{reinterpret_cast<const char*>(data), len};
+    CHECK(rs == payload_);
   }
 
   size_t recv_bytes_{0};
+  std::string payload_;
 };
 
 }  // namespace
