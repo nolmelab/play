@@ -48,7 +48,8 @@ public:
    * @param dst session accumulation buffer
    * @return <total length, send payload buffer>
    */
-  size_t encode(topic pic, const asio::const_buffer& src, asio::streambuf& dst);
+  size_t encode(topic pic, const asio::const_buffer& src, asio::streambuf& dst,
+                bool ignore = false);
 
   // 세션에서 받은 바이트를 전달. (established 이후)
   std::tuple<size_t, asio::const_buffer, topic> decode(const asio::const_buffer& src);

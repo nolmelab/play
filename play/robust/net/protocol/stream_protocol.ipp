@@ -34,7 +34,7 @@ inline void stream_protocol::closed()
 }
 
 inline size_t stream_protocol::encode(topic pic, const asio::const_buffer& src,
-                                      asio::streambuf& dst)
+                                      asio::streambuf& dst, bool /*ignore */ )
 {
   PLAY_CHECK(!closed_);
   if (closed_)

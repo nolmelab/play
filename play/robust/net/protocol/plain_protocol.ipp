@@ -43,7 +43,7 @@ inline void plain_protocol<Topic>::closed()
 
 template <typename Topic>
 inline size_t plain_protocol<Topic>::encode(topic pic, const asio::const_buffer& src,
-                                            asio::streambuf& dst)
+                                            asio::streambuf& dst, bool /* ignore*/)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -60,7 +60,7 @@ inline size_t plain_protocol<Topic>::encode(topic pic, const asio::const_buffer&
   base::serializer::serialize(reinterpret_cast<uint8_t*>(wbuf), src.size(), pic);
   dst.commit(sizeof(Topic));
 
-  auto size = length_codec_->encode(src, dst); // prepare, write,commit to dst
+  auto size = length_codec_->encode(src, dst);  // prepare, write,commit to dst
   PLAY_CHECK(size == src.size() + length_codec_->length_field_size);
   return total_len;
 }

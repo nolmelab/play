@@ -81,6 +81,8 @@ private:
     return length_field_size + sizeof(Topic) + 1;  // 1 byte encryption flag
   }
 
+  asio::const_buffer encode_handshake(const asio::const_buffer& src);
+
 private:
   size_t handle_;
   bool accepted_;
@@ -92,6 +94,7 @@ private:
 
   std::unique_ptr<sodium_cipher> cipher_codec_;
   std::unique_ptr<sodium_handshake> cipher_handshake_;
+  length_delimited handshake_codec_{};
 };
 
 }}}  // namespace play::robust::net

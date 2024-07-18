@@ -82,7 +82,7 @@ void session<Protocol, Handler>::send(const void* data, size_t len)
 }
 
 template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::send(topic pic, const void* data, size_t len)
+void session<Protocol, Handler>::send(topic pic, const void* data, size_t len, bool encrypt)
 {
   if (!is_open())
   {
@@ -103,7 +103,7 @@ void session<Protocol, Handler>::send(topic pic, const void* data, size_t len)
   auto& acc_buf = send_bufs_[acc_buf_index_];  // write to the accumulation buffer
   // protocol::encode() prepare, encode, and commit
   auto cbuf = asio::const_buffer{data, len};
-  auto total_len = protocol_->encode(pic, cbuf, acc_buf);
+  auto total_len = protocol_->encode(pic, cbuf, acc_buf, encrypt);
 
   if (!sending_)
   {

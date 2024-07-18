@@ -4,14 +4,15 @@
 namespace play { namespace robust { namespace net {
 
 // encrypt src_buf into dest_buf
-inline size_t sodium_cipher::encode(const asio::const_buffer& src, asio::streambuf& dst)
+inline size_t sodium_cipher::encode(const asio::const_buffer& src, asio::streambuf& dst,
+                                    size_t pre_write)
 {
   const uint8_t* rsrc = reinterpret_cast<const uint8_t*>(src.data());
   auto pbuf = dst.prepare(src.size());
   uint8_t* wdst = reinterpret_cast<uint8_t*>(pbuf.data());
 
-  int result = crypto_stream_chacha20_xor(wdst, rsrc, src.size(), handshake_.get_tx_nonce(),
-                                          handshake_.get_tx_key());
+  int result = crypto_stream_chacha20_xor(wdst + pre_write, rsrc, src.size(),
+                                          handshake_.get_tx_nonce(), handshake_.get_tx_key());
 
   if (result != 0)
   {
@@ -20,7 +21,7 @@ inline size_t sodium_cipher::encode(const asio::const_buffer& src, asio::streamb
     throw exception(m);
   }
 
-  dst.commit(src.size());
+  dst.commit(src.size() + pre_write);
   handshake_.inc_tx_nonce();
   return src.size();
 }

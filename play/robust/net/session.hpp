@@ -34,8 +34,8 @@ public:
   // 바이트를 쓴다.
   void send(const void* data, size_t len);
 
-  // 토픽을 포함하여 전송하는 함수
-  void send(topic pic, const void* data, size_t len);
+  // 토픽을 포함하여 전송하는 프로토콜 전송용 함수
+  void send(topic pic, const void* data, size_t len, bool encrypt = false);
 
   void close();
 

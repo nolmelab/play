@@ -20,7 +20,7 @@ inline asio::const_buffer secure_protocol<Topic>::accepted()
   cipher_codec_ = std::make_unique<sodium_cipher>(handle_, *cipher_handshake_.get());
 
   // pub 키 전송 요청
-  return cipher_handshake_->prepare();
+  return encode_handshake(cipher_handshake_->prepare());
 }
 
 template <typename Topic>
@@ -38,7 +38,7 @@ inline asio::const_buffer secure_protocol<Topic>::connected()
   cipher_handshake_ = std::make_unique<sodium_handshake>(handle_, false);
   cipher_codec_ = std::make_unique<sodium_cipher>(handle_, *cipher_handshake_.get());
 
-  return cipher_handshake_->prepare();
+  return encode_handshake(cipher_handshake_->prepare());
 }
 
 template <typename Topic>
@@ -65,28 +65,28 @@ inline size_t secure_protocol<Topic>::encode(Topic pic, const asio::const_buffer
     return 0;
   }
 
-  auto total_len = src.size() + length_field_size + sizeof(Topic) + 1;
+  auto header_len = length_field_size + sizeof(Topic) + 1;
+  auto total_len = src.size() + header_len;
   auto wdst = dst.prepare(total_len);
 
   auto pdst = reinterpret_cast<uint8_t*>(wdst.data());
-  base::serializer::serialize(pdst, pic, sizeof(pic));
+  base::serializer::serialize(pdst, sizeof(pic), pic);  // prepare()로 공간이 충분
   pdst += sizeof(Topic);
-  base::serializer::serialize(pdst, encrypt, 1);
+  base::serializer::serialize(pdst, 1, encrypt);
   pdst += 1;
-  base::serializer::serialize(pdst, src.size(), length_field_size);
-  dst.commit(sizeof(Topic) + 1);  // commit topic and encrypt
+  base::serializer::serialize(pdst, length_field_size, static_cast<uint32_t>(src.size()));
 
   if (encrypt)
   {
     // src를 암호화 하여 dst에 prepare를 한 후 쓰고 commit 한다.
-    auto enc_len = cipher_codec_->encode(src, dst);
+    auto enc_len = cipher_codec_->encode(src, dst, header_len);
     PLAY_CHECK(enc_len > 0);
   }
   else
   {
-    auto pframe = pdst + length_field_size;
-    std::memcpy(pframe, src.data(), src.size());
-    dst.commit(src.size());
+    auto pbody = pdst + length_field_size;
+    std::memcpy(pbody, src.data(), src.size());
+    dst.commit(src.size() + header_len);
   }
 
   return total_len;
@@ -123,40 +123,47 @@ inline std::tuple<size_t, asio::const_buffer, Topic> secure_protocol<Topic>::dec
   if (encrypt)
   {
     auto [used_len, dec_buf] = cipher_codec_->decode({pframe, len});
-    return {total_len, dec_buf, pic};  // found one frame
+    return {total_len, dec_buf, pic};  // secure frame
   }
   // else
-  return {total_len, {pframe, len}, pic};
+  return {total_len, {pframe, len}, pic};  // plainframe
 }
 
 template <typename Topic>
 std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::handshake(
     const asio::const_buffer& src)
 {
-  length_delimited codec{};
-
   recv_buf_.prepare(src.size());
   recv_buf_.sputn(reinterpret_cast<const char*>(src.data()), src.size());
 
-  auto frame = codec.decode(recv_buf_.data());
+  auto frame = handshake_codec_.decode(recv_buf_.data());
   if (frame.size() > 0)
   {
     auto [used_len, resp] = cipher_handshake_->on_handshake(frame);
-    recv_buf_.consume(used_len);
+    PLAY_CHECK(used_len == frame.size());
+    recv_buf_.consume(used_len + handshake_codec_.length_field_size);
 
     if (resp.size() > 0)
     {
-      auto size = codec.encode(resp, send_buf_);
-      PLAY_CHECK(size == resp.size() + codec.length_field_size);
-      return {src.size(), send_buf_.data()};
+      auto send = encode_handshake(resp);
+      return {src.size(), send};
     }
-    else
-    {
-      return {src.size(), {}};
-    }
+    // else - handshake completed
+    PLAY_CHECK(cipher_handshake_->is_established());
+    return {src.size(), {}};
   }
   // else - needs to recv more data
   return {src.size(), {}};
+}
+
+template <typename Topic>
+inline asio::const_buffer secure_protocol<Topic>::encode_handshake(const asio::const_buffer& src)
+{
+  auto size = handshake_codec_.encode(src, send_buf_);
+  PLAY_CHECK(size == src.size() + handshake_codec_.length_field_size);
+  auto send = send_buf_.data();
+  send_buf_.consume(size);
+  return send;
 }
 
 }}}  // namespace play::robust::net

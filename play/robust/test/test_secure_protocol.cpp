@@ -18,7 +18,10 @@ struct test_server : public server<secure_protocol<uint32_t>>
   {
   }
 
-  void handle_established(session_ptr session) final {}
+  void handle_established(session_ptr session) final
+  {
+    LOG()->info("test_server established. remote: {}", session->get_remote_addr());
+  }
 
   void handle_closed(session_ptr session, boost::system::error_code ec) final {}
 

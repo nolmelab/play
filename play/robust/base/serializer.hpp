@@ -39,7 +39,7 @@ inline void serializer::serialize(uint8_t* buf, size_t len, Value v)
 inline void serializer::serialize(uint8_t* buf, size_t len, bool v)
 {
   uint8_t tv = v ? 1 : 0;
-  serialize(buf, len, tv);
+  buf[0] = tv;
 }
 
 template <typename Value>
@@ -57,8 +57,8 @@ inline void serializer::deserialize(const uint8_t* buf, size_t len, Value& v)
 
 inline void serializer::deserialize(const uint8_t* buf, size_t len, bool& v)
 {
-  uint8_t tv = 0;
-  deserialize(buf, len, tv);
+  PLAY_CHECK(len > 0);
+  uint8_t tv = buf[0];
   v = tv == 0 ? false : true;
 }
 

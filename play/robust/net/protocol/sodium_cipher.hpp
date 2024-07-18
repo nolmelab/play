@@ -36,7 +36,7 @@ public:
   /**
    * @throws 암호화 실패 시 예외 발생
    */
-  size_t encode(const asio::const_buffer& src, asio::streambuf& dst);
+  size_t encode(const asio::const_buffer& src, asio::streambuf& dst, size_t pre_write = 0);
 
   // decrypt src_buf with internal buffer and put it into const_buffer
   /**
