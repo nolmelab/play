@@ -160,10 +160,12 @@ std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::handshake(
 template <typename Topic>
 inline asio::const_buffer secure_protocol<Topic>::encode_handshake(const asio::const_buffer& src)
 {
-  auto size = hs_length_codec_.encode(src, hs_send_buf_);
+  static thread_local asio::streambuf hs_send_buf;  // 협상 전송용 버퍼
+
+  auto size = hs_length_codec_.encode(src, hs_send_buf);
   PLAY_CHECK(size == src.size() + hs_length_codec_.length_field_size);
-  auto send = hs_send_buf_.data();
-  hs_send_buf_.consume(size);
+  auto send = hs_send_buf.data();
+  hs_send_buf.consume(size);
 
   LOG()->info("encode_handshake: {} bytes", size);
   return send;

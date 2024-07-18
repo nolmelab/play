@@ -110,4 +110,6 @@ TEST_CASE("secure_protocol")
 
     LOG()->info("secure_protocol. elapsed: {}, bytes; {}", elapsed, test_bytes);
   }
+
+  // TODO: 테스트들 추가. 어떤 테스트들이 있을까?
 }
