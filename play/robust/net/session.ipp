@@ -211,7 +211,7 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
         handler_.on_established(this->shared_from_this());
 
         auto recv_frame_count = recv_frames();
-        LOG()->debug("handle: {} recv_frame_count: {} on established", handle_, recv_frame_count);
+        // LOG()->debug("handle: {} recv_frame_count: {} on established", handle_, recv_frame_count);
       }
     }
 
