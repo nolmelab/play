@@ -42,6 +42,7 @@ target_link_libraries(
   doctest::doctest
   unofficial-sodium::sodium
   nlohmann_json::nlohmann_json
+  pthread
 )
 
 # add include directories, especially playground

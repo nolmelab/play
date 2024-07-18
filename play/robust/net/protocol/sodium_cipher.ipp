@@ -23,7 +23,7 @@ inline size_t sodium_cipher::encode(const asio::const_buffer& src, asio::streamb
 
   dst.commit(src.size() + pre_write);
   handshake_.inc_tx_nonce();
-  return src.size();
+  return src.size() + pre_write;
 }
 
 inline std::tuple<size_t, asio::const_buffer> sodium_cipher::decode(const asio::const_buffer& src)
