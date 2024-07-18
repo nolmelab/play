@@ -18,12 +18,20 @@ public:
   {
   }
 
-  // src_buf에서 길이만큼에 해당 되는 body를 읽어 const_buffer로 포인터를 맞춰 돌려줌
-  asio::const_buffer decode(const asio::const_buffer& src);
+  // src 버퍼 내용을 dst 버퍼에 쓴다. dst에 대해 prepare(), commit()을 한다
+  /**
+   * @throws 암호화 실패 시 예외 발생
+   */
+  size_t encode(const asio::const_buffer& src, asio::streambuf& dst);
 
   // sbuf의 길이를 dest_buf에 쓰고, 그 내용도 dest_buf에 쓴다.
-  size_t encode(const asio::const_buffer& src, asio::mutable_buffer& dest,
-                bool header_only = false);
+  /**
+   * @throws 암호화 실패 시 예외 발생
+   */
+  size_t encode(const asio::const_buffer& src, asio::mutable_buffer& dest);
+
+  // src_buf에서 길이만큼에 해당 되는 body를 읽어 const_buffer로 포인터를 맞춰 돌려준다
+  asio::const_buffer decode(const asio::const_buffer& src);
 
   // TODO: add encode using asio::streambuf
 

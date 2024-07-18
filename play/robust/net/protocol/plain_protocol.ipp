@@ -1,4 +1,5 @@
 #include <play/robust/base/macros.hpp>
+#include <play/robust/base/serializer.hpp>
 #include <play/robust/net/protocol/plain_protocol.hpp>
 
 namespace play { namespace robust { namespace net {
@@ -55,14 +56,12 @@ inline size_t plain_protocol<Topic>::encode(topic pic, const asio::const_buffer&
 
   auto total_len = length_codec_->length_field_size + src.size() + sizeof(topic);
   auto dst_buf = dst.prepare(total_len);
-
   auto wbuf = reinterpret_cast<char*>(dst_buf.data());
-  this->serialize(reinterpret_cast<uint8_t*>(wbuf), src.size(), pic);
+  base::serializer::serialize(reinterpret_cast<uint8_t*>(wbuf), src.size(), pic);
+  dst.commit(sizeof(Topic));
 
-  auto mbuf = asio::mutable_buffer{reinterpret_cast<void*>(wbuf + sizeof(topic)),
-                                   total_len - sizeof(topic)};
-  auto sbuf = length_codec_->encode(src, mbuf);
-  dst.commit(total_len);
+  auto size = length_codec_->encode(src, dst); // prepare, write,commit to dst
+  PLAY_CHECK(size == src.size() + length_codec_->length_field_size);
   return total_len;
 }
 
@@ -77,7 +76,7 @@ inline std::tuple<size_t, asio::const_buffer, Topic> plain_protocol<Topic>::deco
 
   auto rbuf = reinterpret_cast<const char*>(src.data());
   Topic pic{};
-  this->deserialize(reinterpret_cast<const uint8_t*>(rbuf), src.size(), pic);
+  base::serializer::deserialize(reinterpret_cast<const uint8_t*>(rbuf), src.size(), pic);
 
   auto cbuf = asio::const_buffer{rbuf + sizeof(Topic), src.size() - sizeof(Topic)};
   auto sbuf = length_codec_->decode(cbuf);

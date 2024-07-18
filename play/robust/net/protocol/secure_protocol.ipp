@@ -1,4 +1,5 @@
 #include <play/robust/base/macros.hpp>
+#include <play/robust/base/serializer.hpp>
 #include <play/robust/net/protocol/secure_protocol.hpp>
 
 namespace play { namespace robust { namespace net {
@@ -68,11 +69,11 @@ inline size_t secure_protocol<Topic>::encode(Topic pic, const asio::const_buffer
   auto wdst = dst.prepare(total_len);
 
   auto pdst = reinterpret_cast<uint8_t*>(wdst.data());
-  this->serialize(pdst, pic, sizeof(pic));
+  base::serializer::serialize(pdst, pic, sizeof(pic));
   pdst += sizeof(Topic);
-  this->serialize(pdst, encrypt, 1);
+  base::serializer::serialize(pdst, encrypt, 1);
   pdst += 1;
-  this->serialize(pdst, src.size(), length_field_size);
+  base::serializer::serialize(pdst, src.size(), length_field_size);
   dst.commit(sizeof(Topic) + 1);  // commit topic and encrypt
 
   if (encrypt)
@@ -105,11 +106,11 @@ inline std::tuple<size_t, asio::const_buffer, Topic> secure_protocol<Topic>::dec
   bool encrypt{false};
   uint32_t len{0};
 
-  this->deserialize(psrc, sizeof(pic), pic);
+  base::serializer::deserialize(psrc, sizeof(pic), pic);
   psrc += sizeof(Topic);
-  this->deserialize(psrc, 1, encrypt);
+  base::serializer::deserialize(psrc, 1, encrypt);
   psrc += 1;
-  this->deserialize(psrc, length_field_size, len);
+  base::serializer::deserialize(psrc, length_field_size, len);
 
   auto total_len = len + length_field_size + sizeof(Topic) + 1;
   if (src.size() < total_len)
@@ -142,7 +143,17 @@ std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::handshake(
   {
     auto [used_len, resp] = cipher_handshake_->on_handshake(frame);
     recv_buf_.consume(used_len);
-    return {src.size(), resp};
+
+    if (resp.size() > 0)
+    {
+      auto size = codec.encode(resp, send_buf_);
+      PLAY_CHECK(size == resp.size() + codec.length_field_size);
+      return {src.size(), send_buf_.data()};
+    }
+    else
+    {
+      return {src.size(), {}};
+    }
   }
   // else - needs to recv more data
   return {src.size(), {}};
