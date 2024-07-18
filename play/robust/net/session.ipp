@@ -39,6 +39,16 @@ void session<Protocol, Handler>::start()
     this->send_handshake(buf);
   }
 
+  // get address
+  {
+    tcp::endpoint ep = socket_.remote_endpoint();
+
+    auto addr = ep.address().to_string();
+    auto port = ep.port();
+
+    remote_addr_ = fmt::format("{}:{}", addr, port);
+  }
+
   // 통지보다 먼저 와야 함
   this->start_recv();
 
@@ -113,15 +123,6 @@ void session<Protocol, Handler>::close()
 template <typename Protocol, typename Handler>
 std::string session<Protocol, Handler>::get_remote_addr() const
 {
-  if (remote_addr_.empty())
-  {
-    tcp::endpoint ep = socket_.remote_endpoint();
-
-    auto addr = ep.address().to_string();
-    auto port = ep.port();
-
-    remote_addr_ = fmt::format("{}:{}", addr, port);
-  }
   return remote_addr_;
 }
 

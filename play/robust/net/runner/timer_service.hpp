@@ -33,6 +33,8 @@ public:
 
   void cancel();
 
+  // TODO: add strand timer interface
+
 private:
   template <typename CompletionToken>
   void repeat_call(asio::chrono::milliseconds interval_ms, CompletionToken&& handler,

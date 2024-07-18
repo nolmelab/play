@@ -2,10 +2,11 @@
 
 - 2024/07 
   - net completed
-    - secure_protocol 
+    - stream_protocol
     - plain_protocol 
+    - secure_protocol 
     - flatbuffers
-    - json / string
+    - string / json
 
 - 2024/08
   - app start 
