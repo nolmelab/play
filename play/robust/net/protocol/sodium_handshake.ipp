@@ -97,9 +97,6 @@ inline asio::const_buffer sodium_handshake::sync_nonce()
   nonce_exchange_buf_[0] = 'n';
   crypto_box_seal(nonce_exchange_buf_ + 1, rx_nonce_, nonce_size, peer_pub_key_);
 
-  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. nonce sealed", handle_),
-                         nonce_exchange_buf_, sizeof(nonce_exchange_buf_));
-
   return {(const void*)nonce_exchange_buf_, sizeof(nonce_exchange_buf_)};
 }
 

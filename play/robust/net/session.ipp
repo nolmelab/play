@@ -90,6 +90,7 @@ void session<Protocol, Handler>::send(topic pic, const void* data, size_t len, b
                 get_remote_addr());
     return;
   }
+
   PLAY_CHECK(len > 0);
   PLAY_CHECK(data != nullptr);
   if (len == 0 || data == nullptr)
@@ -190,33 +191,17 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
   if (!ec)
   {
     recv_buf_.commit(len);
-    auto payload_buf = recv_buf_.data();
 
     if (protocol_->is_established())
     {
-      for (;;)
-      {
-        auto cbuf = asio::const_buffer{payload_buf.data(), payload_buf.size()};
-        auto [consumed_len, frame, topic] = protocol_->decode(cbuf);
-        if (consumed_len > 0)
-        {
-          if (frame.size() > 0)
-          {
-            handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
-          }
-          recv_buf_.consume(consumed_len);
-        }
-        else
-        {
-          break;
-        }
-
-        payload_buf = recv_buf_.data();
-      }
+      auto recv_frame_count = recv_frames();
+      LOG()->debug("handle: {} recv_frame_count: {}", handle_, recv_frame_count);
     }
     else
     {
-      auto cbuf = asio::const_buffer{payload_buf.data(), payload_buf.size()};
+      auto recv_data = recv_buf_.data();
+
+      auto cbuf = asio::const_buffer{recv_data.data(), recv_data.size()};
       auto [consumed_len, buf] = protocol_->handshake(cbuf);
       recv_buf_.consume(consumed_len);  // used in protocol
       this->send_handshake(buf);
@@ -224,6 +209,9 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
       if (protocol_->is_established())
       {
         handler_.on_established(this->shared_from_this());
+
+        auto recv_frame_count = recv_frames();
+        LOG()->debug("handle: {} recv_frame_count: {} on established", handle_, recv_frame_count);
       }
     }
 
@@ -244,6 +232,35 @@ void session<Protocol, Handler>::send_handshake(asio::const_buffer buf)
   {
     send(buf.data(), buf.size());
   }
+}
+
+template <typename Protocol, typename Handler>
+size_t session<Protocol, Handler>::recv_frames()
+{
+  size_t frame_count = 0;
+
+  auto recv_data = recv_buf_.data();
+
+  for (;;)
+  {
+    auto cbuf = asio::const_buffer{recv_data.data(), recv_data.size()};
+    auto [consumed_len, frame, topic] = protocol_->decode(cbuf);
+    if (consumed_len > 0)
+    {
+      PLAY_CHECK(frame.size() > 0);
+      handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
+      recv_buf_.consume(consumed_len);
+    }
+    else
+    {
+      break;
+    }
+
+    ++frame_count;
+    recv_data = recv_buf_.data();
+  }
+
+  return frame_count;
 }
 
 }}}  // namespace play::robust::net

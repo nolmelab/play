@@ -91,7 +91,6 @@ private:
   std::unique_ptr<sodium_handshake> cipher_handshake_;
 
   length_delimited hs_length_codec_{};
-  asio::streambuf hs_recv_buf_;  // 협상 수신용 버퍼
   asio::streambuf hs_send_buf_;  // 협상 전송용 버퍼
 };
 

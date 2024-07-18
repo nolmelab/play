@@ -135,33 +135,26 @@ template <typename Topic>
 std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::handshake(
     const asio::const_buffer& src)
 {
-  // session의 handle_recv() 로직에서 필요한 항목으로 protocol을 재구성한다. 
-  // secure_protocol을 중심으로 재구성한다. 
-  auto current_size = hs_recv_buf_.data().size();
-  hs_recv_buf_.prepare(src.size());
-  hs_recv_buf_.sputn(reinterpret_cast<const char*>(src.data()), src.size());
-
-  auto recv_data = hs_recv_buf_.data();
-  auto frame = hs_length_codec_.decode(recv_data);
+  LOG()->info("handshake: {} bytes", src.size());
+  auto frame = hs_length_codec_.decode(src);
   if (frame.size() > 0)
   {
     auto [used_len, resp] = cipher_handshake_->on_handshake(frame);
     PLAY_CHECK(used_len == frame.size());
-    hs_recv_buf_.consume(used_len + hs_length_codec_.length_field_size);
+    // 세션에 알려서 수신 읽기 위치를 조절하는 길이
+    auto consumed_len = frame.size() + hs_length_codec_.length_field_size;
 
     if (resp.size() > 0)
     {
       auto send = encode_handshake(resp);
-      // src중 frame 만드는데 사용한 만큼만 consume() 하도록 조정
-      // XXX: 이와 같이 버퍼를 분리한 처리 구조가 잘 맞지 않는다. 
-      return {src.size() - current_size, send};
+      return {consumed_len, send};
     }
     // else - handshake completed
     PLAY_CHECK(cipher_handshake_->is_established());
-    return {src.size(), {}};
+    return {consumed_len, {}};
   }
-  // else - needs to recv more data
-  return {src.size(), {}};
+  // else - not used any bytes
+  return {0, {}};
 }
 
 template <typename Topic>
@@ -171,6 +164,8 @@ inline asio::const_buffer secure_protocol<Topic>::encode_handshake(const asio::c
   PLAY_CHECK(size == src.size() + hs_length_codec_.length_field_size);
   auto send = hs_send_buf_.data();
   hs_send_buf_.consume(size);
+
+  LOG()->info("encode_handshake: {} bytes", size);
   return send;
 }
 
