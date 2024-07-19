@@ -118,7 +118,7 @@ private:
 
   bool key_received_;
   bool nonce_received_;
-  bool established_;
+  std::atomic<bool> established_;
 
   uint8_t pub_key_[key_size];
   uint8_t sec_key_[key_size];

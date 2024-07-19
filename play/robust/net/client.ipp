@@ -9,13 +9,12 @@ client<Protocol>::client(runner& runner)
 }
 
 template <typename Protocol>
-void client<Protocol>::connect(std::string_view addr, uint16_t port)
+inline bool client<Protocol>::connect(std::string_view addr, uint16_t port)
 {
   if (session_ && session_->is_open())
   {
     LOG()->warn("current sesion is open. closing it. handle: {}", session_->get_handle());
-    session_->close();
-    session_.reset();
+    return false;
   }
 
   addr_ = addr;
@@ -35,12 +34,14 @@ void client<Protocol>::connect(std::string_view addr, uint16_t port)
 }
 
 template <typename Protocol>
-void client<Protocol>::close()
+inline void client<Protocol>::close()
 {
   if (session_->is_open())
   {
     session_->close();
     session_.reset();
+
+    // XXX: 앱에서 연결 종료를 더 기다려야 하는가? on_closed()를 대기?
   }
 }
 

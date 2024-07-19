@@ -77,7 +77,7 @@ private:
   size_t handle_;
   bool accepted_;
   bool connected_;
-  bool closed_;
+  std::atomic<bool> closed_;
 
   std::unique_ptr<length_delimited> length_codec_;
 };

@@ -70,7 +70,7 @@ public:
 
   bool is_established() const
   {
-    return cipher_handshake_ && cipher_handshake_->is_established();
+    return !closed_ && cipher_handshake_ && cipher_handshake_->is_established();
   }
 
 private:
@@ -85,7 +85,7 @@ private:
   size_t handle_;
   bool accepted_;
   bool connected_;
-  bool closed_;
+  std::atomic<bool> closed_;
 
   std::unique_ptr<sodium_cipher> cipher_codec_;
   std::unique_ptr<sodium_handshake> cipher_handshake_;

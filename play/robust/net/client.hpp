@@ -28,8 +28,10 @@ public:
   // 연결을 시작. ip:port 형식 주소.
   /**
    * client는 비동기 연결만 지원
+   * 
+   * @return false면 이미 연결된 상태. 로그 확인.
    */
-  void connect(std::string_view addr, uint16_t port);
+  bool connect(std::string_view addr, uint16_t port);
 
   // 현재 세션을 얻음. 통신 등에 사용
   session_ptr get_session()
