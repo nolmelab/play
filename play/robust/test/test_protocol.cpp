@@ -1,6 +1,6 @@
 #include <doctest/doctest.h>
-#include <play/robust/base/serializer.hpp>
 #include <play/robust/net/protocol.hpp>
+#include <play/robust/net/util/serializer.hpp>
 
 using namespace play::robust::base;
 using namespace play::robust::net;

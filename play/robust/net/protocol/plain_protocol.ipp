@@ -1,6 +1,6 @@
 #include <play/robust/base/macros.hpp>
-#include <play/robust/base/serializer.hpp>
 #include <play/robust/net/protocol/plain_protocol.hpp>
+#include <play/robust/net/util/serializer.hpp>
 
 namespace play { namespace robust { namespace net {
 
