@@ -35,12 +35,13 @@ public:
   // 서버를 종료
   void stop();
 
-  // 프로토콜에서 Protocol::adatper를 통해서 전달
+  // 세션에서 프로토콜 협상 완료 통지
   void on_established(session_ptr se);
 
+  // 세션에서 연결 종료 통지
   void on_closed(session_ptr se, boost::system::error_code ec);
 
-  // topic 단위 프레임을 프로토콜에서 얻은 후 session::protocoal_adapter를 통해 전달
+  // topic 단위 페이로드를 프로토콜에서 얻은 후 세션을 통해 전달
   void on_receive(session_ptr se, topic topic, const void* data, size_t len);
 
 protected:
@@ -48,10 +49,13 @@ protected:
 
   virtual void on_stop();
 
+  // 하위 클래스에 협상 완료 처리 전달
   virtual void handle_established(session_ptr se) {}
 
+  // 하위 클래스에 연결 종료 처리 전달
   virtual void handle_closed(session_ptr se, boost::system::error_code ec) {}
 
+  // 하위 클래스에 페이로드 처리 전달
   virtual void handle_receive(session_ptr se, topic topic, const void* data, size_t len) {}
 
 private:
