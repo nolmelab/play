@@ -35,7 +35,7 @@ public:
   void send(const void* data, size_t len);
 
   // 토픽을 포함하여 전송하는 프로토콜 전송용 함수
-  void send(topic pic, const void* data, size_t len, bool encrypt = false);
+  bool send(topic pic, const void* data, size_t len, bool encrypt = false);
 
   // 소켓을 끊음. 통지는 따로 0~2까지 발생 (recv, send)
   void close();

@@ -31,6 +31,8 @@ thread_runner::thread_runner(size_t thread_count, const std::string& name)
   }
 
   threads_.swap(threads);
+
+  LOG()->info("started thread_runner: {}. concurrency: {}", get_name(), thread_count_);
 }
 
 void thread_runner::stop()
@@ -50,8 +52,6 @@ void thread_runner::stop()
 
 void thread_runner::run()
 {
-  LOG()->info("thread for thread_runner: {} started", get_name());
-
   while (!stop_)
   {
     size_t run_count = get_ioc().run();
@@ -60,8 +60,6 @@ void thread_runner::run()
       sleep(1);
     }
   }
-
-  LOG()->info("thread for thread_runner: {} stopped", get_name());
 }
 
 }}}  // namespace play::robust::net

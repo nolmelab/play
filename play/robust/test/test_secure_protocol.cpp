@@ -9,7 +9,15 @@ using namespace play::robust::net;
 
 namespace {
 
-static constexpr int test_bytes = 1024;
+struct test_config
+{
+  inline static int test_bytes = 1024;
+  inline static int payload_loops = 100;
+  inline static std::string payload_data = "hello";
+  inline static bool client_encrypt = true;
+  inline static bool server_encrypt = false;
+  inline static int echo_count = 5;
+};
 
 struct test_server : public server<secure_protocol<uint32_t>>
 {
@@ -28,7 +36,11 @@ struct test_server : public server<secure_protocol<uint32_t>>
   void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
-    session->send(1, reinterpret_cast<const char*>(data), len, true);  // echo back
+    for (int i = 0; i < test_config::echo_count; ++i)
+    {
+      session->send(1, reinterpret_cast<const char*>(data), len,
+                    test_config::server_encrypt);  // echo back
+    }
   }
 
   size_t recv_bytes_{0};
@@ -49,10 +61,10 @@ struct test_client : public client<secure_protocol<uint32_t>>
   void handle_established(session_ptr session) final
   {
     LOG()->info("test_client established. remote: {}", session->get_remote_addr());
-    //for (int i = 0; i < 100; ++i)
+
+    for (int i = 0; i < test_config::payload_loops; ++i)
     {
-      // payload_.append(fmt::format("[{} hello]", i));
-      payload_.append("1");  // 1바이트 송수신
+      payload_.append(test_config::payload_data);
     }
     send(payload_.c_str(), payload_.length());
   }
@@ -62,16 +74,55 @@ struct test_client : public client<secure_protocol<uint32_t>>
   void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
   {
     recv_bytes_ += len;
-    session->send(1, reinterpret_cast<const char*>(data), len);  // echo back
-    session->send(1, reinterpret_cast<const char*>(data), len);  // echo back
-
     std::string rs{reinterpret_cast<const char*>(data), len};
     CHECK(rs == payload_);
+
+    for (int i = 0; i < test_config::echo_count; ++i)
+    {
+      session->send(1, reinterpret_cast<const char*>(data), len, test_config::client_encrypt);
+    }
   }
 
   size_t recv_bytes_{0};
   std::string payload_;
 };
+
+void run_test(std::string_view name)
+{
+
+  poll_runner runner{"secure_protocol runner"};
+
+  test_server server(runner, R"(
+    {
+      "port" : 7000, 
+      "concurrency" : 8
+    })");
+
+  test_client client(runner);
+
+  auto rc = server.start();
+
+  play::robust::base::stop_watch watch;
+
+  client.connect("127.0.0.1", 7000);
+  runner.poll_one();
+
+  bool end = false;
+
+  while (client.recv_bytes_ < test_config::test_bytes)
+  {
+    if (runner.poll_one() == 0)
+    {
+      runner.sleep(1);
+    }
+  }
+
+  server.stop();
+
+  auto elapsed = watch.stop();
+
+  LOG()->info("{}. elapsed: {}, bytes; {}", name, elapsed, test_config::test_bytes);
+}
 
 }  // namespace
 
@@ -79,38 +130,23 @@ TEST_CASE("secure_protocol")
 {
   SUBCASE("basics")
   {
-    poll_runner runner{"secure_protocol runner"};
+    run_test("basics");
+  }
 
-    test_server server(runner, R"(
-    {
-      "port" : 7000, 
-      "concurrency" : 8
-    })");
+  SUBCASE("1 byte payload")
+  {
+    test_config::payload_data = "1";
+    test_config::payload_loops = 1;
 
-    test_client client(runner);
+    run_test("small payload");
+  }
 
-    auto rc = server.start();
+  SUBCASE("big payload")
+  {
+    test_config::payload_data = "big_";
+    test_config::payload_loops = 100000;
 
-    play::robust::base::stop_watch watch;
-
-    client.connect("127.0.0.1", 7000);
-    runner.poll_one();
-
-    bool end = false;
-
-    while (client.recv_bytes_ < test_bytes)
-    {
-      if (runner.poll_one() == 0)
-      {
-        runner.sleep(1);
-      }
-    }
-
-    server.stop();
-
-    auto elapsed = watch.stop();
-
-    LOG()->info("secure_protocol. elapsed: {}, bytes; {}", elapsed, test_bytes);
+    run_test("big payload");
   }
 
   // 테스트들:
