@@ -179,9 +179,7 @@ void session<Protocol, Handler>::handle_send(boost::system::error_code ec, size_
   }
   else
   {
-    close();  // ensure socket is closed
-    protocol_->closed();
-    handler_.on_closed(this->shared_from_this(), ec);
+    handle_close(ec);
   }
 }
 
@@ -209,7 +207,6 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
       if (protocol_->is_established())
       {
         handler_.on_established(this->shared_from_this());
-
         auto recv_frame_count = recv_frames();
         // LOG()->debug("handle: {} recv_frame_count: {} on established", handle_, recv_frame_count);
       }
@@ -218,6 +215,15 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
     this->start_recv();
   }
   else
+  {
+    handle_close(ec);
+  }
+}
+
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::handle_close(boost::system::error_code ec)
+{
+  if (is_open())
   {
     close();  // ensure socket is closed
     protocol_->closed();

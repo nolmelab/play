@@ -78,6 +78,8 @@ private:
 
   void handle_recv(boost::system::error_code ec, size_t len);
 
+  void handle_close(boost::system::error_code ec);
+
   size_t recv_frames();
 
   void send_handshake(asio::const_buffer hs);
