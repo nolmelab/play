@@ -31,6 +31,8 @@ inline bool client<Protocol>::connect(std::string_view addr, uint16_t port)
                                        {
                                          handle_connect(ec);
                                        });
+
+  return true;
 }
 
 template <typename Protocol>

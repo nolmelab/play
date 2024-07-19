@@ -134,16 +134,16 @@ void session<Protocol, Handler>::start_send()
   PLAY_CHECK(!sending_);
 
   auto& send_buf = send_bufs_[acc_buf_index_];  // acc buffer becomes send buffer
-  if (send_buf.size() == 0)
+  auto buf = send_buf.data();
+  if (buf.size() == 0)
   {
     return;  // nothing to send in accumulation buffer
   }
 
-  sending_ = true;
   acc_buf_index_ = acc_buf_index_ ^ 1;  // switch send accumulation buffer
+  sending_ = true;
 
   auto self(this->shared_from_this());
-  auto buf = send_buf.data();
   socket_.async_send(boost::asio::buffer(buf.data(), buf.size()),
                      [this, self](boost::system::error_code ec, std::size_t len)
                      {
@@ -241,7 +241,7 @@ size_t session<Protocol, Handler>::recv_frames()
 
   auto recv_data = recv_buf_.data();
 
-  for (;;)
+  while (recv_data.size() > 0)
   {
     auto cbuf = asio::const_buffer{recv_data.data(), recv_data.size()};
     auto [consumed_len, frame, topic] = protocol_->decode(cbuf);
