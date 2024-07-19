@@ -1,0 +1,31 @@
+namespace app.sample;
+ 
+enum color: byte { red = 0, green, blue = 2 }
+ 
+union equipment { weapon } // Optionally add more tables.
+ 
+struct vec3 {
+  x:float;
+  y:float;
+  z:float;
+}
+ 
+table monster {
+  pos: vec3; // Struct.
+  mana: short = 150;
+  hp: short = 100;
+  name: string;
+  friendly: bool = false (deprecated);
+  inventory: [ubyte];  // Vector of scalars.
+  color: color = blue; // Enum.
+  weapons: [weapon];   // Vector of tables.
+  equipped: equipment; // Union.
+  path: [vec3];        // Vector of structs.
+}
+ 
+table weapon {
+  name: string;
+  damage: short;
+}
+ 
+root_type monster;
