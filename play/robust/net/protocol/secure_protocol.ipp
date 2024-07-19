@@ -119,16 +119,16 @@ inline std::tuple<size_t, asio::const_buffer, Topic> secure_protocol<Topic>::dec
     return {0, {}, Topic{}};
   }
 
-  auto pframe = psrc + length_field_size;
+  auto ppayload = psrc + length_field_size;
 
   if (encrypt)
   {
-    auto [used_len, dec_buf] = cipher_codec_->decode({pframe, len});
+    auto [used_len, dec_buf] = cipher_codec_->decode({ppayload, len});
     PLAY_CHECK(used_len == len);
     return {total_len, dec_buf, pic};  // secure frame
   }
   // else
-  return {total_len, {pframe, len}, pic};  // plainframe
+  return {total_len, {ppayload, len}, pic};  // plainframe
 }
 
 template <typename Topic>
@@ -136,13 +136,13 @@ std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::handshake(
     const asio::const_buffer& src)
 {
   LOG()->info("handshake: {} bytes", src.size());
-  auto frame = hs_length_codec_.decode(src);
-  if (frame.size() > 0)
+  auto payload = hs_length_codec_.decode(src);
+  if (payload.size() > 0)
   {
-    auto [used_len, resp] = cipher_handshake_->on_handshake(frame);
-    PLAY_CHECK(used_len == frame.size());
+    auto [used_len, resp] = cipher_handshake_->on_handshake(payload);
+    PLAY_CHECK(used_len == payload.size());
     // 세션에 알려서 수신 읽기 위치를 조절하는 길이
-    auto consumed_len = frame.size() + hs_length_codec_.length_field_size;
+    auto consumed_len = payload.size() + hs_length_codec_.length_field_size;
 
     if (resp.size() > 0)
     {
