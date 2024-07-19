@@ -27,7 +27,7 @@ inline bool client<Protocol>::connect(std::string_view addr, uint16_t port)
   session_ = std::make_shared<session>(*this, runner_.get_ioc(), false);
 
   session_->get_socket().async_connect(endpoint_,
-                                       [this](boost::system::error_code ec)
+                                       [this](error_code ec)
                                        {
                                          handle_connect(ec);
                                        });
@@ -55,14 +55,14 @@ void client<Protocol>::reconnect()
 
   // reuse socket
   session_->get_socket().async_connect(endpoint_,
-                                       [this](boost::system::error_code ec)
+                                       [this](error_code ec)
                                        {
                                          handle_connect(ec);
                                        });
 }
 
 template <typename Protocol>
-void client<Protocol>::handle_connect(boost::system::error_code ec)
+void client<Protocol>::handle_connect(error_code ec)
 {
   if (!ec)
   {
@@ -90,7 +90,7 @@ void client<Protocol>::on_established(session_ptr session)
 }
 
 template <typename Protocol>
-void client<Protocol>::on_closed(session_ptr session, boost::system::error_code ec)
+void client<Protocol>::on_closed(session_ptr session, error_code ec)
 {
   LOG()->info("client session closed. handle: {}  remote: {} error: {}", session->get_handle(),
               session->get_remote_addr(), ec.message());

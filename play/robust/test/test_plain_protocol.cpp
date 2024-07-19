@@ -20,7 +20,7 @@ struct test_server : public server<plain_protocol<uint32_t>>
 
   void handle_established(session_ptr session) final {}
 
-  void handle_closed(session_ptr session, boost::system::error_code ec) final {}
+  void handle_closed(session_ptr session, error_code ec) final {}
 
   void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
   {
@@ -54,7 +54,7 @@ struct test_client : public client<plain_protocol<uint32_t>>
     send(payload.c_str(), payload.length());
   }
 
-  void handle_closed(session_ptr session, boost::system::error_code ec) final {}
+  void handle_closed(session_ptr session, error_code ec) final {}
 
   void handle_receive(session_ptr session, topic topic, const void* data, size_t len) final
   {

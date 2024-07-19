@@ -145,7 +145,7 @@ void session<Protocol, Handler>::start_send()
 
   auto self(this->shared_from_this());
   socket_.async_send(boost::asio::buffer(buf.data(), buf.size()),
-                     [this, self](boost::system::error_code ec, std::size_t len)
+                     [this, self](error_code ec, std::size_t len)
                      {
                        this->handle_send(ec, len);
                      });
@@ -157,14 +157,14 @@ void session<Protocol, Handler>::start_recv()
   auto self(this->shared_from_this());
   auto buf = recv_buf_.prepare(recv_size);
   socket_.async_receive(boost::asio::buffer(buf.data(), buf.size()),
-                        [this, self](boost::system::error_code ec, std::size_t len)
+                        [this, self](error_code ec, std::size_t len)
                         {
                           this->handle_recv(ec, len);
                         });
 }
 
 template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::handle_send(boost::system::error_code ec, size_t len)
+void session<Protocol, Handler>::handle_send(error_code ec, size_t len)
 {
   std::lock_guard<std::recursive_mutex> guard(mutex_);
   PLAY_CHECK(sending_);
@@ -184,7 +184,7 @@ void session<Protocol, Handler>::handle_send(boost::system::error_code ec, size_
 }
 
 template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_t len)
+void session<Protocol, Handler>::handle_recv(error_code ec, size_t len)
 {
   if (!ec)
   {
@@ -221,7 +221,7 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
 }
 
 template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::handle_close(boost::system::error_code ec)
+void session<Protocol, Handler>::handle_close(error_code ec)
 {
   if (is_open())
   {

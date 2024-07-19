@@ -74,11 +74,11 @@ private:
 
   void start_recv();
 
-  void handle_send(boost::system::error_code ec, size_t len);
+  void handle_send(error_code ec, size_t len);
 
-  void handle_recv(boost::system::error_code ec, size_t len);
+  void handle_recv(error_code ec, size_t len);
 
-  void handle_close(boost::system::error_code ec);
+  void handle_close(error_code ec);
 
   size_t recv_frames();
 

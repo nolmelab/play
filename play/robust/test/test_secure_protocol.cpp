@@ -23,7 +23,7 @@ struct test_server : public server<secure_protocol<uint32_t>>
     LOG()->info("test_server established. remote: {}", session->get_remote_addr());
   }
 
-  void handle_closed(session_ptr session, boost::system::error_code ec) final {}
+  void handle_closed(session_ptr session, error_code ec) final {}
 
   void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
   {
@@ -57,7 +57,7 @@ struct test_client : public client<secure_protocol<uint32_t>>
     send(payload_.c_str(), payload_.length());
   }
 
-  void handle_closed(session_ptr session, boost::system::error_code ec) final {}
+  void handle_closed(session_ptr session, error_code ec) final {}
 
   void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
   {

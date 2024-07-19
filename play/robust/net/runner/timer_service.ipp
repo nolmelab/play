@@ -13,7 +13,7 @@ inline void timer::once(asio::chrono::milliseconds ms, CompletionToken&& handler
   repeat_ = false;
   timer_.expires_from_now(ms);
   timer_.async_wait(
-      [this, handler](const boost::system::error_code& ec)
+      [this, handler](const error_code& ec)
       {
         handler(*this);
       });
@@ -28,7 +28,7 @@ inline void timer::repeat(asio::chrono::milliseconds interval_ms, CompletionToke
 
   timer_.expires_from_now(interval_ms);
   timer_.async_wait(
-      [this, interval_ms, handler](const boost::system::error_code& ec)
+      [this, interval_ms, handler](const error_code& ec)
       {
         repeat_call(interval_ms, handler, ec);
       });
@@ -45,7 +45,7 @@ inline void timer::cancel()
 
 template <typename CompletionToken>
 inline void timer::repeat_call(asio::chrono::milliseconds interval_ms, CompletionToken&& handler,
-                               const boost::system::error_code& ec)
+                               const error_code& ec)
 {
   handler(*this);  // call needs to come after
 
@@ -53,7 +53,7 @@ inline void timer::repeat_call(asio::chrono::milliseconds interval_ms, Completio
   {
     timer_.expires_from_now(interval_ms);
     timer_.async_wait(
-        [this, interval_ms, handler](const boost::system::error_code& ec)
+        [this, interval_ms, handler](const error_code& ec)
         {
           repeat_call(interval_ms, handler, ec);
         });
