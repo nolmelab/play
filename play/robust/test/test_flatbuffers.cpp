@@ -1,7 +1,8 @@
 #include <doctest/doctest.h>
+#include <play/robust/test/test_fb_generated.h>
 #include <play/robust/base/stop_watch.hpp>
 #include <play/robust/net/client.hpp>
-#include <play/robust/net/flatbuffers/flatbuffer_handler.hpp>
+#include <play/robust/net/frame/flatbuffer_handler.hpp>
 #include <play/robust/net/protocol/secure_protocol.hpp>
 #include <play/robust/net/runner/poll_runner.hpp>
 #include <play/robust/net/server.hpp>
@@ -38,27 +39,54 @@ struct test_client : public client_t
   {
   }
 
+  void handle_established(session_ptr session) final
+  {
+    LOG()->info("test_client established. remote: {}", session->get_remote_addr());
+
+    fb::req_moveT move;
+    move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+    move.name = "hello";
+
+    get_handler<flatbuffer_handler<test_client::session>>().send<fb::req_move>(session, 1, move,
+                                                                               false);
+  }
+
   size_t recv_bytes_{0};
-  std::string payload_;
 };
 
 }  // namespace
 
 TEST_CASE("faltbuffers")
 {
-  flatbuffer_handler<test_server::session> server_handler;
-  flatbuffer_handler<test_client::session> client_handler;
+  using server_handler_t = flatbuffer_handler<test_server::session>;
+  using client_handler_t = flatbuffer_handler<test_client::session>;
 
-  //
+  server_handler_t server_handler;
+  client_handler_t client_handler;
+
+  server_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
+  client_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
+
+  server_handler_t::receiver cb =
+      [&server_handler](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
+  {
+    auto req_move = std::static_pointer_cast<fb::req_moveT>(f);
+    auto v = req_move->pos->x();
+    server_handler.send<fb::req_move>(se, 1, *req_move.get(), true);
+  };
+  server_handler.sub(1, cb);
+
+  client_handler_t::receiver cb =
+      [&client_handler](client_handler_t::session_ptr se, client_handler_t::frame_ptr f)
+  {
+    auto req_move = std::static_pointer_cast<fb::req_moveT>(f);
+    auto v = req_move->pos->x();
+    client_handler.send<fb::req_move>(se, 1, *req_move.get(), true);
+  };
+  client_handler.sub(1, cb);
+
   poll_runner runner{"secure_protocol runner"};
-
-  test_server server(runner, R"(
-    {
-      "port" : 7000, 
-      "concurrency" : 8
-    })",
-                     server_handler);
-
+  test_server server(runner, R"({ "port" : 7000, "concurrency" : 8 })", server_handler);
   test_client client(runner, client_handler);
 
   auto rc = server.start();

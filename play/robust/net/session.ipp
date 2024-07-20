@@ -131,6 +131,22 @@ void session<Protocol>::close()
 }
 
 template <typename Protocol>
+template <typename UserData>
+void session<Protocol>::bind_data(std::shared_ptr<UserData> data)
+{
+  auto sp = std::static_pointer_cast<user_data>(data);
+  sp->handle_ = handle_;
+  bind_data_ = data;
+}
+
+template <typename Protocol>
+template <typename UserData>
+std::shared_ptr<UserData> session<Protocol>::get_data() const
+{
+  return bind_data_;
+}
+
+template <typename Protocol>
 std::string session<Protocol>::get_remote_addr() const
 {
   return remote_addr_;

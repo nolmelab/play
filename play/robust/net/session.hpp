@@ -25,6 +25,13 @@ public:
   using session_handler = session_handler<session<Protocol>>;
 
 public:
+  // base class to bind user data
+  struct user_data
+  {
+    handle handle_;
+  };
+
+public:
   // 프로토콜 생성. 프로토콜에 알림. 수신 시작
   session(session_handler& handler, asio::io_context& ioc, bool accepted);
 
@@ -41,6 +48,12 @@ public:
 
   // 소켓을 끊음. 통지는 따로 0~2까지 발생 (recv, send)
   void close();
+
+  template <typename UserData>
+  void bind_data(std::shared_ptr<UserData> data);
+
+  template <typename UserData>
+  std::shared_ptr<UserData> get_data() const;
 
   tcp::socket& get_socket()
   {
@@ -93,6 +106,7 @@ private:
   bool accepted_;
   size_t handle_;
   mutable std::string remote_addr_;
+  std::shared_ptr<user_data> bind_data_;
 
   std::recursive_mutex mutex_;
   asio::streambuf recv_buf_;

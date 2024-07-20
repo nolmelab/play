@@ -1,0 +1,14 @@
+namespace fb;
+ 
+struct vec3 {
+  x:float;
+  y:float;
+  z:float;
+}
+ 
+table req_move {
+  pos: vec3; 
+  name: string;
+}
+ 
+// root_type req_move;

@@ -85,6 +85,9 @@
     "semaphore": "cpp",
     "stop_token": "cpp",
     "forward_list": "cpp",
-    "valarray": "cpp"
+    "valarray": "cpp",
+    "bitset": "cpp",
+    "ranges": "cpp",
+    "variant": "cpp"
   }
 }

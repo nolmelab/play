@@ -82,4 +82,4 @@ private:
 
 }}}  // namespace play::robust::net
 
-#include <play/robust/net/flatbuffers/flatbuffer_handler.ipp>
+#include <play/robust/net/frame/flatbuffer_handler.ipp>

@@ -14,7 +14,7 @@ add_custom_target(
   fb 
   # -o option needs to come before the input files
   # TODO: add dependcy on the generated files (build only when fbs is changed)
-  COMMAND flatc --cpp --gen-object-api -o "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/learn_fb.fbs" 
+  COMMAND flatc --cpp --gen-object-api -o "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.fbs" 
 )
 
 # add test target

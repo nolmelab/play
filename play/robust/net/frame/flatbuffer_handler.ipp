@@ -1,5 +1,5 @@
 #include <play/robust/base/logger.hpp>
-#include <play/robust/net/flatbuffers/flatbuffer_handler.hpp>
+#include <play/robust/net/frame/flatbuffer_handler.hpp>
 
 namespace play { namespace robust { namespace net {
 
@@ -14,7 +14,7 @@ inline bool flatbuffer_handler<Session>::send(session_ptr se, topic pic, Obj& ob
   auto buf = fbb.GetBufferPointer();
   auto size = fbb.GetSize();
 
-  return se->send(buf, pic, size, encrypt);
+  return se->send(pic, buf, size, encrypt);
 }
 
 template <typename Session>
@@ -58,7 +58,7 @@ inline size_t flatbuffer_handler<Session>::sub(topic pic, receiver fn)
   {
     std::vector<sub_entry> subs{};
     auto result = receivers_.insert(std::pair(pic, subs));
-    PLAY_CHECK(result);
+    PLAY_CHECK(result.second);
     iter = result.first;
   }
   auto id = current_sub_id_++;
@@ -81,7 +81,7 @@ template <typename FbObjType, typename ObjType>
 inline typename flatbuffer_handler<Session>::frame_ptr flatbuffer_handler<Session>::unpack(
     const uint8_t* data, size_t len)
 {
-  auto obj = std::make_shared<ObjType>;
+  auto obj = std::make_shared<ObjType>();
   auto fb_obj = flatbuffers::GetRoot<FbObjType>(data);
 
   flatbuffers::Verifier verifier(data, len, flatbuffers::Verifier::Options{});
@@ -92,7 +92,7 @@ inline typename flatbuffer_handler<Session>::frame_ptr flatbuffer_handler<Sessio
     return {};
   }
 
-  fb_obj->UnPackTo(&*obj);
+  fb_obj->UnPackTo(obj.get());
   return obj;
 }
 
