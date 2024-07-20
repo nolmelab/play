@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
+#include <play/robust/net/frame_handler.hpp>
 #include <play/robust/net/runner/thread_runner.hpp>
 #include <play/robust/net/session.hpp>
 #include <shared_mutex>
@@ -12,8 +13,11 @@ namespace play { namespace robust { namespace net {
 // 프로토콜이 지정된 클라이언트로 서버와 연결하여 통신한다.
 /**
  * 연결이 실패하면 재연결을 시도한다. 연결이 끊어지면 통지만 한다.
+ * 
+ * @tparam Protocol secure_protocol<uint16_t>와 같은 프로토콜 
+ * @tparam Frame flatbuffers::NativeTable과 같은 앱 프레임
  */
-template <typename Protocol>
+template <typename Protocol, typename Frame = frame_subclass>
 class client
 {
 public:
@@ -21,8 +25,11 @@ public:
   using handle = typename session::handle;
   using session_ptr = std::shared_ptr<session>;
   using topic = typename Protocol::topic;
+  using frame_handler = frame_handler<session, topic, Frame>;
 
 public:
+  client(runner& runner, frame_handler& handler);
+
   client(runner& runner);
 
   // 연결을 시작. ip:port 형식 주소.
@@ -38,6 +45,9 @@ public:
   {
     return session_;
   }
+
+  template <typename FrameHandler>
+  FrameHandler& get_handler() const;
 
   // 연결 종료
   void close();
@@ -72,6 +82,7 @@ private:
   uint16_t port_;
   tcp::endpoint endpoint_;
   session_ptr session_;
+  frame_handler& frame_handler_;
 };
 
 }}}  // namespace play::robust::net

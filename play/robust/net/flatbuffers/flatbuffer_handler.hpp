@@ -14,14 +14,14 @@ namespace play { namespace robust { namespace net {
  * server.get_handler().send<app::ack_move>(session, pic, obj);
  */
 template <typename Session>
-class flatbuffer_handler : public frame_handler<uint16_t, flatbuffers::NativeTable>
+class flatbuffer_handler final : public frame_handler<Session, uint16_t, flatbuffers::NativeTable>
 {
 public:
-  using ptr = typename frame_handler<uint16_t, flatbuffer::NativeTable>::ptr;
+  using frame_ptr = typename frame_handler<uint16_t, flatbuffer::NativeTable>::ptr;
   using topic = typename frame_handler<uint16_t, flatbuffer::NativeTable>::topic;
   using session_ptr = std::shared_ptr<Session>;
-  using unpacker = std::function<ptr(const char*, size_t)>;
-  using receiver = std::function<void(ptr)>;
+  using unpacker = std::function<frame_ptr(const char*, size_t)>;
+  using receiver = std::function<void(sesion_ptr, frame_ptr)>;
 
 public:
   flatbuffer_handler() = default;
@@ -60,7 +60,7 @@ public:
    * reg(1, &flatbuffer_handler<server::session_ptr>::unpack<req_move, req_moveT>)와 같이 등록
    */
   template <typename FbObjType, typename ObjType>
-  static ptr unpack(const char* data, size_t len);
+  static frame_ptr unpack(const char* data, size_t len);
 
 private:
   struct sub_entry

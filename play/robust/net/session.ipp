@@ -70,7 +70,7 @@ void session<Protocol, Handler>::send(const void* data, size_t len)
     return;
   }
 
-  std::lock_guard<std::recursive_mutex> guard(mutex_);
+  std::lock_guard guard(mutex_);
   auto& acc_buf = send_bufs_[acc_buf_index_];  // write to the accumulation buffer
   auto p = acc_buf.prepare(len);
   acc_buf.sputn(reinterpret_cast<const char*>(data), len);  // auto commit
@@ -107,7 +107,7 @@ bool session<Protocol, Handler>::send(topic pic, const void* data, size_t len, b
     return false;
   }
 
-  std::lock_guard<std::recursive_mutex> guard(mutex_);
+  std::lock_guard guard(mutex_);
   auto& acc_buf = send_bufs_[acc_buf_index_];  // write to the accumulation buffer
   // protocol::encode() prepare, encode, and commit
   auto cbuf = asio::const_buffer{data, len};
@@ -175,7 +175,7 @@ void session<Protocol, Handler>::start_recv()
 template <typename Protocol, typename Handler>
 void session<Protocol, Handler>::handle_send(error_code ec, size_t len)
 {
-  std::lock_guard<std::recursive_mutex> guard(mutex_);
+  std::lock_guard guard(mutex_);
   PLAY_CHECK(sending_);
 
   if (!ec)

@@ -2,14 +2,22 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Protocol>
-client<Protocol>::client(runner& runner)
-    : runner_{runner}
+template <typename Protocol, typename Frame>
+client<Protocol, Frame>::client(runner& runner, frame_handler& handler)
+    : runner_{runner},
+      frame_handler_{handler}
 {
 }
 
-template <typename Protocol>
-inline bool client<Protocol>::connect(std::string_view addr, uint16_t port)
+template <typename Protocol, typename Frame>
+client<Protocol, Frame>::client(runner& runner)
+    : runner_{runner},
+      frame_handler_{frame_subclass_handler<session, topic, Frame>::get()}
+{
+}
+
+template <typename Protocol, typename Frame>
+inline bool client<Protocol, Frame>::connect(std::string_view addr, uint16_t port)
 {
   if (session_ && session_->is_open())
   {
@@ -35,8 +43,15 @@ inline bool client<Protocol>::connect(std::string_view addr, uint16_t port)
   return true;
 }
 
-template <typename Protocol>
-inline void client<Protocol>::close()
+template <typename Protocol, typename Frame>
+template <typename FrameHandler>
+FrameHandler& client<Protocol, Frame>::get_handler() const
+{
+  return static_cast<FrameHandler&>(frame_handler_);
+}
+
+template <typename Protocol, typename Frame>
+inline void client<Protocol, Frame>::close()
 {
   if (session_->is_open())
   {
@@ -47,8 +62,8 @@ inline void client<Protocol>::close()
   }
 }
 
-template <typename Protocol>
-void client<Protocol>::reconnect()
+template <typename Protocol, typename Frame>
+inline void client<Protocol, Frame>::reconnect()
 {
   PLAY_CHECK(session_);
   PLAY_CHECK(!session_->is_open());
@@ -61,8 +76,8 @@ void client<Protocol>::reconnect()
                                        });
 }
 
-template <typename Protocol>
-void client<Protocol>::handle_connect(error_code ec)
+template <typename Protocol, typename Frame>
+inline void client<Protocol, Frame>::handle_connect(error_code ec)
 {
   if (!ec)
   {
@@ -80,8 +95,8 @@ void client<Protocol>::handle_connect(error_code ec)
   }
 }
 
-template <typename Protocol>
-void client<Protocol>::on_established(session_ptr session)
+template <typename Protocol, typename Frame>
+inline void client<Protocol, Frame>::on_established(session_ptr session)
 {
   LOG()->info("client session: {} established. remote: {}", session->get_handle(),
               session->get_remote_addr());
@@ -89,8 +104,8 @@ void client<Protocol>::on_established(session_ptr session)
   handle_established(session);
 }
 
-template <typename Protocol>
-void client<Protocol>::on_closed(session_ptr session, error_code ec)
+template <typename Protocol, typename Frame>
+inline void client<Protocol, Frame>::on_closed(session_ptr session, error_code ec)
 {
   LOG()->info("client session closed. handle: {}  remote: {} error: {}", session->get_handle(),
               session->get_remote_addr(), ec.message());
@@ -100,10 +115,11 @@ void client<Protocol>::on_closed(session_ptr session, error_code ec)
   session_.reset();
 }
 
-template <typename Protocol>
-void client<Protocol>::on_receive(session_ptr session, typename Protocol::topic topic,
-                                  const void* data, size_t len)
+template <typename Protocol, typename Frame>
+inline void client<Protocol, Frame>::on_receive(session_ptr session, topic topic, const void* data,
+                                                size_t len)
 {
+  frame_handler_.recv(session, topic, data, len);
   handle_receive(session, topic, data, len);
 }
 

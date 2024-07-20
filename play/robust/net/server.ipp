@@ -2,15 +2,24 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Protocol>
-server<Protocol>::server(runner& runner, std::string_view json)
+template <typename Protocol, typename Frame>
+server<Protocol, Frame>::server(runner& runner, std::string_view json, frame_handler& handler)
     : runner_{runner},
-      json_{json}
+      json_{json},
+      frame_handler_{handler}
 {
 }
 
-template <typename Protocol>
-bool server<Protocol>::start()
+template <typename Protocol, typename Frame>
+server<Protocol, Frame>::server(runner& runner, std::string_view json)
+    : runner_{runner},
+      json_{json},
+      frame_handler_{frame_subclass_handler<session, topic, Frame>::get()}
+{
+}
+
+template <typename Protocol, typename Frame>
+bool server<Protocol, Frame>::start()
 {
   LOG()->info("server starting...");
 
@@ -40,8 +49,8 @@ bool server<Protocol>::start()
   return on_start();
 }
 
-template <typename Protocol>
-typename server<Protocol>::session_ptr server<Protocol>::get_session(size_t handle)
+template <typename Protocol, typename Frame>
+typename server<Protocol, Frame>::session_ptr server<Protocol, Frame>::get_session(size_t handle)
 {
   std::shared_lock<shared_mutex> guard(mutex_);
   auto iter = sessions_.find(handle);
@@ -52,8 +61,15 @@ typename server<Protocol>::session_ptr server<Protocol>::get_session(size_t hand
   return iter->second;
 }
 
-template <typename Protocol>
-void server<Protocol>::stop()
+template <typename Protocol, typename Frame>
+template <typename FrameHandler>
+FrameHandler& server<Protocol, Frame>::get_handler() const
+{
+  return static_cast<FrameHandler&>(frame_handler_);
+}
+
+template <typename Protocol, typename Frame>
+void server<Protocol, Frame>::stop()
 {
   on_stop();
 
@@ -65,8 +81,8 @@ void server<Protocol>::stop()
   LOG()->info("server stopped");
 }
 
-template <typename Protocol>
-void server<Protocol>::on_established(session_ptr session)
+template <typename Protocol, typename Frame>
+void server<Protocol, Frame>::on_established(session_ptr session)
 {
   LOG()->info("server session: {} established. remote: {}", session->get_handle(),
               session->get_remote_addr());
@@ -74,8 +90,8 @@ void server<Protocol>::on_established(session_ptr session)
   handle_established(session);
 }
 
-template <typename Protocol>
-void server<Protocol>::on_closed(session_ptr session, error_code ec)
+template <typename Protocol, typename Frame>
+void server<Protocol, Frame>::on_closed(session_ptr session, error_code ec)
 {
   // remove
   {
@@ -89,25 +105,27 @@ void server<Protocol>::on_closed(session_ptr session, error_code ec)
   handle_closed(session, ec);
 }
 
-template <typename Protocol>
-void server<Protocol>::on_receive(session_ptr session, topic topic, const void* data, size_t len)
+template <typename Protocol, typename Frame>
+void server<Protocol, Frame>::on_receive(session_ptr session, topic topic, const void* data,
+                                         size_t len)
 {
+  frame_handler_.recv(session, topic, data, len);
   handle_receive(session, topic, data, len);
 }
 
-template <typename Protocol>
-bool server<Protocol>::on_start()
+template <typename Protocol, typename Frame>
+bool server<Protocol, Frame>::on_start()
 {
   return true;
 }
 
-template <typename Protocol>
-void server<Protocol>::on_stop()
+template <typename Protocol, typename Frame>
+void server<Protocol, Frame>::on_stop()
 {
 }
 
-template <typename Protocol>
-void server<Protocol>::start_accept()
+template <typename Protocol, typename Frame>
+void server<Protocol, Frame>::start_accept()
 {
   auto se = std::make_shared<session>(*this, runner_.get_ioc(), true);
 
@@ -118,8 +136,8 @@ void server<Protocol>::start_accept()
                           });
 }
 
-template <typename Protocol>
-void server<Protocol>::handle_accept(session_ptr se, error_code ec)
+template <typename Protocol, typename Frame>
+void server<Protocol, Frame>::handle_accept(session_ptr se, error_code ec)
 {
   if (!ec)
   {
