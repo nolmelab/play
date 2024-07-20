@@ -14,7 +14,7 @@ runner 문맥에서 관리하고 실행하도록 한다.
 
 ```c++
   ts.once(std::chrono::milliseconds(300),
-          [](boost::system::error_code& ec)
+          [](error_code& ec)
           {
           });
 ```
@@ -32,7 +32,7 @@ inline timer::ref timer_service::once(asio::chrono::milliseconds ms, CompletionT
 ```
 once 함수의 정의는 위와 같다. 
 
-공포스러운 에러가 나와서 당황했는데 const boost::system::error_code&로 
+공포스러운 에러가 나와서 당황했는데 const error_code&로 
 아규먼트 타잎을 써야 한다. 
 
 앱에서 이렇게 하기는 귀찮을 듯.

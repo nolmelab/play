@@ -75,7 +75,7 @@ void server<Protocol>::on_established(session_ptr session)
 }
 
 template <typename Protocol>
-void server<Protocol>::on_closed(session_ptr session, boost::system::error_code ec)
+void server<Protocol>::on_closed(session_ptr session, error_code ec)
 {
   // remove
   {
@@ -112,14 +112,14 @@ void server<Protocol>::start_accept()
   auto se = std::make_shared<session>(*this, runner_.get_ioc(), true);
 
   acceptor_->async_accept(se->get_socket(),
-                          [this, se](boost::system::error_code ec)
+                          [this, se](error_code ec)
                           {
                             handle_accept(se, ec);
                           });
 }
 
 template <typename Protocol>
-void server<Protocol>::handle_accept(session_ptr se, boost::system::error_code ec)
+void server<Protocol>::handle_accept(session_ptr se, error_code ec)
 {
   if (!ec)
   {

@@ -82,13 +82,20 @@ void session<Protocol, Handler>::send(const void* data, size_t len)
 }
 
 template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::send(topic pic, const void* data, size_t len, bool encrypt)
+bool session<Protocol, Handler>::send(topic pic, const void* data, size_t len, bool encrypt)
 {
   if (!is_open())
   {
     LOG()->warn("send w/ topic called on closed session. handle: {}, remote: {}", get_handle(),
                 get_remote_addr());
-    return;
+    return false;
+  }
+
+  if (len >= Protocol::max_send_size)
+  {
+    LOG()->warn("frame size is bigger than the limit. limit: {}, handle: {}",
+                Protocol::max_send_size, get_handle());
+    return false;
   }
 
   PLAY_CHECK(len > 0);
@@ -97,7 +104,7 @@ void session<Protocol, Handler>::send(topic pic, const void* data, size_t len, b
   {
     // NOTE: fmt :#x가 버전별 지원이 다르다.
     LOG()->warn("session::send. len: {}, data: {}", len, data);
-    return;
+    return false;
   }
 
   std::lock_guard<std::recursive_mutex> guard(mutex_);
@@ -110,6 +117,8 @@ void session<Protocol, Handler>::send(topic pic, const void* data, size_t len, b
   {
     start_send();
   }
+
+  return false;
 }
 
 template <typename Protocol, typename Handler>
@@ -134,18 +143,18 @@ void session<Protocol, Handler>::start_send()
   PLAY_CHECK(!sending_);
 
   auto& send_buf = send_bufs_[acc_buf_index_];  // acc buffer becomes send buffer
-  if (send_buf.size() == 0)
+  auto buf = send_buf.data();
+  if (buf.size() == 0)
   {
     return;  // nothing to send in accumulation buffer
   }
 
-  sending_ = true;
   acc_buf_index_ = acc_buf_index_ ^ 1;  // switch send accumulation buffer
+  sending_ = true;
 
   auto self(this->shared_from_this());
-  auto buf = send_buf.data();
   socket_.async_send(boost::asio::buffer(buf.data(), buf.size()),
-                     [this, self](boost::system::error_code ec, std::size_t len)
+                     [this, self](error_code ec, std::size_t len)
                      {
                        this->handle_send(ec, len);
                      });
@@ -157,14 +166,14 @@ void session<Protocol, Handler>::start_recv()
   auto self(this->shared_from_this());
   auto buf = recv_buf_.prepare(recv_size);
   socket_.async_receive(boost::asio::buffer(buf.data(), buf.size()),
-                        [this, self](boost::system::error_code ec, std::size_t len)
+                        [this, self](error_code ec, std::size_t len)
                         {
                           this->handle_recv(ec, len);
                         });
 }
 
 template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::handle_send(boost::system::error_code ec, size_t len)
+void session<Protocol, Handler>::handle_send(error_code ec, size_t len)
 {
   std::lock_guard<std::recursive_mutex> guard(mutex_);
   PLAY_CHECK(sending_);
@@ -179,14 +188,12 @@ void session<Protocol, Handler>::handle_send(boost::system::error_code ec, size_
   }
   else
   {
-    close();  // ensure socket is closed
-    protocol_->closed();
-    handler_.on_closed(this->shared_from_this(), ec);
+    handle_close(ec);
   }
 }
 
 template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_t len)
+void session<Protocol, Handler>::handle_recv(error_code ec, size_t len)
 {
   if (!ec)
   {
@@ -194,8 +201,7 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
 
     if (protocol_->is_established())
     {
-      auto recv_frame_count = recv_frames();
-      LOG()->debug("handle: {} recv_frame_count: {}", handle_, recv_frame_count);
+      recv_frames();
     }
     else
     {
@@ -209,15 +215,22 @@ void session<Protocol, Handler>::handle_recv(boost::system::error_code ec, size_
       if (protocol_->is_established())
       {
         handler_.on_established(this->shared_from_this());
-
-        auto recv_frame_count = recv_frames();
-        // LOG()->debug("handle: {} recv_frame_count: {} on established", handle_, recv_frame_count);
+        recv_frames();
       }
     }
 
     this->start_recv();
   }
   else
+  {
+    handle_close(ec);
+  }
+}
+
+template <typename Protocol, typename Handler>
+void session<Protocol, Handler>::handle_close(error_code ec)
+{
+  if (is_open())
   {
     close();  // ensure socket is closed
     protocol_->closed();
@@ -241,7 +254,7 @@ size_t session<Protocol, Handler>::recv_frames()
 
   auto recv_data = recv_buf_.data();
 
-  for (;;)
+  while (recv_data.size() > 0)
   {
     auto cbuf = asio::const_buffer{recv_data.data(), recv_data.size()};
     auto [consumed_len, frame, topic] = protocol_->decode(cbuf);

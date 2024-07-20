@@ -11,9 +11,17 @@ using namespace play::robust::base;
 namespace {
 struct simple
 {
-  simple(int v) : v_{v} {}
-  simple(int v, float f) : v_{v} {}
-  ~simple() { /* LOG()->info("simple destructor called"); */ }
+  simple(int v)
+      : v_{v}
+  {
+  }
+  simple(int v, float f)
+      : v_{v}
+  {
+  }
+  ~simple()
+  { /* LOG()->info("simple destructor called"); */
+  }
 
   int v_;
 };
@@ -45,10 +53,42 @@ TEST_CASE("object_pool")
 
     LOG()->info("pool. elapsed: {}", elapsed);
   }
+
+  SUBCASE("save and relase")
+  {
+    object_pool<simple> pool;
+
+    const int test_count = 1000000;
+
+    auto start = std::chrono::steady_clock::now();
+
+    CHECK(pool.get_pool_size() == 0);
+
+    using obj_ptr_t = decltype(std::declval<object_pool<simple>>().construct());
+    std::vector<obj_ptr_t> objs;
+
+    for (int i = 0; i < test_count; ++i)
+    {
+      auto sp = pool.construct(1);
+      objs.push_back(sp);
+    }
+
+    CHECK(pool.get_alloc_count() == test_count);
+    CHECK(pool.get_free_count() == 0);
+    CHECK(pool.get_pool_size() == 0);
+
+    objs.clear();
+    CHECK(pool.get_free_count() == test_count);
+    CHECK(pool.get_pool_size() == test_count);
+
+    auto end = std::chrono::steady_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+
+    LOG()->info("pool. elapsed: {}", elapsed);
+  }
 }
 
 // 아래는 아이디어 테스트 코드
-
 namespace {
 
 template <typename T>
@@ -57,8 +97,14 @@ class pool
 public:
   struct deleter
   {
-    deleter(pool* p) : p_{p} {}
-    void operator()(const T* obj) { p_->release(const_cast<T*>(obj)); }
+    deleter(pool* p)
+        : p_{p}
+    {
+    }
+    void operator()(const T* obj)
+    {
+      p_->release(const_cast<T*>(obj));
+    }
     pool* p_;
   };
 
@@ -83,7 +129,10 @@ public:
     return rp;
   }
 
-  void release(T* p) { pool_.push_back(p); }
+  void release(T* p)
+  {
+    pool_.push_back(p);
+  }
 
 private:
   template <typename... Args>

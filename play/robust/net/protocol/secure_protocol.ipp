@@ -1,6 +1,6 @@
 #include <play/robust/base/macros.hpp>
-#include <play/robust/base/serializer.hpp>
 #include <play/robust/net/protocol/secure_protocol.hpp>
+#include <play/robust/net/util/serializer.hpp>
 
 namespace play { namespace robust { namespace net {
 
@@ -76,18 +76,19 @@ inline size_t secure_protocol<Topic>::encode(Topic pic, const asio::const_buffer
   pdst += enc_field_size;
   base::serializer::serialize(pdst, length_field_size, static_cast<uint32_t>(src.size()));
 
+  auto pbody = pdst + length_field_size;
+
   if (encrypt)
   {
-    // src를 암호화 하여 dst에 prepare를 한 후 쓰고 commit 한다. header_len만큼 pre_write 알려줌
-    auto enc_len = cipher_codec_->encode(src, dst, header_len);
-    PLAY_CHECK(enc_len > 0);
-    PLAY_CHECK(enc_len == src.size() + header_len);
+    asio::mutable_buffer mbuf{pbody, src.size()};
+    auto enc_len = cipher_codec_->encode(src, mbuf);
+    PLAY_CHECK(enc_len == src.size());
+    dst.commit(total_len);
   }
   else
   {
-    auto pbody = pdst + length_field_size;
     std::memcpy(pbody, src.data(), src.size());
-    dst.commit(src.size() + header_len);
+    dst.commit(total_len);
   }
 
   return total_len;

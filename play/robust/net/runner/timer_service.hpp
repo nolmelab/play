@@ -38,7 +38,7 @@ public:
 private:
   template <typename CompletionToken>
   void repeat_call(asio::chrono::milliseconds interval_ms, CompletionToken&& handler,
-                   const boost::system::error_code& ec);
+                   const error_code& ec);
 
 private:
   asio::steady_timer timer_;

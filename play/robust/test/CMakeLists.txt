@@ -25,6 +25,7 @@ add_executable(
   test_timer.cpp
   learn_streambuf.cpp
   learn_function_ptr.cpp
+  learn_flatbuffers.cpp
 )
 
 if (MSVC)
