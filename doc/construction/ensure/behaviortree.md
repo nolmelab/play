@@ -16,13 +16,21 @@ git의 submodule로 관리합니다.
 
 git submodule add로 가능하다.
 
+다른 pc에서 사용할 경우, git submodule remote --init path_to_the_submodule 로 초기화 필요. 
+이후 update를 하면 된다. 여기서 수정이나 개선을 해도 된다. nanodbc는 그렇게 하자. 
+
+
 ### behaviortree.cpp cmake
 
 zeromq를 필요로 합니다. 이런 면들이 좀 귀찮을 수도 있고, 플래폼 호환을 유지하기 어려울 수도 있습니다. 
 
 - zeromq를 vcpkg에 설치하고 해결하기
     - 바로 해결. vcpkg 좋다. cmake의 힘이다. 결국은 사람의 힘
-     
+
+- gtest (google test) 추가 설치 
+
+이후 빌드 된다. 
+
 
 ### unreal cmake support
 
@@ -38,7 +46,7 @@ https://github.com/aws/aws-sdk-cpp/issues/2369
 빌드하는 것이다. 안드로이드 빌드는 또 다른 문제이겠으나 근간은 같다. 
 편리한 정도만 다르다.
 
-## 
+ 
 
 
 

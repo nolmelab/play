@@ -2,7 +2,7 @@
 #include <flatbuffers/flatbuffers.h>
 #include "learn_fb_generated.h"
 
-using namespace App::Sample;
+using namespace app::sample;
 
 TEST_CASE("learn flatbuffers")
 {

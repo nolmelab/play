@@ -1,5 +1,11 @@
 # db
 
+## 목차 
+
+- [nanodbc](./nanodbc.md)
+- [db](./db.md)
+- [db 처리 사슬](./db_process_chain.md)
+
 db는 게임에서 상태 값의 저장에 사용합니다. 게임의 상태 또는 데이터는 
 세 가지로 나눌 수 있습니다.
 
@@ -31,7 +37,6 @@ rdbms를 사용했습니다. mysql이나 oracle, sql server 등을 주로 봤습
 mysql이나 sql server 등을 별로 사용해보지 않은 측면도 있지만 
 뭔가 더 멋져 보이기 때문입니다. pgAdmin이 GUI가 Hedidsql보다 더 
 예뻐서 그런 듯도 합니다.
-
 
 ## api
 
