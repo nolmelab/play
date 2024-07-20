@@ -1,0 +1,3 @@
+[submodule "play/external/playact"]
+	path = play/external/playact
+	url = https://github.com/nolmelab/playact
