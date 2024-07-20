@@ -1,6 +1,8 @@
 #pragma once
 
+#include <flatbuffers/flatbuffers.h>
 #include <play/robust/net/frame_handler.hpp>
+#include <shared_mutex>
 
 namespace play { namespace robust { namespace net {
 
@@ -15,9 +17,11 @@ template <typename Session>
 class flatbuffer_handler : public frame_handler<uint16_t, flatbuffers::NativeTable>
 {
 public:
-  using session_ptr = std::shared_ptr<Session>;
   using ptr = typename frame_handler<uint16_t, flatbuffer::NativeTable>::ptr;
   using topic = typename frame_handler<uint16_t, flatbuffer::NativeTable>::topic;
+  using session_ptr = std::shared_ptr<Session>;
+  using unpacker = std::function<ptr(const char*, size_t)>;
+  using receiver = std::function<void(ptr)>;
 
 public:
   flatbuffer_handler() = default;
@@ -27,21 +31,52 @@ public:
    * send()는 flatbuffers 전용의 전송 편의 함수
    */
   template <typename FlatBufferObj, typename Obj>
-  void send(sesion_ptr se, Obj& obj);
+  bool send(session_ptr se, topic pic, Obj& obj, bool encrypt = false);
 
   // 등록된 생성기에서 만든 후 구독한 함수(들)에 전달
   /**
    * recv는 handler들의 공통 인터페이스로 반드시 구현이 필요
    */
-  void recv(session_ptr se, topic pic, const void* data, size_t len);
+  void recv(session_ptr se, topic pic, const void* data, size_t len) final;
 
-  void sub();
+  // 처리할 최상위 핸들러 함수들을 토픽에 대해 등록
+  /**
+   * @return sub 아이디를 돌려준다. uint64_t로 증가하기만 한다. 이를 갖고 취소할 수 있다.
+   */
+  size_t sub(topic pic, receiver fn);
 
-  void unsub();
+  // 특정 토픽 전체에 대해 통지를 받지 않음
+  void unsub(topic pic);
 
-  void reg();
+  // 특정 토픽의 특정 핸들러에 대한 구독 중지
+  void unsub(topic pic, size_t id);
+
+  // 정적으로 한번 등록. 락 사용하지 않음. 한번만 등록. 중복되면 경고 로그
+  void reg(topic pic, unpacker fn);
+
+public:
+  // reg()에 flatbuffers object로 unpack할 함수로 사용하는 템플릿 함수
+  /**
+   * reg(1, &flatbuffer_handler<server::session_ptr>::unpack<req_move, req_moveT>)와 같이 등록
+   */
+  template <typename FbObjType, typename ObjType>
+  static ptr unpack(const char* data, size_t len);
 
 private:
+  struct sub_entry
+  {
+    size_t id;
+    receiver cb;
+  };
+
+  using unpacker_map = std::map<Topic, unpacker>;
+  using receiver_map = std::map<Topic, std::vector<sub_entry>>;
+  using shared_mutex = std::shared_timed_mutex;
+
+  unpacker_map unpackers_;
+  receiver_map receivers_;
+  shared_mutex subs_lock_;
+  size_t current_sub_id_{1};
 };
 
 }}}  // namespace play::robust::net

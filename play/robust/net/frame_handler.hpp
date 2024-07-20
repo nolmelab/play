@@ -20,6 +20,8 @@ public:
 
 public:
   frame_handler() = default;
+
+  virtual void recv(session_ptr se, topic pic, const void* data, size_t len) = 0;
 };
 
 }}}  // namespace play::robust::net

@@ -24,11 +24,3 @@ target_link_libraries(main PRIVATE UNIX::odbc)
 
 db 하위 프로젝트 빌드가 잘 진행되었습니다. db를 사용하기 편리한 기능을 테스트 위주로 
 잘 작성하고 편리하도록 만듭니다. 
-
-
-
-
-
-
-
-

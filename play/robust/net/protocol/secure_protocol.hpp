@@ -18,6 +18,11 @@ namespace play { namespace robust { namespace net {
 template <typename Topic>
 class secure_protocol : public protocol<Topic>
 {
+public:
+  inline static size_t max_send_size = 1024 * 1024;
+  inline static size_t max_recv_size = 1024 * 1024;
+
+private:
   static constexpr size_t length_field_size = 4;
   static constexpr size_t enc_field_size = 1;
 

@@ -81,6 +81,8 @@ inline std::tuple<size_t, asio::const_buffer, Topic> plain_protocol<Topic>::deco
   auto cbuf = asio::const_buffer{rbuf + sizeof(Topic), src.size() - sizeof(Topic)};
   auto sbuf = length_codec_->decode(cbuf);
 
+  // TODO: 최대 수신 길이 처리
+
   if (sbuf.size() > 0)
   {
     auto consumed_len = sizeof(Topic) + length_codec_->length_field_size + sbuf.size();

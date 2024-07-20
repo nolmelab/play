@@ -120,6 +120,8 @@ inline std::tuple<size_t, asio::const_buffer, Topic> secure_protocol<Topic>::dec
     return {0, {}, Topic{}};
   }
 
+  // TODO: 최대 수신 길이 처리
+
   auto ppayload = psrc + length_field_size;
 
   if (encrypt)

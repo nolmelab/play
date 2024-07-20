@@ -26,19 +26,19 @@ struct weapon;
 struct weaponBuilder;
 struct weaponT;
 
-enum class color : int8_t {
-  red = 0,
-  green = 1,
-  blue = 2,
-  MIN = red,
-  MAX = blue
+enum color : int8_t {
+  color_red = 0,
+  color_green = 1,
+  color_blue = 2,
+  color_MIN = color_red,
+  color_MAX = color_blue
 };
 
 inline const color (&EnumValuescolor())[3] {
   static const color values[] = {
-    color::red,
-    color::green,
-    color::blue
+    color_red,
+    color_green,
+    color_blue
   };
   return values;
 }
@@ -54,22 +54,22 @@ inline const char * const *EnumNamescolor() {
 }
 
 inline const char *EnumNamecolor(color e) {
-  if (::flatbuffers::IsOutRange(e, color::red, color::blue)) return "";
+  if (::flatbuffers::IsOutRange(e, color_red, color_blue)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamescolor()[index];
 }
 
-enum class equipment : uint8_t {
-  NONE = 0,
-  weapon = 1,
-  MIN = NONE,
-  MAX = weapon
+enum equipment : uint8_t {
+  equipment_NONE = 0,
+  equipment_weapon = 1,
+  equipment_MIN = equipment_NONE,
+  equipment_MAX = equipment_weapon
 };
 
 inline const equipment (&EnumValuesequipment())[2] {
   static const equipment values[] = {
-    equipment::NONE,
-    equipment::weapon
+    equipment_NONE,
+    equipment_weapon
   };
   return values;
 }
@@ -84,34 +84,34 @@ inline const char * const *EnumNamesequipment() {
 }
 
 inline const char *EnumNameequipment(equipment e) {
-  if (::flatbuffers::IsOutRange(e, equipment::NONE, equipment::weapon)) return "";
+  if (::flatbuffers::IsOutRange(e, equipment_NONE, equipment_weapon)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesequipment()[index];
 }
 
 template<typename T> struct equipmentTraits {
-  static const equipment enum_value = equipment::NONE;
+  static const equipment enum_value = equipment_NONE;
 };
 
 template<> struct equipmentTraits<app::sample::weapon> {
-  static const equipment enum_value = equipment::weapon;
+  static const equipment enum_value = equipment_weapon;
 };
 
 template<typename T> struct equipmentUnionTraits {
-  static const equipment enum_value = equipment::NONE;
+  static const equipment enum_value = equipment_NONE;
 };
 
 template<> struct equipmentUnionTraits<app::sample::weaponT> {
-  static const equipment enum_value = equipment::weapon;
+  static const equipment enum_value = equipment_weapon;
 };
 
 struct equipmentUnion {
   equipment type;
   void *value;
 
-  equipmentUnion() : type(equipment::NONE), value(nullptr) {}
+  equipmentUnion() : type(equipment_NONE), value(nullptr) {}
   equipmentUnion(equipmentUnion&& u) FLATBUFFERS_NOEXCEPT :
-    type(equipment::NONE), value(nullptr)
+    type(equipment_NONE), value(nullptr)
     { std::swap(type, u.type); std::swap(value, u.value); }
   equipmentUnion(const equipmentUnion &);
   equipmentUnion &operator=(const equipmentUnion &u)
@@ -127,7 +127,7 @@ struct equipmentUnion {
     typedef typename std::remove_reference<T>::type RT;
     Reset();
     type = equipmentUnionTraits<RT>::enum_value;
-    if (type != equipment::NONE) {
+    if (type != equipment_NONE) {
       value = new RT(std::forward<T>(val));
     }
   }
@@ -136,17 +136,17 @@ struct equipmentUnion {
   ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
 
   app::sample::weaponT *Asweapon() {
-    return type == equipment::weapon ?
+    return type == equipment_weapon ?
       reinterpret_cast<app::sample::weaponT *>(value) : nullptr;
   }
   const app::sample::weaponT *Asweapon() const {
-    return type == equipment::weapon ?
+    return type == equipment_weapon ?
       reinterpret_cast<const app::sample::weaponT *>(value) : nullptr;
   }
 };
 
 bool Verifyequipment(::flatbuffers::Verifier &verifier, const void *obj, equipment type);
-bool VerifyequipmentVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<equipment> *types);
+bool VerifyequipmentVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) vec3 FLATBUFFERS_FINAL_CLASS {
  private:
@@ -184,7 +184,7 @@ struct monsterT : public ::flatbuffers::NativeTable {
   int16_t hp = 100;
   std::string name{};
   std::vector<uint8_t> inventory{};
-  app::sample::color color = app::sample::color::blue;
+  app::sample::color color = app::sample::color_blue;
   std::vector<std::unique_ptr<app::sample::weaponT>> weapons{};
   app::sample::equipmentUnion equipped{};
   std::vector<app::sample::vec3> path{};
@@ -238,7 +238,7 @@ struct monster FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   template<typename T> const T *equipped_as() const;
   const app::sample::weapon *equipped_as_weapon() const {
-    return equipped_type() == app::sample::equipment::weapon ? static_cast<const app::sample::weapon *>(equipped()) : nullptr;
+    return equipped_type() == app::sample::equipment_weapon ? static_cast<const app::sample::weapon *>(equipped()) : nullptr;
   }
   const ::flatbuffers::Vector<const app::sample::vec3 *> *path() const {
     return GetPointer<const ::flatbuffers::Vector<const app::sample::vec3 *> *>(VT_PATH);
@@ -324,9 +324,9 @@ inline ::flatbuffers::Offset<monster> Createmonster(
     int16_t hp = 100,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> inventory = 0,
-    app::sample::color color = app::sample::color::blue,
+    app::sample::color color = app::sample::color_blue,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<app::sample::weapon>>> weapons = 0,
-    app::sample::equipment equipped_type = app::sample::equipment::NONE,
+    app::sample::equipment equipped_type = app::sample::equipment_NONE,
     ::flatbuffers::Offset<void> equipped = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<const app::sample::vec3 *>> path = 0) {
   monsterBuilder builder_(_fbb);
@@ -350,9 +350,9 @@ inline ::flatbuffers::Offset<monster> CreatemonsterDirect(
     int16_t hp = 100,
     const char *name = nullptr,
     const std::vector<uint8_t> *inventory = nullptr,
-    app::sample::color color = app::sample::color::blue,
+    app::sample::color color = app::sample::color_blue,
     const std::vector<::flatbuffers::Offset<app::sample::weapon>> *weapons = nullptr,
-    app::sample::equipment equipped_type = app::sample::equipment::NONE,
+    app::sample::equipment equipped_type = app::sample::equipment_NONE,
     ::flatbuffers::Offset<void> equipped = 0,
     const std::vector<app::sample::vec3> *path = nullptr) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
@@ -560,10 +560,10 @@ inline ::flatbuffers::Offset<weapon> Createweapon(::flatbuffers::FlatBufferBuild
 
 inline bool Verifyequipment(::flatbuffers::Verifier &verifier, const void *obj, equipment type) {
   switch (type) {
-    case equipment::NONE: {
+    case equipment_NONE: {
       return true;
     }
-    case equipment::weapon: {
+    case equipment_weapon: {
       auto ptr = reinterpret_cast<const app::sample::weapon *>(obj);
       return verifier.VerifyTable(ptr);
     }
@@ -571,7 +571,7 @@ inline bool Verifyequipment(::flatbuffers::Verifier &verifier, const void *obj, 
   }
 }
 
-inline bool VerifyequipmentVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<equipment> *types) {
+inline bool VerifyequipmentVector(::flatbuffers::Verifier &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
   if (!values || !types) return !values && !types;
   if (values->size() != types->size()) return false;
   for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
@@ -586,7 +586,7 @@ inline bool VerifyequipmentVector(::flatbuffers::Verifier &verifier, const ::fla
 inline void *equipmentUnion::UnPack(const void *obj, equipment type, const ::flatbuffers::resolver_function_t *resolver) {
   (void)resolver;
   switch (type) {
-    case equipment::weapon: {
+    case equipment_weapon: {
       auto ptr = reinterpret_cast<const app::sample::weapon *>(obj);
       return ptr->UnPack(resolver);
     }
@@ -597,7 +597,7 @@ inline void *equipmentUnion::UnPack(const void *obj, equipment type, const ::fla
 inline ::flatbuffers::Offset<void> equipmentUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
   (void)_rehasher;
   switch (type) {
-    case equipment::weapon: {
+    case equipment_weapon: {
       auto ptr = reinterpret_cast<const app::sample::weaponT *>(value);
       return Createweapon(_fbb, ptr, _rehasher).Union();
     }
@@ -607,7 +607,7 @@ inline ::flatbuffers::Offset<void> equipmentUnion::Pack(::flatbuffers::FlatBuffe
 
 inline equipmentUnion::equipmentUnion(const equipmentUnion &u) : type(u.type), value(nullptr) {
   switch (type) {
-    case equipment::weapon: {
+    case equipment_weapon: {
       value = new app::sample::weaponT(*reinterpret_cast<app::sample::weaponT *>(u.value));
       break;
     }
@@ -618,7 +618,7 @@ inline equipmentUnion::equipmentUnion(const equipmentUnion &u) : type(u.type), v
 
 inline void equipmentUnion::Reset() {
   switch (type) {
-    case equipment::weapon: {
+    case equipment_weapon: {
       auto ptr = reinterpret_cast<app::sample::weaponT *>(value);
       delete ptr;
       break;
@@ -626,7 +626,7 @@ inline void equipmentUnion::Reset() {
     default: break;
   }
   value = nullptr;
-  type = equipment::NONE;
+  type = equipment_NONE;
 }
 
 inline const app::sample::monster *Getmonster(const void *buf) {

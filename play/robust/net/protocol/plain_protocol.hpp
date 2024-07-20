@@ -17,6 +17,10 @@ template <typename Topic>
 class plain_protocol : public protocol<Topic>
 {
 public:
+  inline static size_t max_send_size = 1024 * 1024;
+  inline static size_t max_recv_size = 1024 * 1024;
+
+public:
   using topic = Topic;
 
 public:

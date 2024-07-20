@@ -1,1 +1,71 @@
+#include <play/robust/base/logger.hpp>
+#include <play/robust/net/flatbuffers/flatbuffer_handler.hpp>
 
+namespace play { namespace robust { namespace net {
+
+template <typename Session>
+template <typename FlatBufferObj, typename Obj>
+inline bool flatbuffer_handler<Session>::send(session_ptr se, topic pic, Obj& obj, bool encrypt)
+{
+  static thread_local flatbuffers::FlatBufferBuilder fbb(4096);
+  fbb.Reset();
+  fbb.Finish(FlatBufferObj::Pack(fbb, &obj));
+
+  auto buf = fbb.GetBufferPointer();
+  auto size = fbb.GetSize();
+
+  return se->send(buf, pic, size, encrypt);
+}
+
+template <typename Session>
+inline void flatbuffer_handler<Session>::recv(session_ptr se, topic pic, const void* data,
+                                              size_t len)
+{
+  // unpack
+  // dispatch
+}
+
+template <typename Session>
+inline size_t flatbuffer_handler<Session>::sub(topic pic, receiver fn)
+{
+  std::unique_lock guard(subs_lock_);
+  auto iter = receivers_.find(pic);
+  if (iter == receivers_.end())
+  {
+    std::vector<sub_entry> subs{};
+    auto result = receivers_.insert(std::pair(pic, subs));
+    PLAY_CHECK(result);
+    iter = result.first;
+  }
+  auto id = current_sub_id_++;
+  iter->second.push_back({id, fn});
+  returnid;
+}
+
+template <typename Session>
+inline void flatbuffer_handler<Session>::reg(topic pic, unpacker fn)
+{
+  auto result = unpackers_.insert(std::pair(pic, fn));
+  if (!result.second)
+  {
+    LOG()->info("unpacker exists. topic: {}", pic);
+  }
+}
+
+template <typename Session>
+template <typename FbObjType, typename ObjType>
+inline flatbuffer_handler<Session>::ptr flatbuffer_handler<Session>::unpack(const char* data,
+                                                                            size_t len)
+{
+  auto obj = std::make_shared<ObjType>;
+  auto fb_obj = flatbuffers::GetRoot<FbObjType>(data);
+  flatbuffers::Verifier verifier(data, len, flatbuffers::Verifier::Options{});
+  auto result = fb_obj->Verify(verifier);
+  if (!result)
+    return {};
+
+  fb_obj->UnPackTo(&*obj);
+  return obj;
+}
+
+}}}  // namespace play::robust::net
