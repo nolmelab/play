@@ -17,11 +17,12 @@ template <typename Session>
 class flatbuffer_handler final : public frame_handler<Session, uint16_t, flatbuffers::NativeTable>
 {
 public:
-  using frame_ptr = typename frame_handler<uint16_t, flatbuffer::NativeTable>::ptr;
-  using topic = typename frame_handler<uint16_t, flatbuffer::NativeTable>::topic;
+  using frame_handler = frame_handler<Session, uint16_t, flatbuffers::NativeTable>;
+  using frame_ptr = typename frame_handler::frame_ptr;
+  using topic = typename frame_handler::topic;
   using session_ptr = std::shared_ptr<Session>;
-  using unpacker = std::function<frame_ptr(const char*, size_t)>;
-  using receiver = std::function<void(sesion_ptr, frame_ptr)>;
+  using unpacker = std::function<frame_ptr(const uint8_t*, size_t)>;
+  using receiver = std::function<void(session_ptr, frame_ptr)>;
 
 public:
   flatbuffer_handler() = default;
@@ -60,7 +61,7 @@ public:
    * reg(1, &flatbuffer_handler<server::session_ptr>::unpack<req_move, req_moveT>)와 같이 등록
    */
   template <typename FbObjType, typename ObjType>
-  static frame_ptr unpack(const char* data, size_t len);
+  static frame_ptr unpack(const uint8_t* data, size_t len);
 
 private:
   struct sub_entry
@@ -69,8 +70,8 @@ private:
     receiver cb;
   };
 
-  using unpacker_map = std::map<Topic, unpacker>;
-  using receiver_map = std::map<Topic, std::vector<sub_entry>>;
+  using unpacker_map = std::map<topic, unpacker>;
+  using receiver_map = std::map<topic, std::vector<sub_entry>>;
   using shared_mutex = std::shared_timed_mutex;
 
   unpacker_map unpackers_;
@@ -80,3 +81,5 @@ private:
 };
 
 }}}  // namespace play::robust::net
+
+#include <play/robust/net/flatbuffers/flatbuffer_handler.ipp>

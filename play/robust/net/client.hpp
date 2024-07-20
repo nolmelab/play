@@ -4,6 +4,7 @@
 #include <play/robust/net/frame_handler.hpp>
 #include <play/robust/net/runner/thread_runner.hpp>
 #include <play/robust/net/session.hpp>
+#include <play/robust/net/session_handler.hpp>
 #include <shared_mutex>
 #include <string_view>
 #include <unordered_map>
@@ -18,10 +19,10 @@ namespace play { namespace robust { namespace net {
  * @tparam Frame flatbuffers::NativeTable과 같은 앱 프레임
  */
 template <typename Protocol, typename Frame = frame_subclass>
-class client
+class client : public session_handler<session<Protocol>>
 {
 public:
-  using session = session<Protocol, client<Protocol>>;
+  using session = session<Protocol>;
   using handle = typename session::handle;
   using session_ptr = std::shared_ptr<session>;
   using topic = typename Protocol::topic;
@@ -53,13 +54,13 @@ public:
   void close();
 
   // 세션에서 프로토콜 협상 완료 통지
-  void on_established(session_ptr se);
+  void on_established(session_ptr se) final;
 
   // 세션에서 연결 종료 통지
-  void on_closed(session_ptr se, error_code ec);
+  void on_closed(session_ptr se, error_code ec) final;
 
   // topic 단위 페이로드를 프로토콜에서 얻은 후 세션을 통해 전달
-  void on_receive(session_ptr se, topic topic, const void* data, size_t len);
+  void on_receive(session_ptr se, topic topic, const void* data, size_t len) final;
 
 protected:
   // 하위 클래스에 협상 완료 처리 전달

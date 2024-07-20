@@ -3,8 +3,8 @@
 
 namespace play { namespace robust { namespace net {
 
-template <typename Protocol, typename Handler>
-session<Protocol, Handler>::session(Handler& handler, asio::io_context& ioc, bool accepted)
+template <typename Protocol>
+session<Protocol>::session(session_handler& handler, asio::io_context& ioc, bool accepted)
     : handler_{handler},
       socket_{ioc},
       handle_{0},
@@ -12,14 +12,14 @@ session<Protocol, Handler>::session(Handler& handler, asio::io_context& ioc, boo
 {
 }
 
-template <typename Protocol, typename Handler>
-session<Protocol, Handler>::~session()
+template <typename Protocol>
+session<Protocol>::~session()
 {
   close();
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::start()
+template <typename Protocol>
+void session<Protocol>::start()
 {
   PLAY_CHECK(!protocol_);
 
@@ -58,8 +58,8 @@ void session<Protocol, Handler>::start()
   }
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::send(const void* data, size_t len)
+template <typename Protocol>
+void session<Protocol>::send(const void* data, size_t len)
 {
   //PLAY_CHECK(len > 0);
 
@@ -81,8 +81,8 @@ void session<Protocol, Handler>::send(const void* data, size_t len)
   }
 }
 
-template <typename Protocol, typename Handler>
-bool session<Protocol, Handler>::send(topic pic, const void* data, size_t len, bool encrypt)
+template <typename Protocol>
+bool session<Protocol>::send(topic pic, const void* data, size_t len, bool encrypt)
 {
   if (!is_open())
   {
@@ -121,8 +121,8 @@ bool session<Protocol, Handler>::send(topic pic, const void* data, size_t len, b
   return false;
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::close()
+template <typename Protocol>
+void session<Protocol>::close()
 {
   if (is_open())
   {
@@ -130,14 +130,14 @@ void session<Protocol, Handler>::close()
   }
 }
 
-template <typename Protocol, typename Handler>
-std::string session<Protocol, Handler>::get_remote_addr() const
+template <typename Protocol>
+std::string session<Protocol>::get_remote_addr() const
 {
   return remote_addr_;
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::start_send()
+template <typename Protocol>
+void session<Protocol>::start_send()
 {
   // locked
   PLAY_CHECK(!sending_);
@@ -160,8 +160,8 @@ void session<Protocol, Handler>::start_send()
                      });
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::start_recv()
+template <typename Protocol>
+void session<Protocol>::start_recv()
 {
   auto self(this->shared_from_this());
   auto buf = recv_buf_.prepare(recv_size);
@@ -172,8 +172,8 @@ void session<Protocol, Handler>::start_recv()
                         });
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::handle_send(error_code ec, size_t len)
+template <typename Protocol>
+void session<Protocol>::handle_send(error_code ec, size_t len)
 {
   std::lock_guard guard(mutex_);
   PLAY_CHECK(sending_);
@@ -192,8 +192,8 @@ void session<Protocol, Handler>::handle_send(error_code ec, size_t len)
   }
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::handle_recv(error_code ec, size_t len)
+template <typename Protocol>
+void session<Protocol>::handle_recv(error_code ec, size_t len)
 {
   if (!ec)
   {
@@ -227,8 +227,8 @@ void session<Protocol, Handler>::handle_recv(error_code ec, size_t len)
   }
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::handle_close(error_code ec)
+template <typename Protocol>
+void session<Protocol>::handle_close(error_code ec)
 {
   if (is_open())
   {
@@ -238,8 +238,8 @@ void session<Protocol, Handler>::handle_close(error_code ec)
   }
 }
 
-template <typename Protocol, typename Handler>
-void session<Protocol, Handler>::send_handshake(asio::const_buffer buf)
+template <typename Protocol>
+void session<Protocol>::send_handshake(asio::const_buffer buf)
 {
   if (buf.size() > 0)
   {
@@ -247,8 +247,8 @@ void session<Protocol, Handler>::send_handshake(asio::const_buffer buf)
   }
 }
 
-template <typename Protocol, typename Handler>
-size_t session<Protocol, Handler>::recv_frames()
+template <typename Protocol>
+size_t session<Protocol>::recv_frames()
 {
   size_t frame_count = 0;
 
@@ -256,17 +256,26 @@ size_t session<Protocol, Handler>::recv_frames()
 
   while (recv_data.size() > 0)
   {
-    auto cbuf = asio::const_buffer{recv_data.data(), recv_data.size()};
-    auto [consumed_len, frame, topic] = protocol_->decode(cbuf);
-    if (consumed_len > 0)
+    try
     {
-      PLAY_CHECK(frame.size() > 0);
-      handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
-      recv_buf_.consume(consumed_len);
+      auto cbuf = asio::const_buffer{recv_data.data(), recv_data.size()};
+      auto [consumed_len, frame, topic] = protocol_->decode(cbuf);
+      if (consumed_len > 0)
+      {
+        PLAY_CHECK(frame.size() > 0);
+        handler_.on_receive(this->shared_from_this(), topic, frame.data(), frame.size());
+        recv_buf_.consume(consumed_len);
+      }
+      else
+      {
+        break;
+      }
     }
-    else
+    catch (std::exception& ex)
     {
-      break;
+      LOG()->error("exception in recv_frames. exception: {}", ex.what());
+      close();  // start_recv()에서 시작하여 에러 통지
+      return frame_count;
     }
 
     ++frame_count;

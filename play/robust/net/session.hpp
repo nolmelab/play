@@ -2,6 +2,7 @@
 
 #include <mutex>
 #include <play/robust/net/protocol.hpp>
+#include <play/robust/net/session_handler.hpp>
 
 using tcp = asio::ip::tcp;
 
@@ -14,17 +15,18 @@ namespace play { namespace robust { namespace net {
  * 
  * session은 바이트 송수신만을 담당하고, 프레임 변환은 Protocol에서 처리한다.
  */
-template <typename Protocol, typename Handler>
-class session : public std::enable_shared_from_this<session<Protocol, Handler>>
+template <typename Protocol>
+class session : public std::enable_shared_from_this<session<Protocol>>
 {
 public:
-  using ptr = std::shared_ptr<session<Protocol, Handler>>;
+  using ptr = std::shared_ptr<session<Protocol>>;
   using handle = size_t;
   using topic = typename Protocol::topic;
+  using session_handler = session_handler<session<Protocol>>;
 
 public:
   // 프로토콜 생성. 프로토콜에 알림. 수신 시작
-  session(Handler& handler, asio::io_context& ioc, bool accepted);
+  session(session_handler& handler, asio::io_context& ioc, bool accepted);
 
   ~session();
 
@@ -85,7 +87,7 @@ private:
   void send_handshake(asio::const_buffer hs);
 
 private:
-  Handler& handler_;
+  session_handler& handler_;
   tcp::socket socket_;
   std::unique_ptr<Protocol> protocol_;
   bool accepted_;

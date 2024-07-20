@@ -22,10 +22,10 @@ inline void flatbuffer_handler<Session>::recv(session_ptr se, topic pic, const v
                                               size_t len)
 {
   auto iter = unpackers_.find(pic);
-  if (iter != upackers_.end())
+  if (iter != unpackers_.end())
   {
     auto& unpack_fn = iter->second;
-    auto frame_ptr = unpack_fn(reinterpret_cast<const unit8_t*>(data), len);
+    auto frame_ptr = unpack_fn(reinterpret_cast<const uint8_t*>(data), len);
     // dispatch
     {
       std::shared_lock guard(subs_lock_);
@@ -63,7 +63,7 @@ inline size_t flatbuffer_handler<Session>::sub(topic pic, receiver fn)
   }
   auto id = current_sub_id_++;
   iter->second.push_back({id, fn});
-  returnid;
+  return id;
 }
 
 template <typename Session>
@@ -78,15 +78,19 @@ inline void flatbuffer_handler<Session>::reg(topic pic, unpacker fn)
 
 template <typename Session>
 template <typename FbObjType, typename ObjType>
-inline flatbuffer_handler<Session>::frame_ptr flatbuffer_handler<Session>::unpack(const char* data,
-                                                                                  size_t len)
+inline typename flatbuffer_handler<Session>::frame_ptr flatbuffer_handler<Session>::unpack(
+    const uint8_t* data, size_t len)
 {
   auto obj = std::make_shared<ObjType>;
   auto fb_obj = flatbuffers::GetRoot<FbObjType>(data);
+
   flatbuffers::Verifier verifier(data, len, flatbuffers::Verifier::Options{});
   auto result = fb_obj->Verify(verifier);
+
   if (!result)
+  {
     return {};
+  }
 
   fb_obj->UnPackTo(&*obj);
   return obj;

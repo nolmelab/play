@@ -20,86 +20,46 @@ struct test_config
   inline static int echo_count = 5;
 };
 
-struct test_server : public server<secure_protocol<uint32_t>>
+using server_t = server<secure_protocol<uint16_t>, flatbuffers::NativeTable>;
+using client_t = client<secure_protocol<uint16_t>, flatbuffers::NativeTable>;
+
+struct test_server : public server_t
 {
-  test_server(runner& runner, std::string_view json)
-      : server<secure_protocol<uint32_t>>(runner, json)
+  test_server(runner& runner, std::string_view json, server_t::frame_handler& handler)
+      : server_t(runner, json, handler)
   {
   }
-
-  void handle_established(session_ptr session) final
-  {
-    LOG()->info("test_server established. remote: {}", session->get_remote_addr());
-  }
-
-  void handle_closed(session_ptr session, error_code ec) final {}
-
-  void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
-  {
-    recv_bytes_ += len;
-    for (int i = 0; i < test_config::echo_count; ++i)
-    {
-      session->send(1, reinterpret_cast<const char*>(data), len,
-                    test_config::server_encrypt);  // echo back
-    }
-  }
-
-  size_t recv_bytes_{0};
 };
 
-struct test_client : public client<secure_protocol<uint32_t>>
+struct test_client : public client_t
 {
-  test_client(runner& runner)
-      : client<secure_protocol<uint32_t>>(runner)
+  test_client(runner& runner, client_t::frame_handler& handler)
+      : client_t(runner, handler)
   {
-  }
-
-  void send(const char* data, size_t len)
-  {
-    get_session()->send(1, reinterpret_cast<const char*>(data), len, true);  // echo back
-  }
-
-  void handle_established(session_ptr session) final
-  {
-    LOG()->info("test_client established. remote: {}", session->get_remote_addr());
-
-    for (int i = 0; i < test_config::payload_loops; ++i)
-    {
-      payload_.append(test_config::payload_data);
-    }
-    send(payload_.c_str(), payload_.length());
-  }
-
-  void handle_closed(session_ptr session, error_code ec) final {}
-
-  void handle_receive(session_ptr session, uint32_t topic, const void* data, size_t len) final
-  {
-    recv_bytes_ += len;
-    std::string rs{reinterpret_cast<const char*>(data), len};
-    CHECK(rs == payload_);
-
-    for (int i = 0; i < test_config::echo_count; ++i)
-    {
-      session->send(1, reinterpret_cast<const char*>(data), len, test_config::client_encrypt);
-    }
   }
 
   size_t recv_bytes_{0};
   std::string payload_;
 };
 
-void run_test(std::string_view name)
-{
+}  // namespace
 
+TEST_CASE("faltbuffers")
+{
+  flatbuffer_handler<test_server::session> server_handler;
+  flatbuffer_handler<test_client::session> client_handler;
+
+  //
   poll_runner runner{"secure_protocol runner"};
 
   test_server server(runner, R"(
     {
       "port" : 7000, 
       "concurrency" : 8
-    })");
+    })",
+                     server_handler);
 
-  test_client client(runner);
+  test_client client(runner, client_handler);
 
   auto rc = server.start();
 
@@ -122,12 +82,5 @@ void run_test(std::string_view name)
 
   auto elapsed = watch.stop();
 
-  LOG()->info("{}. elapsed: {}, bytes; {}", name, elapsed, test_config::test_bytes);
-}
-
-}  // namespace
-
-TEST_CASE("faltbuffers")
-{
-  //
+  LOG()->info("elapsed: {}, bytes; {}", elapsed, test_config::test_bytes);
 }
