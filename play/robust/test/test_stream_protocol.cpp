@@ -12,11 +12,7 @@ TEST_CASE("client & server")
   SUBCASE("compile server")
   {
     poll_runner runner;
-    server<stream_protocol> server(runner, R"(
-    {
-      "port" : 7000, 
-      "concurrency" : 8
-    })");
+    server<stream_protocol> server(runner);
   }
 }
 
@@ -28,8 +24,8 @@ struct test_server : public server<stream_protocol>
 {
   using server = server<stream_protocol>;
 
-  test_server(runner& runner, std::string_view json)
-      : server(runner, json)
+  test_server(runner& runner)
+      : server(runner)
   {
   }
 
@@ -93,16 +89,10 @@ TEST_CASE("communication")
   SUBCASE("stream_protocol")
   {
     poll_runner runner{"stream_protocol runner"};
-
-    test_server server(runner, R"(
-    {
-      "port" : 7000, 
-      "concurrency" : 8
-    })");
-
+    test_server server(runner);
     test_client client(runner);
 
-    auto rc = server.start();
+    auto rc = server.start(R"({ "port" : 7000, "concurrency" : 8 })");
 
     client.connect("127.0.0.1", 7000);
     runner.poll_one();
@@ -123,16 +113,10 @@ TEST_CASE("communication")
   SUBCASE("stream_protocol echo perf")
   {
     poll_runner runner{"stream_protocol runner"};
-
-    test_server server(runner, R"(
-    {
-      "port" : 7000, 
-      "concurrency" : 8
-    })");
-
+    test_server server(runner);
     test_client client(runner);
 
-    auto rc = server.start();
+    auto rc = server.start(R"({ "port" : 7000, "concurrency" : 8 })");
 
     client.connect("127.0.0.1", 7000);
     runner.poll_one();

@@ -21,8 +21,8 @@ struct test_config
 
 struct test_server : public server<secure_protocol<uint32_t>>
 {
-  test_server(runner& runner, std::string_view json)
-      : server<secure_protocol<uint32_t>>(runner, json)
+  test_server(runner& runner)
+      : server<secure_protocol<uint32_t>>(runner)
   {
   }
 
@@ -89,18 +89,11 @@ struct test_client : public client<secure_protocol<uint32_t>>
 
 void run_test(std::string_view name)
 {
-
   poll_runner runner{"secure_protocol runner"};
-
-  test_server server(runner, R"(
-    {
-      "port" : 7000, 
-      "concurrency" : 8
-    })");
-
+  test_server server(runner);
   test_client client(runner);
 
-  auto rc = server.start();
+  auto rc = server.start(R"({ "port" : 7000, "concurrency" : 8 })");
 
   play::robust::base::stop_watch watch;
 

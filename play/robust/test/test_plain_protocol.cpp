@@ -13,8 +13,8 @@ static constexpr int test_bytes = 1 * 1024;
 
 struct test_server : public server<plain_protocol<uint32_t>>
 {
-  test_server(runner& runner, std::string_view json)
-      : server<plain_protocol<uint32_t>>(runner, json)
+  test_server(runner& runner)
+      : server<plain_protocol<uint32_t>>(runner)
   {
   }
 
@@ -72,16 +72,10 @@ TEST_CASE("plain_protocol")
   SUBCASE("basics")
   {
     poll_runner runner{"plain_protocol runner"};
-
-    test_server server(runner, R"(
-    {
-      "port" : 7000, 
-      "concurrency" : 8
-    })");
-
+    test_server server(runner);
     test_client client(runner);
 
-    auto rc = server.start();
+    auto rc = server.start(R"({"port" : 7000, "concurrency" : 8 })");
 
     play::robust::base::stop_watch watch;
 

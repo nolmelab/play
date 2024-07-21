@@ -1,46 +1,62 @@
 #pragma once
 
-#include <play/robust/app/object.hpp>
-#include <play/robust/app/service.hpp>
-#include <play/robust/net/client.hpp>
+#include <play/robust/app/app_base.hpp>
 #include <play/robust/net/frame/flatbuffer_handler.hpp>
-#include <play/robust/net/server.hpp>
+#include <play/robust/net/protocol/secure_protocol.hpp>
 
 namespace play { namespace robust { namespace app {
 
-// app의 기반 클래스
+// secure_protocol로 16비트 토픽을 갖는 플랫버퍼 앱
 /**
- * 서비스를 관리. 구체적인 기능은 서비스에서 구현
+ * server를 실행한다.  
  */
-template <typename Protocol, typename Frame>
-class app
+class app : public app_base<net::secure_protocol<uint16_t>, flatbuffers::NativeTable>
 {
 public:
-  using server_type = net::server<Protocol, Frame>;
-  using client_type = net::client<Protocol, Frame>;
-  using session_type = typename server_type::session;
+  using protocol = net::secure_protocol<uint16_t>;
+  using frame = flatbuffers::NativeTable;
+  using server = net::server<protocol, frame>;
+  using client = net::client<protocol, frame>;
+  using session = typename server::session;
+  using frame_handler = net::flatbuffer_handler<session>;
 
 public:
+  // app을 통해 service들에 접근하기위해 필요
   static app& get();
 
 public:
-  app();
+  app()
+      : app_base(),
+        server_{runner_, handler_}
+  {
+  }
 
-  virtual bool start() = 0;
+  bool start(std::string_view jconf) override;
 
-  virtual void stop() = 0;
+  void stop() override;
 
-  template <typename Service, typename... Args>
-  bool create_service(Args&&... args);
+  frame_handler& get_handler()
+  {
+    return handler_;
+  }
 
-  template <typename Service>
-  std::shared_ptr<Service> get_service();
+  net::thread_runner& get_runner()
+  {
+    return runner_;
+  }
+
+protected:
+  virtual bool on_start()
+  {
+    return true;
+  }
+
+  virtual void on_stop() {}
 
 private:
-  using service_map = std::map<std::type_index, service::ptr>;
-
-private:
-  service_map services_;
+  server_type server_;
+  frame_handler handler_;
+  net::thread_runner runner_;
 };
 
 }}}  // namespace play::robust::app

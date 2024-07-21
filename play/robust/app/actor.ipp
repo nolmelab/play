@@ -26,7 +26,7 @@ std::shared_ptr<Act> actor::get_act()
   {
     return {};
   }
-  return iter->second;
+  return std::static_pointer_cast<Act>(iter->second);
 }
 
 }}}  // namespace play::robust::app

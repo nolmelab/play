@@ -3,24 +3,24 @@
 namespace play { namespace robust { namespace net {
 
 template <typename Protocol, typename Frame>
-server<Protocol, Frame>::server(runner& runner, std::string_view json, frame_handler& handler)
+server<Protocol, Frame>::server(runner& runner, frame_handler& handler)
     : runner_{runner},
-      json_{json},
       frame_handler_{handler}
 {
 }
 
 template <typename Protocol, typename Frame>
-server<Protocol, Frame>::server(runner& runner, std::string_view json)
+server<Protocol, Frame>::server(runner& runner)
     : runner_{runner},
-      json_{json},
       frame_handler_{frame_subclass_handler<session, topic, Frame>::get()}
 {
 }
 
 template <typename Protocol, typename Frame>
-bool server<Protocol, Frame>::start()
+bool server<Protocol, Frame>::start(std::string_view jconf)
 {
+  json_ = jconf;
+
   LOG()->info("server starting...");
 
   try

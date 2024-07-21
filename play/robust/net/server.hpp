@@ -30,13 +30,13 @@ public:
 
 public:
   // json 문자열에서 읽어 서버를 준비
-  server(runner& runner, std::string_view json, frame_handler& handler);
+  server(runner& runner, frame_handler& handler);
 
   // frame_subclass_handler를 사용하여 subclass 인터페이스를 지원
-  server(runner& runner, std::string_view json);
+  server(runner& runner);
 
   // listen()부터 시작하여 서버를 시작
-  bool start();
+  bool start(std::string_view jconf);
 
   // 세션 맵에서 세션을 찾아서 돌려줌
   session_ptr get_session(size_t handle);

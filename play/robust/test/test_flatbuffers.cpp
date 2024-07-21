@@ -26,8 +26,8 @@ using client_t = client<secure_protocol<uint16_t>, flatbuffers::NativeTable>;
 
 struct test_server : public server_t
 {
-  test_server(runner& runner, std::string_view json, server_t::frame_handler& handler)
-      : server_t(runner, json, handler)
+  test_server(runner& runner, server_t::frame_handler& handler)
+      : server_t(runner, handler)
   {
   }
 };
@@ -68,7 +68,7 @@ TEST_CASE("faltbuffers")
   client_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
 
   poll_runner runner{"secure_protocol runner"};
-  test_server server(runner, R"({ "port" : 7000, "concurrency" : 8 })", server_handler);
+  test_server server(runner, server_handler);
   test_client client(runner, client_handler);
 
   server_handler_t::receiver cb =
@@ -90,7 +90,7 @@ TEST_CASE("faltbuffers")
   };
   client_handler.sub(1, cb_2);
 
-  auto rc = server.start();
+  auto rc = server.start(R"({"port" : 7000, "concurrency" : 8 })");
 
   play::robust::base::stop_watch watch;
 

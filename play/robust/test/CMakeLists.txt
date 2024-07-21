@@ -51,6 +51,7 @@ target_link_libraries(
   test
   play_robust_base 
   play_robust_net
+  play_robust_app
   spdlog::spdlog 
   doctest::doctest
   unofficial-sodium::sodium
