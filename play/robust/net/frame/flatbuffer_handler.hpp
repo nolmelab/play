@@ -47,10 +47,13 @@ public:
   size_t sub(topic pic, receiver fn);
 
   // 특정 토픽 전체에 대해 통지를 받지 않음
-  void unsub(topic pic);
+  void unsub_topic(topic pic);
 
   // 특정 토픽의 특정 핸들러에 대한 구독 중지
   void unsub(topic pic, size_t id);
+
+  // 구독 개수를 얻는다.
+  size_t get_subs_size(topic pic) const;
 
   // 정적으로 한번 등록. 락 사용하지 않음. 한번만 등록. 중복되면 경고 로그
   void reg(topic pic, unpacker fn);
@@ -76,7 +79,7 @@ private:
 
   unpacker_map unpackers_;
   receiver_map receivers_;
-  shared_mutex subs_lock_;
+  mutable shared_mutex subs_lock_;
   size_t current_sub_id_{1};
 };
 

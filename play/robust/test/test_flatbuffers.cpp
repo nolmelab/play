@@ -113,3 +113,39 @@ TEST_CASE("faltbuffers")
 
   LOG()->info("elapsed: {}, frames; {}", elapsed, test_config::test_frame_count);
 }
+
+TEST_CASE("flatbuffer_handler")
+{
+  SUBCASE("sub / unsub")
+  {
+    using server_handler_t = flatbuffer_handler<test_server::session>;
+
+    server_handler_t h1;
+    server_handler_t::receiver cb =
+        [](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
+    {
+    };
+    auto sub_id_1 = h1.sub(1, cb);
+    auto sub_id_2 = h1.sub(1, cb);
+    CHECK(h1.get_subs_size(1) == 2);
+    h1.unsub(1, sub_id_1);
+    h1.unsub(1, sub_id_2);
+    CHECK(h1.get_subs_size(1) == 0);
+  }
+
+  SUBCASE("sub / unsub_topic")
+  {
+    using server_handler_t = flatbuffer_handler<test_server::session>;
+
+    server_handler_t h1;
+    server_handler_t::receiver cb =
+        [](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
+    {
+    };
+    auto sub_id_1 = h1.sub(1, cb);
+    auto sub_id_2 = h1.sub(1, cb);
+    CHECK(h1.get_subs_size(1) == 2);
+    h1.unsub_topic(1);
+    CHECK(h1.get_subs_size(1) == 0);
+  }
+}

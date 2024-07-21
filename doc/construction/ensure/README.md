@@ -17,27 +17,24 @@ robust이 기능을 최대한 활용하여 서버 구현과 최대한 비슷하�
 asio의 io_context를 통한 비동기 실행을 잘 활용하여 타이머를 통한 스케줄링까지
 활용합니다. 이는 서버에서 npc나 pc를 실행하는 방식과 거의 동일합니다. 
 
-전에는 HFSM 기반으로 봇 행동을 구현했으나 이번에는 행동 트리 (Behavior Tree)를
-활용하려고 합니다. 원래 손쉽고 직관적인 행동의 구성(Composition)이 목적이므로
-봇툴과 잘 맞을 것으로 예상합니다. 성능 측정이 아닌 행동의 구현과 부하 발생이
-목적이기 때문에 더 잘 맞습니다. 성능 측정은 HSFM이 더 수월합니다. 
+BT(행동 트리, BehaviorTree)를 사용하는 걸 잠시 고려했습니다. 하지만, 봇들은 
+event 기반에 reactive 하게 동작하므로 HFSM이 더 잘 맞습니다. 능동적인 행동이 
+별로 필요 없고 수동적으로 이벤트에 반응하기 때문입니다. 응답 성능을 
+측정 할 수 있어야 한다는 점도 중요한 고려 사항입니다. 
 
 ## 구조 
 
 - ensure app
   - has a thread_runner 
   - has bots 
-    - has a behaivor tree configured 
     - acts 
-      - behaivor tree actions, decorators to run tests
+      - HFSM based 
+      - called flow (of acts)
     - memory 
       - blackboard like, but more librally used
     - app::client
       - connect to server and communicate
 
-behaviortree와 이벤트의 결합을 어떻게 해야할지 아직 명확하지 않습니다. 
-보통 명확하지 않은 부분이 핵심 중 하나입니다. 다른 부분은 중요하더라도 해결된 
-문제일 가능성이 많습니다.
 
 
 

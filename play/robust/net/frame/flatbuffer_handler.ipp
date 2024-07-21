@@ -67,6 +67,42 @@ inline size_t flatbuffer_handler<Session>::sub(topic pic, receiver fn)
 }
 
 template <typename Session>
+inline void flatbuffer_handler<Session>::unsub_topic(topic pic)
+{
+  std::unique_lock guard(subs_lock_);
+  receivers_.erase(pic);
+}
+
+template <typename Session>
+inline void flatbuffer_handler<Session>::unsub(topic pic, size_t id)
+{
+  std::unique_lock guard(subs_lock_);
+  auto iter = receivers_.find(pic);
+  if (iter != receivers_.end())
+  {
+    auto& vec = iter->second;
+    vec.erase(std::remove_if(vec.begin(), vec.end(),
+                             [id](auto sub)
+                             {
+                               return sub.id == id;
+                             }),
+              vec.end());
+  }
+}
+
+template <typename Session>
+inline size_t flatbuffer_handler<Session>::get_subs_size(topic pic) const
+{
+  std::shared_lock guard(subs_lock_);
+  auto iter = receivers_.find(pic);
+  if (iter != receivers_.end())
+  {
+    return iter->second.size();
+  }
+  return 0;
+}
+
+template <typename Session>
 inline void flatbuffer_handler<Session>::reg(topic pic, unpacker fn)
 {
   auto result = unpackers_.insert(std::pair(pic, fn));
