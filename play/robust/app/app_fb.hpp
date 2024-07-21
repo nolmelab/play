@@ -39,6 +39,11 @@ public:
     return handler_;
   }
 
+  net::thread_runner get_runner()
+  {
+    return runner_;
+  }
+
 protected:
   virtual bool on_start() {}
 

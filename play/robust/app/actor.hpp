@@ -3,6 +3,7 @@
 #include <map>
 #include <play/robust/app/act.hpp>
 #include <play/robust/app/object.hpp>
+#include <play/robust/base/dynamic_snowflake.hpp>
 
 namespace play { namespace robust { namespace app {
 
@@ -14,10 +15,15 @@ namespace play { namespace robust { namespace app {
 class actor : public object<actor>, public std::enable_shared_from_this<actor>
 {
 public:
-  actor(std::string_view type_name)
-      : object(type_name)
+  using actor_type = uint8_t;
+  using id_type = size_t;
+
+public:
+  actor(actor_type type, std::string_view type_name)
+      : object(type_name), 
+      type_{type}
   {
-    //
+    id_ = base::dynamic_snowflake::get().next(type);
   }
 
   ~actor() {}
@@ -31,6 +37,16 @@ public:
   // 완전한 종료 처리
   virtual void destroy() = 0;
 
+  actor_type get_type() const
+  {
+    return type_;
+  }
+
+  id_type get_id() const
+  {
+    return id_;
+  }
+
   template <typename Act, typename... Args>
   bool create_act(Args&&... args);
 
@@ -41,6 +57,8 @@ private:
   using act_map = std::map<std::type_index, act::ptr>;
 
 private:
+  actor_type type_;
+  id_type id_;
   act_map acts_;
 };
 
