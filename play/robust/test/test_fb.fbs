@@ -10,5 +10,11 @@ table req_move {
   pos: vec3; 
   name: string;
 }
+
+namespace fb.cluster.room;
+table req_create {
+  name: string;
+}
  
+
 // root_type req_move;

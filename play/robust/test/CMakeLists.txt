@@ -21,9 +21,13 @@ add_custom_target(
 add_executable(
   test
   main.cpp 
-  test_logger.cpp
+  learn_streambuf.cpp
+  learn_function_ptr.cpp
+  learn_flatbuffers.cpp
+  test_app.cpp
   test_codecs.cpp
   test_flatbuffers.cpp
+  test_logger.cpp
   test_object_pool.cpp
   test_plain_protocol.cpp
   test_protocol.cpp
@@ -31,9 +35,6 @@ add_executable(
   test_secure_protocol.cpp
   test_stream_protocol.cpp
   test_timer.cpp
-  learn_streambuf.cpp
-  learn_function_ptr.cpp
-  learn_flatbuffers.cpp
 )
 
 if (MSVC)
