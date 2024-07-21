@@ -15,10 +15,13 @@ class app_fb : public app<net::secure_protocol<uint16_t>, flatbuffers::NativeTab
 public:
   using protocol = net::secure_protocol<uint16_t>;
   using frame = flatbuffers::NativeTable;
-  using server_type = net::server<protocol, frame>;
-  using client_type = net::client<protocol, frame>;
-  using session_type = typename server_type::session;
-  using frame_handler = net::flatbuffer_handler<session_type>;
+  using server = net::server<protocol, frame>;
+  using client = net::client<protocol, frame>;
+  using session = typename server::session;
+  using frame_handler = net::flatbuffer_handler<session>;
+
+public:
+  static app_fb& get(); 
 
 public:
   app_fb(const std::string& jconf)
@@ -27,7 +30,7 @@ public:
   {
   }
 
-  void start() override;
+  bool start() override;
 
   void stop() override;
 
@@ -35,6 +38,11 @@ public:
   {
     return handler_;
   }
+
+protected:
+  virtual bool on_start() {}
+
+  virtual void on_stop() {}
 
 private:
   server_type server_;

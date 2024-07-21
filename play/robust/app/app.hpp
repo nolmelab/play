@@ -26,7 +26,7 @@ public:
 public:
   app();
 
-  virtual void start() = 0;
+  virtual bool start() = 0;
 
   virtual void stop() = 0;
 
