@@ -12,13 +12,10 @@ namespace play { namespace robust { namespace app {
  * actor는 전용 strand나 전용 쓰레드에서 실행
  * actor는 act들을 가지며 act들에서 구체적인 행동을 구현
  */
-class actor : public object<actor>, public std::enable_shared_from_this<actor>
+class actor : public std::enable_shared_from_this<actor>
 {
 public:
-  actor(std::string_view type_name)
-      : object(type_name)
-  {
-  }
+  actor() {}
 
   ~actor() {}
 

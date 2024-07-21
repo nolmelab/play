@@ -11,10 +11,7 @@ public:
   using ptr = std::shared_ptr<service>;
 
 public:
-  service(std::string_view type_name)
-      : actor{type_name}
-  {
-  }
+  service() = default;
 };
 
 }}}  // namespace play::robust::app

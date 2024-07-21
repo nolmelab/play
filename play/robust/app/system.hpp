@@ -8,11 +8,7 @@ namespace play { namespace robust { namespace app {
 class system : public actor
 {
 public:
-  system(std::string_view type_name)
-      : actor(type_name)
-  {
-    //
-  }
+  system() = default;
   `
 };
 
