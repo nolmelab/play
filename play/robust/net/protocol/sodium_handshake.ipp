@@ -102,7 +102,7 @@ inline asio::const_buffer sodium_handshake::sync_nonce()
 
 inline void sodium_handshake::dump_state(std::string_view step)
 {
-  LOG()->info("handshake step: {}", step);
+  LOG()->debug("handshake step: {}", step);
 
   base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. pub_key", handle_), pub_key_,
                          key_size);

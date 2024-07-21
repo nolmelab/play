@@ -138,7 +138,7 @@ template <typename Topic>
 std::pair<size_t, asio::const_buffer> secure_protocol<Topic>::handshake(
     const asio::const_buffer& src)
 {
-  LOG()->info("handshake: {} bytes", src.size());
+  LOG()->debug("handshake: {} bytes", src.size());
   auto payload = hs_length_codec_.decode(src);
   if (payload.size() > 0)
   {

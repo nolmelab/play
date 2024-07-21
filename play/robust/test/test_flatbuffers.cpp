@@ -13,7 +13,7 @@ namespace {
 
 struct test_config
 {
-  inline static int test_bytes = 1024;
+  inline static int test_frame_count = 1024;
   inline static int payload_loops = 100;
   inline static std::string payload_data = "hello";
   inline static bool client_encrypt = true;
@@ -51,7 +51,7 @@ struct test_client : public client_t
                                                                                false);
   }
 
-  size_t recv_bytes_{0};
+  size_t recv_count_{0};
 };
 
 }  // namespace
@@ -67,27 +67,28 @@ TEST_CASE("faltbuffers")
   server_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
   client_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
 
+  poll_runner runner{"secure_protocol runner"};
+  test_server server(runner, R"({ "port" : 7000, "concurrency" : 8 })", server_handler);
+  test_client client(runner, client_handler);
+
   server_handler_t::receiver cb =
       [&server_handler](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
   {
     auto req_move = std::static_pointer_cast<fb::req_moveT>(f);
     auto v = req_move->pos->x();
-    server_handler.send<fb::req_move>(se, 1, *req_move.get(), true);
+    server_handler.send<fb::req_move>(se, 1, *req_move.get(), false);
   };
   server_handler.sub(1, cb);
 
-  client_handler_t::receiver cb =
-      [&client_handler](client_handler_t::session_ptr se, client_handler_t::frame_ptr f)
+  client_handler_t::receiver cb_2 =
+      [&client, &client_handler](client_handler_t::session_ptr se, client_handler_t::frame_ptr f)
   {
+    client.recv_count_++;
     auto req_move = std::static_pointer_cast<fb::req_moveT>(f);
     auto v = req_move->pos->x();
     client_handler.send<fb::req_move>(se, 1, *req_move.get(), true);
   };
-  client_handler.sub(1, cb);
-
-  poll_runner runner{"secure_protocol runner"};
-  test_server server(runner, R"({ "port" : 7000, "concurrency" : 8 })", server_handler);
-  test_client client(runner, client_handler);
+  client_handler.sub(1, cb_2);
 
   auto rc = server.start();
 
@@ -98,7 +99,7 @@ TEST_CASE("faltbuffers")
 
   bool end = false;
 
-  while (client.recv_bytes_ < test_config::test_bytes)
+  while (client.recv_count_ < test_config::test_frame_count)
   {
     if (runner.poll_one() == 0)
     {
@@ -110,5 +111,5 @@ TEST_CASE("faltbuffers")
 
   auto elapsed = watch.stop();
 
-  LOG()->info("elapsed: {}, bytes; {}", elapsed, test_config::test_bytes);
+  LOG()->info("elapsed: {}, frames; {}", elapsed, test_config::test_frame_count);
 }
