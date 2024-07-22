@@ -15,9 +15,4 @@ void act_ensure::deactivate()
   on_deactivate();
 }
 
-void act_ensure::destroy()
-{
-  on_destroy();
-}
-
 }}}  // namespace play::robust::ensure

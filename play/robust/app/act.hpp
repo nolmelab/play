@@ -18,17 +18,11 @@ public:
   {
   }
 
-  // 생성
-  virtual bool create() = 0;
-
   // 활성
   virtual bool activate() = 0;
 
   // 비활성
   virtual void deactivate() = 0;
-
-  // 소멸
-  virtual void destroy() = 0;
 
   actor& get_owner()
   {
