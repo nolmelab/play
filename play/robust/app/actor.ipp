@@ -1,5 +1,6 @@
 #include <play/robust/app/actor.hpp>
 #include <play/robust/base/logger.hpp>
+#include <typeindex>
 
 namespace play { namespace robust { namespace app {
 

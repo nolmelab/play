@@ -1,6 +1,5 @@
 #pragma once
 
-#include <play/robust/app/object.hpp>
 #include <play/robust/app/service.hpp>
 #include <play/robust/net/client.hpp>
 #include <play/robust/net/frame/flatbuffer_handler.hpp>

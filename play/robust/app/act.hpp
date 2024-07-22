@@ -1,21 +1,20 @@
 #pragma once
 
-#include <play/robust/app/object.hpp>
+#include <memory>
 
 namespace play { namespace robust { namespace app {
 
 class actor;
 
 // actor내 행동들의 기반 클래스
-class act : public object<act>
+class act 
 {
 public:
   using ptr = std::shared_ptr<act>;
 
 public:
   act(actor& owner, std::string_view type_name)
-      : object{type_name},
-        owner_{owner}
+      : owner_{owner}
   {
   }
 

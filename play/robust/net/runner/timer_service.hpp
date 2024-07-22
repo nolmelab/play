@@ -9,10 +9,22 @@ class timer
 {
 public:
   using ref = std::shared_ptr<timer>;
+  using strand_type = asio::io_context::strand;
 
 public:
   timer(std::reference_wrapper<asio::io_context> ioc)
       : timer_{ioc.get()},
+        strand_{nullptr},
+        ms_{0},
+        set_{false},
+        once_{false},
+        repeat_{false}
+  {
+  }
+
+  timer(std::reference_wrapper<asio::io_context> ioc, strand_type* strand)
+      : timer_{ioc.get()},
+        strand_{strand},
         ms_{0},
         set_{false},
         once_{false},
@@ -33,8 +45,6 @@ public:
 
   void cancel();
 
-  // TODO: add strand timer interface
-
 private:
   template <typename CompletionToken>
   void repeat_call(asio::chrono::milliseconds interval_ms, CompletionToken&& handler,
@@ -42,6 +52,7 @@ private:
 
 private:
   asio::steady_timer timer_;
+  strand_type* strand_;
   asio::chrono::milliseconds ms_;
   std::atomic<bool> set_;  // used for cancel. hence requires safety.
   bool once_;
@@ -61,6 +72,14 @@ public:
 
   template <typename CompletionToken>
   timer::ref repeat(asio::chrono::milliseconds ms, CompletionToken&& handler);
+
+  template <typename CompletionToken>
+  timer::ref once(timer::strand_type& strand, asio::chrono::milliseconds ms,
+                  CompletionToken&& handler);
+
+  template <typename CompletionToken>
+  timer::ref repeat(timer::strand_type& strand, asio::chrono::milliseconds ms,
+                    CompletionToken&& handler);
 
 private:
   inline static base::object_pool<timer> pool_;

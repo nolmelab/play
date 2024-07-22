@@ -14,10 +14,49 @@ TEST_CASE("timer")
     ts.once(std::chrono::milliseconds(300),
             [](timer&)
             {
-              LOG()->info("timer once called");
+              LOG()->info("timer once called 1");
+            });
+
+    ts.once(std::chrono::milliseconds(300),
+            [](timer&)
+            {
+              LOG()->info("timer once called 2");
             });
 
     io.run();
+
+    io.restart();
+
+    auto t1 = ts.repeat(std::chrono::milliseconds(100),
+                        [](timer& timer)
+                        {
+                          LOG()->info("timer repeat called");
+                          timer.cancel();
+                        });
+
+    io.run();
+  }
+
+  SUBCASE("strand")
+  {
+    asio::io_context io;
+    asio::io_context::strand strand{io};
+    timer_service ts{io};
+
+    for ( int i=0; i<100; ++i)
+    {
+    ts.once(strand, std::chrono::milliseconds(300),
+            [i](timer&)
+            {
+              LOG()->info("timer once called {}", i);
+            });
+    }
+
+    // 쓰레드 2개로는 정확하게 알기 어렵지만 동작한다.
+    auto thread = std::thread([&io]() { io.run();});
+    io.run();
+
+    thread.join();
 
     io.restart();
 

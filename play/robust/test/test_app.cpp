@@ -28,8 +28,7 @@ public:
 class dummy_actor : public actor
 {
 public:
-  dummy_actor(std::string_view type_name)
-      : actor(type_name)
+  dummy_actor()
   {
   }
 
@@ -50,7 +49,7 @@ TEST_CASE("app")
   // app은 골격만 있어 테스트할 내용이 매우 적다.
   SUBCASE("actor")
   {
-    auto actor_1 = std::make_shared<dummy_actor>("actor");
+    auto actor_1 = std::make_shared<dummy_actor>();
     auto da = actor_1->create_act<dummy_act>();
     CHECK(actor_1->get_act<dummy_act>());
   }

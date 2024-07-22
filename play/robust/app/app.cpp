@@ -18,8 +18,8 @@ bool app::start(std::string_view jconf)
 
 void app::stop()
 {
+  runner_.stop(); // XXX: needs stop runner_ first?
   server_.stop();
-  runner_.stop();
 
   on_stop();
 }

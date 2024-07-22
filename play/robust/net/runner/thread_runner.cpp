@@ -6,7 +6,7 @@ namespace play { namespace robust { namespace net {
 thread_runner::thread_runner(size_t thread_count, const std::string& name)
     : runner(name),
       thread_count_{thread_count},
-      guard_{ioc_.get_executor()},
+      guard_{get_ioc().get_executor()},
       stop_{false}
 {
   if (thread_count == 0)
@@ -41,6 +41,7 @@ void thread_runner::stop()
 
   stop_ = true;
   guard_.reset();
+  get_ioc().stop(); // needs to call to escape from run()
 
   for (auto& thread : threads_)
   {

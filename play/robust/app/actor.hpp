@@ -2,8 +2,8 @@
 
 #include <map>
 #include <play/robust/app/act.hpp>
-#include <play/robust/app/object.hpp>
 #include <play/robust/base/dynamic_snowflake.hpp>
+#include <typeindex>
 
 namespace play { namespace robust { namespace app {
 
