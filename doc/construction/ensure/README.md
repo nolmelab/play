@@ -43,7 +43,7 @@ event 기반에 reactive 하게 동작하므로 HFSM이 더 잘 맞습니다. �
   - 구성 json 로딩 
   - bot 생성 
   - bot별로 flow 로딩과 act 생성 
-  
+
 
 
 ### 프로토콜 
@@ -54,18 +54,3 @@ act들에서 지정해야 합니다.
 
 - 다양한 프로토콜 지원 
 - 기본 프로토콜로 secure_protocol에 flatbuffer::NativeTable 프레임 지원 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
