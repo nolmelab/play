@@ -26,6 +26,12 @@ inline void flatbuffer_handler<Session>::recv(session_ptr se, topic pic, const v
   {
     auto& unpack_fn = iter->second;
     auto frame_ptr = unpack_fn(reinterpret_cast<const uint8_t*>(data), len);
+    if (!frame_ptr)
+    {
+      LOG()->error("frame unpack error. session: {} topic: {}", se->get_handle(), pic);
+      return;
+    }
+
     // dispatch
     {
       std::shared_lock guard(subs_lock_);
@@ -125,6 +131,7 @@ inline typename flatbuffer_handler<Session>::frame_ptr flatbuffer_handler<Sessio
 
   if (!result)
   {
+    LOG()->warn("flatbuffer verification error");
     return {};
   }
 

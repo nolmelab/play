@@ -111,12 +111,23 @@ bool session<Protocol>::send(topic pic, const void* data, size_t len, bool encry
   auto& acc_buf = send_bufs_[acc_buf_index_];  // write to the accumulation buffer
   // protocol::encode() prepare, encode, and commit
   auto cbuf = asio::const_buffer{data, len};
-  auto total_len = protocol_->encode(pic, cbuf, acc_buf, encrypt);
+
+  try 
+  {
+    auto total_len = protocol_->encode(pic, cbuf, acc_buf, encrypt);
+  }
+  catch ( std::exception& ex)
+  {
+    LOG()->error("protocol encode error. handle: {}", handle_);
+    close();
+    return false;
+  }
 
   if (!sending_)
   {
     start_send();
   }
+
 
   return false;
 }
@@ -302,10 +313,3 @@ size_t session<Protocol>::recv_frames()
 }
 
 }}}  // namespace play::robust::net
-
-// note:
-// - session<Protocol> dependent-name lookup. hence it requires to use this->
-//   or fully qualified function name for shared_from_this()
-// - streambuf의 commit의 pptr()을 앞으로 이동하고, consume()은 gptr()을 앞으로 이동
-//   - prepare에서 버퍼 이동해서 공간을 확보
-//   - 매번 헷갈려서 여러 곳에 적어 둔다.

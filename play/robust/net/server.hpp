@@ -38,6 +38,8 @@ public:
   // listen()부터 시작하여 서버를 시작
   bool start(std::string_view jconf);
 
+  bool start(nlohmann::json& jconf);
+
   // 세션 맵에서 세션을 찾아서 돌려줌
   session_ptr get_session(size_t handle);
 

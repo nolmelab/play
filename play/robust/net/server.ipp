@@ -25,8 +25,24 @@ bool server<Protocol, Frame>::start(std::string_view jconf)
 
   try
   {
-    jconf_ = nlohmann::json::parse(json_);
+    auto jconf = nlohmann::json::parse(json_);
+    return start(jconf);
+  }
+    catch (std::exception& ex)
+  {
+    LOG()->error("exception: {} while starting server", ex.what());
+    return false;
+  }
+}
 
+
+template <typename Protocol, typename Frame>
+bool server<Protocol, Frame>::start(nlohmann::json& jconf)
+{
+  jconf_ = jconf; // copy
+
+  try 
+  {
     auto port = jconf_["port"].get<uint16_t>();
     auto endpoint = tcp::endpoint{{}, port};
 
