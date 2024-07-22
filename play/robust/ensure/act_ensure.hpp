@@ -5,10 +5,10 @@
 
 namespace play { namespace robust { namespace ensure {
 
-class ensure_act : public app::act
+class act_ensure : public app::act
 {
 public:
-  ensure_act(app::actor& owner)
+  act_ensure(app::actor& owner)
       : app::act(owner)
   {
   }
@@ -18,12 +18,15 @@ public:
 
   void deactivate() override;
 
-  void destroy() override;
-
-  base::stop_watch& get_stop_watch() 
+  base::stop_watch& get_stop_watch()
   {
     return stop_watch_;
   }
+
+protected:
+  virtual bool on_activate() = 0;
+
+  virtual void on_deactivate() = 0;
 
 private:
   base::stop_watch stop_watch_;

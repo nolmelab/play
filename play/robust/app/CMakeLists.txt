@@ -5,7 +5,6 @@ find_package(spdlog CONFIG REQUIRED)
 # set sources for playground_core
 set(SOURCE 
   app.cpp
-  app_base.cpp
 )
 
 # set library target with sources

@@ -35,6 +35,30 @@ event 기반에 reactive 하게 동작하므로 HFSM이 더 잘 맞습니다. �
     - app::client
       - connect to server and communicate
 
+## 기능 
+
+### 기반 
+
+- ensure_app
+  - 구성 json 로딩 
+  - bot 생성 
+  - bot별로 flow 로딩과 act 생성 
+  
+
+
+### 프로토콜 
+
+여러 프로토콜을 지원할 수 있어야 합니다. 예를 들어, 가능하면 웹 테스트도 할 수 있고 
+레디스 테스트도 할 수 있습니다. 이렇게 하려면 봇에서 관리하는 프로토콜은 특정될 수 없고 
+act들에서 지정해야 합니다. 
+
+- 다양한 프로토콜 지원 
+- 기본 프로토콜로 secure_protocol에 flatbuffer::NativeTable 프레임 지원 
+
+
+
+
+
 
 
 
