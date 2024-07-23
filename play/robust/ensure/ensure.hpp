@@ -28,9 +28,6 @@ public:
   void stop() override;
 
 private:
-  virtual bool on_start();
-
-  virtual void on_stop();
 
 private:
   std::string config;

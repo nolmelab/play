@@ -2,7 +2,7 @@
 
 namespace play { namespace robust { namespace ensure {
 
-bool act_ensure::activate()
+bool act::activate()
 {
   // register timeout timer
   // access ensure application instance through bot
@@ -10,7 +10,7 @@ bool act_ensure::activate()
   return on_activate();
 }
 
-void act_ensure::deactivate()
+void act::deactivate()
 {
   on_deactivate();
 }

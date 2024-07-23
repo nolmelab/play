@@ -15,7 +15,7 @@ namespace play { namespace robust { namespace app {
 class actor : public std::enable_shared_from_this<actor>
 {
 public:
-  actor() {}
+  actor();
 
   ~actor() {}
 
@@ -25,17 +25,27 @@ public:
   // 종료
   virtual void stop() = 0;
 
+  // 동적으로 생성한 고유 아이디를 제공
+  size_t get_id() const;
+
   template <typename Act, typename... Args>
   bool create_act(Args&&... args);
 
   template <typename Act>
   std::shared_ptr<Act> get_act();
 
+  template <typename Act>
+  bool has_act();
+
+protected: 
+  virtual void on_created_act(const std::type_index& type_index, act::ptr ap);
+
 private:
   using act_map = std::map<std::type_index, act::ptr>;
 
 private:
   act_map acts_;
+  size_t id_;
 };
 
 }}}  // namespace play::robust::app

@@ -24,6 +24,7 @@ add_executable(
   learn_streambuf.cpp
   learn_function_ptr.cpp
   learn_flatbuffers.cpp
+  test_json.cpp
   test_app.cpp
   test_codecs.cpp
   test_flatbuffers.cpp

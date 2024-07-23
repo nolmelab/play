@@ -12,12 +12,10 @@ class bot : public app::actor
 public:
   bot(ensure& app, const nlohmann::json& json, const std::string& name, size_t index);
 
-  // flow를 로딩. 액트들을 생성. flow를 시작.
-  bool activate() final;
+  // flow를 로딩. flow를 시작.
+  bool start() final;
 
-  void deactivate() final;
-
-  void destroy() final;
+  void stop() final;
 
   ensure& get_app()
   {

@@ -17,3 +17,5 @@
     LOG()->warn("check fail. {} {}@{}", #cond, __FILE__, __LINE__); \
     assert(cond);                                                   \
   }
+
+#define PLAY_UNUSED(expr) do { (void)(expr); } while (0)

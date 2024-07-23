@@ -142,6 +142,12 @@ find_package(boost_asio CONFIG REQUIRED)
 - indent 옵션들 지정하면 됨 
 - SHIFT + ALT + F 로 포맷
 
+## c++17 
+
+c++20이 아직 clang이나 vscode와 같은 툴들에서 완전하게 지원하지 않는다. 
+불편한 점들이 있고 미묘한 차이들이 있으며 동작하지 않는 부분도 있다. 
+따라서, 현재로서는 c++17이 가장 적합한 표준으로 보인다.
+
 
 
 

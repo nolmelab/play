@@ -27,18 +27,21 @@ public:
         start_ = std::chrono::steady_clock::now();
     }
 
-    size_t next(uint8_t type)
+    size_t next()
     {
+        std::scoped_lock guard(lock_);
+
         auto now = std::chrono::steady_clock::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_).count();
         auto half = (elapsed << 24) & 0xFFFFFFFF; // 32 bit parts
-        size_t id = type;
+        size_t id = 0;
         auto seq = ++seq_;
-        seq = seq & 0x00FFFFFF; // 3 bytes
-        return id << 48 | half | seq_;
+        seq = seq & 0xFFFFFFFF; // 3 bytes
+        return half | seq_;
     }
 
 private:
+  std::recursive_mutex lock_;
   std::chrono::time_point<std::chrono::steady_clock> start_;
   std::atomic<uint32_t> seq_;  
 };

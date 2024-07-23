@@ -10,19 +10,17 @@ bot::bot(ensure& app, const nlohmann::json& json, const std::string& name, size_
 {
 }
 
-bool bot::activate()
+bool bot::start()
 {
   // create a flow
+  // - create acts
+  // activate the flow
+  // 
 }
 
-void bot::deactivate()
+void bot::stop()
 {
-  //
-}
-
-void bot::destroy()
-{
-  //
+  // deactivate the flow
 }
 
 }}}  // namespace play::robust::ensure
