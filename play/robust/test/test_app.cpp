@@ -11,35 +11,26 @@ class dummy_act : public act
 {
 public:
   dummy_act(actor& owner)
-      : act(owner, typeid(dummy_act).name())
+      : act(owner)
   {
   }
-
-  bool activate() final
-  {
-    return true;
-  }
-
-  void deactivate() final {}
-
-  void destroy() final {}
 };
 
 class dummy_actor : public actor
 {
 public:
-  dummy_actor()
-  {
-  }
+  dummy_actor() {}
 
-  bool activate() final
+  bool start() final
   {
     return true;
   }
 
-  void deactivate() final {}
-
-  void destroy() final {}
+  // 종료
+  void stop()
+  {
+    //
+  }
 };
 
 }  // namespace

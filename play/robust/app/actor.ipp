@@ -6,13 +6,13 @@
 
 namespace play { namespace robust { namespace app {
 
-actor::actor() 
+inline actor::actor() 
 {
   id_ = base::dynamic_snowflake::get().next();
 }
 
 template <typename Act, typename... Args>
-bool actor::create_act(Args&&... args)
+inline bool actor::create_act(Args&&... args)
 {
   auto act = std::make_shared<Act>(*this, std::forward(args)...);
   auto index = std::type_index{typeid(Act)};
@@ -31,7 +31,7 @@ bool actor::create_act(Args&&... args)
 }
 
 template <typename Act>
-std::shared_ptr<Act> actor::get_act()
+inline std::shared_ptr<Act> actor::get_act()
 {
   auto index = std::type_index{typeid(Act)};
   auto iter = acts_.find(index);
@@ -43,14 +43,14 @@ std::shared_ptr<Act> actor::get_act()
 }
 
 template <typename Act>
-bool actor::has_act()
+inline bool actor::has_act()
 {
   auto index = std::type_index{typeid(Act)};
   auto iter = acts_.find(index);
   return iter != acts_.end();
 }
 
-void actor::on_created_act(const std::type_index& type_index, act::ptr ap)
+inline void actor::on_created_act(const std::type_index& type_index, act::ptr ap)
 {
   PLAY_UNUSED(type_index);
   PLAY_UNUSED(ap);

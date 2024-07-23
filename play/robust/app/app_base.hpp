@@ -22,10 +22,6 @@ public:
 public:
   app_base() {}
 
-  virtual bool start(std::string_view json) = 0;
-
-  virtual void stop() = 0;
-
   template <typename Service, typename... Args>
   bool create_service(Args&&... args);
 

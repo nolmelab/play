@@ -15,6 +15,9 @@ namespace play { namespace robust { namespace app {
 class actor : public std::enable_shared_from_this<actor>
 {
 public:
+  using ptr = std::shared_ptr<actor>;
+
+public:
   actor();
 
   ~actor() {}
@@ -37,7 +40,7 @@ public:
   template <typename Act>
   bool has_act();
 
-protected: 
+protected:
   virtual void on_created_act(const std::type_index& type_index, act::ptr ap);
 
 private:

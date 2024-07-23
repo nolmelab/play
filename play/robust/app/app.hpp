@@ -31,9 +31,9 @@ public:
   {
   }
 
-  bool start(std::string_view jconf) override;
+  bool start(std::string_view jconf);
 
-  void stop() override;
+  void stop();
 
   frame_handler& get_handler()
   {

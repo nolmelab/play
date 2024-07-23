@@ -2,6 +2,7 @@
 
 #include <play/robust/app/act.hpp>
 #include <play/robust/base/stop_watch.hpp>
+#include <string>
 
 namespace play { namespace robust { namespace ensure {
 
@@ -9,8 +10,8 @@ class act : public app::act
 {
 public:
   act(app::actor& owner, act::ptr parent, const std::string& name)
-      : app::act(owner), 
-        parent_{parent}, 
+      : app::act(owner),
+        parent_{parent},
         name_{name}
   {
     build_path();
@@ -25,12 +26,12 @@ public:
     return path_;
   }
 
-  const std::string& get_name() const 
+  const std::string& get_name() const
   {
     return name_;
   }
 
-  ptr get_parent() const 
+  ptr get_parent() const
   {
     return parent_;
   }
@@ -40,12 +41,12 @@ public:
     return stop_watch_;
   }
 
-protected: 
+protected:
   virtual bool on_activate();
 
   virtual void on_deactivate();
 
-private: 
+private:
   void build_path();
 
 private:

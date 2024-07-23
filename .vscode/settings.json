@@ -1,6 +1,6 @@
 {
   "_cmake.sourceDirectory": "/workspaces/robust/play",
-  "cmake.sourceDirectory": "/workspaces/robust/play",
+  "cmake.sourceDirectory": "/home/kdpark/playrobust/play",
   "cmake.configureSettings": {
     "_CMAKE_TOOLCHAIN_FILE": "c:/app/vcpkg/scripts/buildsystems/vcpkg.cmake",
     "_VCPKG_TARGET_TRIPLET": "x64-windows-static",

@@ -10,6 +10,9 @@ class ensure;
 class bot : public app::actor
 {
 public:
+  using ptr = std::shared_ptr<bot>;  // override actor::ptr
+
+public:
   bot(ensure& app, const nlohmann::json& json, const std::string& name, size_t index);
 
   // flow를 로딩. flow를 시작.
