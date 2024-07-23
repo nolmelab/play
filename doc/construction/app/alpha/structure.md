@@ -12,7 +12,34 @@
   - 응답이 항상 보장되는 호출 서비스이다. 
   - 취소 기능은 지원하지 않는다. 
 
-## naming convention 
+## service / system / actor / act
+
+### logical structure 
+
+actors act in service or in system. 
+This is the main idea of application structure model of play. 
+
+- act can be connected with signal2 slots. 
+- persistent acts load or save data from db in db_runner and completed in its own strand. 
+- bt acts are controlled by bt act (act_bt)
+
+### processing structure 
+
+server application reacts to messages and timers 
+- timers can drive active actions 
+- message are handled reactively 
+- posting timers and messages are the key of processing 
+  - either in multithread context or 
+  - in dedicated strand 
+
+let's call messages and timers events
+
+chain of events are delivered to acts of actors. 
+those are handled and responded. 
+
+there are minor (important) details, but the above is the basics (fundamental).
+
+## message naming convention 
 
 메세지를 일관되게 이름 지으면 이해하기 편리합니다. 프로젝트별로 선호하는 방식을 취하면 됩니다. 
 일관성이 가장 중요합니다. 
