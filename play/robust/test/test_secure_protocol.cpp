@@ -93,7 +93,7 @@ void run_test(std::string_view name)
   test_server server(runner);
   test_client client(runner);
 
-  auto rc = server.start(R"({ "port" : 7000, "concurrency" : 8 })");
+  auto rc = server.start(7000);
 
   play::robust::base::stop_watch watch;
 

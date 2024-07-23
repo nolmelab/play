@@ -90,7 +90,7 @@ TEST_CASE("faltbuffers")
   };
   client_handler.sub(1, cb_2);
 
-  auto rc = server.start(R"({"port" : 7000, "concurrency" : 8 })");
+  auto rc = server.start(7000);
 
   play::robust::base::stop_watch watch;
 

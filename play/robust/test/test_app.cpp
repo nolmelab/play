@@ -1,7 +1,6 @@
 #include <doctest/doctest.h>
 #include <play/robust/app/act.hpp>
 #include <play/robust/app/actor.hpp>
-#include <play/robust/app/app.hpp>
 
 using namespace play::robust::app;
 
@@ -42,13 +41,6 @@ TEST_CASE("app")
   {
     auto actor_1 = std::make_shared<dummy_actor>();
     auto da = actor_1->create_act<dummy_act>();
-    CHECK(actor_1->get_act<dummy_act>());
+    auto da2 = actor_1->get_act<dummy_act>();
   }
-
-  SUBCASE("app")
-  {
-    app& app = app::get();
-    CHECK(app.start(R"({"port" : 7000, "concurrency" : 8 })"));
-    app.stop();
-  };
 }

@@ -17,33 +17,10 @@ server<Protocol, Frame>::server(runner& runner)
 }
 
 template <typename Protocol, typename Frame>
-bool server<Protocol, Frame>::start(std::string_view jconf)
+bool server<Protocol, Frame>::start(uint16_t port)
 {
-  json_ = jconf;
-
-  LOG()->info("server starting...");
-
   try
   {
-    auto jconf = nlohmann::json::parse(json_);
-    return start(jconf);
-  }
-    catch (std::exception& ex)
-  {
-    LOG()->error("exception: {} while starting server", ex.what());
-    return false;
-  }
-}
-
-
-template <typename Protocol, typename Frame>
-bool server<Protocol, Frame>::start(nlohmann::json& jconf)
-{
-  jconf_ = jconf; // copy
-
-  try 
-  {
-    auto port = jconf_["port"].get<uint16_t>();
     auto endpoint = tcp::endpoint{{}, port};
 
     acceptor_ = std::make_unique<acceptor>(runner_.get_ioc());

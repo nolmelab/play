@@ -35,10 +35,7 @@ public:
   // frame_subclass_handler를 사용하여 subclass 인터페이스를 지원
   server(runner& runner);
 
-  // listen()부터 시작하여 서버를 시작
-  bool start(std::string_view jconf);
-
-  bool start(nlohmann::json& jconf);
+  bool start(uint16_t port);
 
   // 세션 맵에서 세션을 찾아서 돌려줌
   session_ptr get_session(size_t handle);
@@ -88,7 +85,6 @@ private:
   runner& runner_;
   std::string json_;
   frame_handler& frame_handler_;
-  nlohmann::json jconf_;
   std::unique_ptr<acceptor> acceptor_;
   session_map sessions_;
   shared_mutex mutex_;

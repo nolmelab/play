@@ -13,7 +13,7 @@ class actor;
  * 
  * @see act_ensure
  */
-class act 
+class act : public std::enable_shared_from_this<act>
 {
 public:
   using ptr = std::shared_ptr<act>;

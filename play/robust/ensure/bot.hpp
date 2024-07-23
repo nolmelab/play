@@ -2,6 +2,7 @@
 
 #include <nlohmann/json.hpp>
 #include <play/robust/app/actor.hpp>
+#include <play/robust/ensure/flow.hpp>
 
 namespace play { namespace robust { namespace ensure {
 
@@ -45,6 +46,7 @@ private:
   nlohmann::json json_;
   std::string name_;
   size_t index_;
+  std::unique_ptr<flow> flow_;
 };
 
 }}}  // namespace play::robust::ensure

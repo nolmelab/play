@@ -92,7 +92,7 @@ TEST_CASE("communication")
     test_server server(runner);
     test_client client(runner);
 
-    auto rc = server.start(R"({ "port" : 7000, "concurrency" : 8 })");
+    auto rc = server.start(7000);
 
     client.connect("127.0.0.1", 7000);
     runner.poll_one();
@@ -116,7 +116,7 @@ TEST_CASE("communication")
     test_server server(runner);
     test_client client(runner);
 
-    auto rc = server.start(R"({ "port" : 7000, "concurrency" : 8 })");
+    auto rc = server.start(7000);
 
     client.connect("127.0.0.1", 7000);
     runner.poll_one();
