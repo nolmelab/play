@@ -19,14 +19,11 @@ public:
 
   ~actor() {}
 
-  // 활성화 하여 시작할 준비
-  virtual bool activate() = 0;
+  // 시작
+  virtual bool start() = 0;
 
-  // 비활성화 하여 쉬도록 함
-  virtual void deactivate() = 0;
-
-  // 완전한 종료 처리
-  virtual void destroy() = 0;
+  // 종료
+  virtual void stop() = 0;
 
   template <typename Act, typename... Args>
   bool create_act(Args&&... args);
