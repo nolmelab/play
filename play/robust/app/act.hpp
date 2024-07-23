@@ -17,7 +17,7 @@ public:
   using ptr = std::shared_ptr<act>;
 
 public:
-  act(actor& owner, std::string_view type_name)
+  act(actor& owner)
       : owner_{owner}
   {
   }

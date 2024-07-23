@@ -13,17 +13,19 @@ public:
   {
   }
 
-  // timeout 타이머를 등록. 주기적으로 확인.
-  bool activate() override;
+  bool activate();
 
-  void deactivate() override;
-
-  void destroy() override;
+  void deactivate();
 
   base::stop_watch& get_stop_watch() 
   {
     return stop_watch_;
   }
+
+protected: 
+  virtual bool on_activate();
+
+  virtual void on_deactivate();
 
 private:
   base::stop_watch stop_watch_;
