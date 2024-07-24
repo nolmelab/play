@@ -93,5 +93,4 @@
     "regex": "cpp",
     "span": "cpp"
   },
-  "cmake.sourceDirectory": "/home/kdpark/playrobust/play"
 }
