@@ -25,9 +25,13 @@ protected:
   std::pair<size_t, act::ptr> find_act(const std::string& name) const;
 
 private:
-  void jump(const std::string& path) override;
+  bool on_activate() final;
 
-  void next() override;
+  void on_deactivate() final;
+
+  void jump(const std::string& path) final;
+
+  void next() final;
 
   void jump_child(const std::string& path);
 

@@ -20,10 +20,6 @@ public:
   flow(app::actor& bt, const nlohmann::json& json);
 
 private:
-  bool on_activate() final;
-
-  void on_deactivate() final;
-
   void exit() final;
 };
 

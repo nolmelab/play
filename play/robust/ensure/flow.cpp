@@ -12,22 +12,6 @@ flow::flow(app::actor& bt, const nlohmann::json& json)
 {
 }
 
-bool flow::on_activate()
-{
-  if (load_acts())
-  {
-    PLAY_CHECK(get_current_act() == get_acts()[0]);
-    return get_current_act()->activate();
-  }
-
-  return false;
-}
-
-void flow::on_deactivate()
-{
-  get_current_act()->deactivate();
-}
-
 void flow::exit()
 {
   get_owner().stop();

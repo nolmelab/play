@@ -1,8 +1,22 @@
-#pragma once
-
 #include <play/robust/ensure/act_serial.hpp>
 
 namespace play { namespace robust { namespace ensure {
+
+bool act_serial::on_activate()
+{
+  if (load_acts())
+  {
+    PLAY_CHECK(get_current_act() == get_acts()[0]);
+    return get_current_act()->activate();
+  }
+
+  return false;
+}
+
+void act_serial::on_deactivate()
+{
+  get_current_act()->deactivate();
+}
 
 void act_serial::jump(const std::string& path)
 {

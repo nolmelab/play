@@ -22,7 +22,7 @@ bool act_composite::load_acts()
     auto type = base::json_reader::read(jact, "type", std::string{});
     auto name = base::json_reader::read(jact, "name", std::string{});
 
-    auto ap = act_factory::get().create(type, get_owner(), shared(), jact, name);
+    auto ap = act_factory::get().create(type, get_owner(), self(), jact, name);
     PLAY_CHECK(ap);
     if (ap)
     {

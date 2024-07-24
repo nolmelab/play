@@ -59,6 +59,15 @@ public:
 
   void deactivate();
 
+  // jump to the act at path.
+  virtual void jump(const std::string& path);
+
+  // move to the next act (act_serial)
+  virtual void next();
+
+  // exit by stop bot
+  virtual void exit();
+
   const path& get_path() const
   {
     return path_;
@@ -89,12 +98,6 @@ protected:
   // activate()에서 on_activate() 호출 전 실행
   virtual void on_load_json();
 
-  virtual void jump(const std::string& path);
-
-  virtual void next();
-
-  virtual void exit();
-
   // 지정된 명령에 따라 부모에 요청
   void signal(std::string_view sig, std::string_view message);
 
@@ -113,7 +116,7 @@ protected:
     return json_;
   }
 
-  act::ptr shared() const
+  ptr self()
   {
     return std::static_pointer_cast<act>(this->shared_from_this());
   }

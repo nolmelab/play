@@ -1,8 +1,30 @@
-#pragma once
-
 #include <play/robust/ensure/act_parallel.hpp>
 
 namespace play { namespace robust { namespace ensure {
+
+bool act_parallel::on_activate()
+{
+  if (load_acts())
+  {
+    for (auto& ap : get_acts())
+    {
+      auto rc = ap->activate();
+      if (!rc)
+        return false;
+    }
+    return true;
+  }
+
+  return false;
+}
+
+void act_parallel::on_deactivate()
+{
+  for (auto& ap : get_acts())
+  {
+    ap->deactivate();
+  }
+}
 
 void act_parallel::jump(const std::string& path)
 {

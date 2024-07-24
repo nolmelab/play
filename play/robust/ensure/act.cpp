@@ -1,3 +1,4 @@
+#include <play/robust/base/json_reader.hpp>
 #include <play/robust/base/macros.hpp>
 #include <play/robust/base/string_util.hpp>
 #include <play/robust/ensure/act.hpp>
@@ -37,7 +38,38 @@ void act::exit()
 
 void act::signal(std::string_view sig, std::string_view message)
 {
-  // read command and call functions
+  auto jslots = json_["slots"];
+  if (jslots.is_object())
+  {
+    // command: { "success" : { "cmd" : "jump", "target" : "/battle/move"}}
+    auto jsig = base::json_reader::read(jslots, std::string{sig}, nlohmann::json{});
+    if (jsig.is_object())
+    {
+      auto cmd = base::json_reader::read(jsig, "cmd", std::string{});
+
+      if (cmd == "jump")
+      {
+        auto target = base::json_reader::read(jsig, "target", std::string{});
+        jump(target);
+      }
+      else if (cmd == "next")
+      {
+        next();
+      }
+      else if (cmd == "exit")
+      {
+        exit();
+      }
+      else
+      {
+        LOG()->error("unknown command: {} in act: {}", cmd, get_name());
+      }
+    }
+    else
+    {
+      LOG()->error("signal: {} when slots are empty in act: {}", sig, get_name());
+    }
+  }
 }
 
 void act::build_path()
