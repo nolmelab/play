@@ -1,6 +1,6 @@
-#include <play/robust/ensure/act_parallel.hpp>
+#include <play/ensure/act_parallel.hpp>
 
-namespace play { namespace robust { namespace ensure {
+namespace play { namespace ensure {
 
 bool act_parallel::on_activate()
 {
@@ -70,4 +70,4 @@ act::ptr act_parallel::find_act(const std::string& name) const
   return {};
 }
 
-}}}  // namespace play::robust::ensure
+}}  // namespace play::ensure

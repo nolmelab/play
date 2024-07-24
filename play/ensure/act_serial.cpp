@@ -1,6 +1,6 @@
-#include <play/robust/ensure/act_serial.hpp>
+#include <play/ensure/act_serial.hpp>
 
-namespace play { namespace robust { namespace ensure {
+namespace play { namespace ensure {
 
 bool act_serial::on_activate()
 {
@@ -79,4 +79,4 @@ std::pair<size_t, act::ptr> act_serial::find_act(const std::string& name) const
   return {0, {}};
 }
 
-}}}  // namespace play::robust::ensure
+}}  // namespace play::ensure

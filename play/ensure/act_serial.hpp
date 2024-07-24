@@ -1,9 +1,9 @@
 #pragma once
 
-#include <play/robust/base/macros.hpp>
-#include <play/robust/ensure/act_composite.hpp>
+#include <play/base/macros.hpp>
+#include <play/ensure/act_composite.hpp>
 
-namespace play { namespace robust { namespace ensure {
+namespace play { namespace ensure {
 
 class act_serial : public act_composite
 {
@@ -39,4 +39,4 @@ private:
   size_t current_act_index_{0};
 };
 
-}}}  // namespace play::robust::ensure
+}}  // namespace play::ensure

@@ -121,6 +121,11 @@ E. #include <boost/asio.hpp> 참조 찾기가 안 된다.
 > out 폴더를 지우고 cache를 다시 생성하니 된다. 
 > cmake는 캐시에 매우 많이 의존한다. 잘 써야 한다. 
 
+### cmake 문서 
+
+https://gist.github.com/luncliff/6e2d4eb7ca29a0afd5b592f72b80cb5c?permalink_comment_id=2831356
+매우 잘 정리된 K-스타일의 설명입니다.
+
 ### vcpkg 설치 이슈 
 
 기존에 설치된 vcpkg가 제대로 설치되지 않은 것을 알고 재설치를 진행

@@ -1,11 +1,8 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
-<<<<<<< HEAD:play/ensure/flow.hpp
 #include <play/ensure/act.hpp>
-=======
-#include <play/robust/ensure/act_serial.hpp>
->>>>>>> 91c59b068a24bbbadad9bbc480851488feb7e86b:play/robust/ensure/flow.hpp
+#include <play/ensure/act_serial.hpp>
 
 namespace play { namespace ensure {
 

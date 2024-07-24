@@ -1,12 +1,7 @@
-<<<<<<< HEAD:play/ensure/act.cpp
+#include <play/base/json_reader.hpp>
 #include <play/base/macros.hpp>
+#include <play/base/string_util.hpp>
 #include <play/ensure/act.hpp>
-=======
-#include <play/robust/base/json_reader.hpp>
-#include <play/robust/base/macros.hpp>
-#include <play/robust/base/string_util.hpp>
-#include <play/robust/ensure/act.hpp>
->>>>>>> 91c59b068a24bbbadad9bbc480851488feb7e86b:play/robust/ensure/act.cpp
 #include <stack>
 
 namespace play { namespace ensure {

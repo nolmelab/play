@@ -28,16 +28,12 @@ private:
   creator_map creators_;
 };
 
-<<<<<<< HEAD:play/ensure/act_factory.hpp
 }}  // namespace play::ensure
-=======
-}}}  // namespace play::robust::ensure
 
 #define PLAY_REG_ACT(act_type)                                                                    \
-  act::factory::get().reg(                                                                        \
+  ::play::ensure::act_factory::get().reg(                                                                        \
       #act_type,                                                                                  \
       [](app::actor& owner, act::ptr parent, const nlohmann::json& json, const std::string& name) \
       {                                                                                           \
         return std::make_shared<act_type>(owner, parent, json, name);                             \
       })
->>>>>>> 91c59b068a24bbbadad9bbc480851488feb7e86b:play/robust/ensure/act_factory.hpp

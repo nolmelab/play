@@ -1,9 +1,9 @@
 #pragma once
 
-#include <play/robust/base/macros.hpp>
-#include <play/robust/ensure/act_composite.hpp>
+#include <play/base/macros.hpp>
+#include <play/ensure/act_composite.hpp>
 
-namespace play { namespace robust { namespace ensure {
+namespace play { namespace ensure {
 
 class act_parallel : public act_composite
 {
@@ -26,4 +26,4 @@ private:
   void jump_child(const std::string& path);
 };
 
-}}}  // namespace play::robust::ensure
+}}  // namespace play::ensure

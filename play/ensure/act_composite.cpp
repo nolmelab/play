@@ -1,10 +1,10 @@
-#include <play/robust/base/json_reader.hpp>
-#include <play/robust/base/logger.hpp>
-#include <play/robust/base/macros.hpp>
-#include <play/robust/ensure/act_composite.hpp>
-#include <play/robust/ensure/act_factory.hpp>
+#include <play/base/json_reader.hpp>
+#include <play/base/logger.hpp>
+#include <play/base/macros.hpp>
+#include <play/ensure/act_composite.hpp>
+#include <play/ensure/act_factory.hpp>
 
-namespace play { namespace robust { namespace ensure {
+namespace play { namespace ensure {
 
 bool act_composite::load_acts()
 {
@@ -38,4 +38,4 @@ bool act_composite::load_acts()
   return true;
 }
 
-}}}  // namespace play::robust::ensure
+}}  // namespace play::ensure

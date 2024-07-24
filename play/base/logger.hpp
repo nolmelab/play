@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 #include <atomic>
 #include <memory>
+#include <string_view>
 
 namespace play { namespace base {
 

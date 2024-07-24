@@ -1,8 +1,8 @@
 #pragma once
 
-#include <play/robust/ensure/act.hpp>
+#include <play/ensure/act.hpp>
 
-namespace play { namespace robust { namespace ensure {
+namespace play { namespace ensure {
 
 class act_composite : public act
 {
@@ -25,4 +25,4 @@ private:
   std::vector<act::ptr> acts_;  // this is the sequential flow
 };
 
-}}}  // namespace play::robust::ensure
+}}  // namespace play::ensure
