@@ -1,11 +1,12 @@
-cmake_minimum_required(VERSION 3.16)
+# disable warning on checked_iterator 
+add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING=1)
 
-project("playrobust")
+# adding following line causes an compile error
+#add_compile_definitions(_WIN32_WINNT=0x060)
 
-# c++20 is not completely supported by all compilers and platforms
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED true)
-
-add_subdirectory(robust )
+add_subdirectory(base)
+add_subdirectory(net)
 add_subdirectory(app)
-add_subdirectory(external)
+add_subdirectory(ensure)
+add_subdirectory(db)
+add_subdirectory(test)

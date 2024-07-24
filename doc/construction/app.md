@@ -1,6 +1,6 @@
 # app 
 
-- play::robust::app 
+- play::app 
 
 - server 
     - topic_handler 

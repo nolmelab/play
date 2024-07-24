@@ -31,7 +31,7 @@ protocol::sub_topic(topic, handler);
 
 ## design 
 
-- play::robust::net namespace
+- play::net namespace
 
 - [protocol](./net/protocol.md)
   - cipher
