@@ -14,7 +14,7 @@ bot::bot(ensure& app, const nlohmann::json& json, const std::string& name, size_
 
 bool bot::start()
 {
-  flow_ = std::make_unique<flow>(*this, json_["flow"]);
+  flow_ = std::make_unique<flow>(*this, json_);
   auto rc = flow_->activate();
   if (rc)
   {

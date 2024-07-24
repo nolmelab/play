@@ -6,9 +6,13 @@ find_package(spdlog CONFIG REQUIRED)
 set(SOURCE 
   ensure.cpp
   bot.cpp
-  act.cpp
-  flow.cpp
+  act_composite.cpp
   act_factory.cpp
+  act_parallel.cpp
+  act_serial.cpp
+  act.cpp
+  bot.cpp
+  flow.cpp
 )
 
 # set library target with sources
