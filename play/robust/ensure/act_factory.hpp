@@ -29,3 +29,11 @@ private:
 };
 
 }}}  // namespace play::robust::ensure
+
+#define PLAY_REG_ACT(act_type)                                                                    \
+  act::factory::get().reg(                                                                        \
+      #act_type,                                                                                  \
+      [](app::actor& owner, act::ptr parent, const nlohmann::json& json, const std::string& name) \
+      {                                                                                           \
+        return std::make_shared<act_type>(owner, parent, json, name);                             \
+      })
