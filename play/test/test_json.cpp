@@ -33,7 +33,7 @@ TEST_CASE("json")
                {"nothing", nullptr},
                {"answer", {{"everything", 42}},
                {"list", {1, 0, 2}},
-               {"object", {{"currency", "USD"}, {"value", 42.99}}};
+               {"object", {{"currency", "USD"}, {"value", 42.99}}}}};
 
     SUBCASE("nested key")
     {
@@ -87,7 +87,7 @@ TEST_CASE("learn")
                {"nothing", nullptr},
                {"answer", {{"everything", 42}},
                {"list", {1, 0, 2}},
-               {"object", {{"currency", "USD"}, {"value", 42.99}}};
+               {"object", {{"currency", "USD"}, {"value", 42.99}}}}};
 
     // what's the magic behind?
     // initializer list를 받아서 basic_json을 만든다.
