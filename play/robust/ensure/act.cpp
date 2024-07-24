@@ -77,7 +77,7 @@ bool act::path::is_relative_path(const std::string& path)
   return (path.length() > 0 && path[0] != '/');
 }
 
-std::string act::path::get_last_act_name(const std::string& path)
+std::string act::path::get_last_act(const std::string& path)
 {
   PLAY_CHECK(!path.empty());
   auto parts = base::string_util::split(path, "/");

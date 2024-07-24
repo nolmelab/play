@@ -22,7 +22,7 @@ public:
     static bool is_relative_path(const std::string& path);
 
     // 마지막 act 이름 얻기
-    static std::string get_last_act_name(const std::string& path);
+    static std::string get_last_act(const std::string& path);
 
     // path 절대 경로가 self_path 절대 경로의 자식인지 확인
     static bool is_child_of(const std::string& self_path, const std::string& path);
