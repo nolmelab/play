@@ -19,9 +19,27 @@ void act::deactivate()
   active_ = false;
 }
 
+void act::jump(const std::string& path)
+{
+  // 내가 타겟
+  if (path == get_name())
+  {
+  }
+}
+
+void act::next()
+{
+  LOG()->warn("act::next not implemented");
+}
+
+void act::exit()
+{
+  get_parent()->exit();
+}
+
 void act::signal(std::string_view sig, std::string_view message)
 {
-  get_parent()->signal(sig, message);
+  // read command and call functions
 }
 
 void act::build_path()
@@ -47,5 +65,15 @@ void act::build_path()
 
   path_.append(get_name());
 }
+
+bool act::path::is_absolute_path(const std::string& path) {}
+
+bool act::path::is_relative_path(const std::string& path) {}
+
+std::string act::path::get_last_act_name(const std::string& path) {}
+
+std::string act::path::is_chlid_of(const std::string& self_path, const std::string& path) {}
+
+std::string act::path::get_child_path(const std::string& self_path, const std::string& path) {}
 
 }}}  // namespace play::robust::ensure

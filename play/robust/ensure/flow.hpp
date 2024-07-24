@@ -24,7 +24,13 @@ private:
 
   void on_deactivate() final;
 
-  void signal(std::string_view sig, std::string_view message) final;
+  void jump(const std::string& path) final;
+
+  void next() final;
+
+  void exit() final;
+
+  std::pair<size_t, act_ptr> find_act(const std::string& name) const;
 
   act_ptr get_current_act() const
   {

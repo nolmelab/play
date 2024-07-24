@@ -1,6 +1,8 @@
 #include <play/robust/base/json_reader.hpp>
 #include <play/robust/base/macros.hpp>
+#include <play/robust/base/string_util.hpp>
 #include <play/robust/ensure/act_factory.hpp>
+#include <play/robust/ensure/bot.hpp>
 #include <play/robust/ensure/flow.hpp>
 
 namespace play { namespace robust { namespace ensure {
@@ -34,9 +36,44 @@ void flow::on_deactivate()
   acts_.clear();
 }
 
-void flow::signal(std::string_view sig, std::string_view message)
+void flow::jump(const std::string& path)
 {
-  //
+  auto vs = base::string_util::split(path, "/");
+}
+
+void flow::next()
+{
+  get_current_act()->deactivate();
+
+  current_act_++;
+  if (current_act_ >= acts_.size())
+  {
+    LOG()->error("flow reached the end");
+  }
+  else
+  {
+    get_current_act()->activate();
+  }
+}
+
+void flow::exit()
+{
+  get_owner().stop();
+}
+
+std::pair<size_t, flow::act_ptr> flow::find_act(const std::string& name) const
+{
+  size_t index = 0;
+  for (auto& ap : acts_)
+  {
+    auto eap = std::static_pointer_cast<act>(ap);
+    if (eap->get_name() == name)
+    {
+      return {index, eap};
+    }
+    ++index;
+  }
+  return {0, {}};
 }
 
 }}}  // namespace play::robust::ensure
