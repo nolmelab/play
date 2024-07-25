@@ -27,16 +27,14 @@ TEST_CASE("json")
 
   SUBCASE("read 2")
   {
-    json j2 = {{"pi", 3.141},
-               {"happy", true},
-               {"name", "Niels"},
-               {"nothing", nullptr},
-               {"answer", {{"everything", 42}},
-               {"list", {1, 0, 2}},
-               {"object", {{"currency", "USD"}, {"value", 42.99}}}}};
+    json j2;
+    json jc;
+    jc["everything"] = 42;
+    j2["answer"] = jc;
 
     SUBCASE("nested key")
     {
+      // initializer list는 array 타잎으로 만듦
       auto v = json_reader::read(j2, "answer.everything", 0);
       CHECK(v == 42);
     }
@@ -85,9 +83,10 @@ TEST_CASE("learn")
                {"happy", true},
                {"name", "Niels"},
                {"nothing", nullptr},
-               {"answer", {{"everything", 42}},
-               {"list", {1, 0, 2}},
-               {"object", {{"currency", "USD"}, {"value", 42.99}}}}};
+               {"answer",
+                {{"everything", 42}},
+                {"list", {1, 0, 2}},
+                {"object", {{"currency", "USD"}, {"value", 42.99}}}}};
 
     // what's the magic behind?
     // initializer list를 받아서 basic_json을 만든다.

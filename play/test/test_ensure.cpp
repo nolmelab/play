@@ -1,7 +1,7 @@
 #include <doctest/doctest.h>
-#include <play/robust/ensure/act.hpp>
+#include <play/ensure/act.hpp>
 
-using namespace play::robust::ensure;
+using namespace play::ensure;
 
 TEST_CASE("ensure")
 {
@@ -16,7 +16,7 @@ TEST_CASE("ensure")
       CHECK(p1.parts_ == std::vector<std::string>{"a", "b"});
       CHECK(act::path::is_absolute_path(p1.full_path_));
       CHECK(!act::path::is_absolute_path(p1.act_name_));
-      CHECK(!act::path::is_relative_path(p1.act_name_));
+      CHECK(act::path::is_relative_path(p1.act_name_));
       CHECK(act::path::get_first_act(p1.full_path_) == "a");
       CHECK(act::path::get_last_act(p1.full_path_) == "b");
       CHECK(act::path::pop_head_act(p1.full_path_) == "b");

@@ -26,6 +26,7 @@ add_executable(
   learn_flatbuffers.cpp
   test_app.cpp
   test_codecs.cpp
+  test_ensure.cpp
   test_flatbuffers.cpp
   test_json.cpp
   test_logger.cpp
@@ -54,6 +55,7 @@ target_link_libraries(
   play_robust_base 
   play_robust_net
   play_robust_app
+  play_robust_ensure
   spdlog::spdlog 
   doctest::doctest
   unofficial-sodium::sodium

@@ -36,6 +36,15 @@ void act::exit()
   get_parent()->exit();
 }
 
+bool act::on_activate()
+{
+  return true;
+}
+
+void act::on_deactivate() {}
+
+void act::on_load_json() {}
+
 void act::signal(std::string_view sig, std::string_view message)
 {
   auto jslots = json_["slots"];
@@ -50,7 +59,7 @@ void act::signal(std::string_view sig, std::string_view message)
       if (cmd == "jump")
       {
         auto target = base::json_reader::read(jsig, "target", std::string{});
-        jump(target);
+        jump(target);  // XXX: target check? how?
       }
       else if (cmd == "next")
       {
@@ -125,7 +134,7 @@ std::string act::path::get_child_path(const std::string& self_path, const std::s
 {
   if (act::path::is_child_of(self_path, path))
   {
-    return path.substr(self_path.length());
+    return path.substr(self_path.length() + 1);
   }
   return {};
 }
