@@ -30,10 +30,11 @@ private:
 
 }}  // namespace play::ensure
 
-#define PLAY_REG_ACT(act_type)                                                                    \
-  ::play::ensure::act_factory::get().reg(                                                                        \
-      #act_type,                                                                                  \
-      [](app::actor& owner, act::ptr parent, const nlohmann::json& json, const std::string& name) \
-      {                                                                                           \
-        return std::make_shared<act_type>(owner, parent, json, name);                             \
+#define PLAY_REG_ACT(act_type)                                                                   \
+  ::play::ensure::act_factory::get().reg(                                                        \
+      #act_type,                                                                                 \
+      [](::play::app::actor& owner, ::play::ensure::act::ptr parent, const nlohmann::json& json, \
+         const std::string& name)                                                                \
+      {                                                                                          \
+        return std::make_shared<act_type>(owner, parent, json, name);                            \
       })

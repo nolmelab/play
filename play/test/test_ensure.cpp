@@ -1,10 +1,46 @@
 #include <doctest/doctest.h>
 #include <play/ensure/act.hpp>
+#include <play/ensure/act_factory.hpp>
+#include <play/ensure/act_parallel.hpp>
+#include <play/ensure/act_serial.hpp>
+#include <play/ensure/bot.hpp>
+#include <play/ensure/ensure.hpp>
+#include <play/ensure/flow.hpp>
 
 using namespace play::ensure;
 
+namespace {
+
+class mockup_actor : public ::play::app::actor
+{
+public:
+  bool start() final
+  {
+    return true;
+  }
+
+  void stop() final {}
+};
+
+}  // namespace
+
 TEST_CASE("ensure")
 {
+  SUBCASE("act_factory")
+  {
+    PLAY_REG_ACT(act_serial);
+    PLAY_REG_ACT(act_parallel);
+
+    mockup_actor owner;
+    auto ap = act_factory::get().create("act_serial", owner, {}, "{}", "test");
+    CHECK(!!ap);
+    CHECK(ap->get_name() == "test");
+    CHECK(std::addressof(ap->get_owner()) == std::addressof(owner));
+
+    auto ap2 = act_factory::get().create("act_none", owner, {}, "{}", "test");
+    CHECK(!ap2);
+  }
+
   SUBCASE("act::path")
   {
     SUBCASE("basics")
@@ -32,4 +68,6 @@ TEST_CASE("ensure")
       CHECK(act::path::get_child_path(p2.full_path_, p1.full_path_) == "cc/dd");
     }
   }
+
+  SUBCASE("act_serial") {}
 }
