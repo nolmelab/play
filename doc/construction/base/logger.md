@@ -7,8 +7,8 @@ simple is the best.
 
 ## build 
 
-- playrobust_base as a library target
-- test project uses playrobust_base 
+- playplay_base as a library target
+- test project uses playplay_base 
 
 
 ### build error: 
@@ -35,7 +35,7 @@ but it does not help much.
 [4] dynamic link 
 
 - set static 
-- target_compile_options(play_robust_base PRIVATE /MT)
+- target_compile_options(play_play_base PRIVATE /MT)
   - still error with _ITERATOR_DEBUG_LEVEL and RuntimeLibrary 
   - /MTd works 
   - needs to make it optional for MSVC 

@@ -1,7 +1,7 @@
 # base
 
 - assertion
-  - server requires to log. Hence, ROBUST_ASSERT() to log.
+  - server requires to log. Hence, play_ASSERT() to log.
   - logging can be disabled. 
 
 - macros

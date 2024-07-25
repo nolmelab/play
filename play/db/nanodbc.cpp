@@ -13,7 +13,7 @@
 #pragma warning(disable : 4996)  // warning about deprecated declaration
 #endif
 
-// changed to adapt inside play::robust
+// changed to adapt inside play::play
 #include <play/db/nanodbc.h>
 
 #include <algorithm>

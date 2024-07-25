@@ -45,7 +45,7 @@
         - instance 
 
 The detailed implementation is also important. 
-Robust implementation with lambda is the core. 
+play implementation with lambda is the core. 
 - capture actors to safely callback 
 - handle edge cases 
 

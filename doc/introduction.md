@@ -1,6 +1,6 @@
 # Introduction 
 
-robust is a game server foundation focusing on MMORPG and MORPG. 
+play is a game server foundation focusing on MMORPG and MORPG. 
 
 It aims to be used as: 
 - a library to build games 

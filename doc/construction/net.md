@@ -51,7 +51,7 @@ protocol::sub_topic(topic, handler);
 
 - protocol 
 
-- playrobust::net::executor<Runner>
+- playplay::net::executor<Runner>
   - thread singleton using thread local pointer
     - executor::get() returns the current executor for the thread
   - detail:thead_runner, detail::poll_runner

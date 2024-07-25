@@ -1,6 +1,6 @@
 # Dependency
 
-libraries that robust depends on are listed. 
+libraries that play depends on are listed. 
 
 ## vcpkg libraries
 

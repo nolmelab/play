@@ -1,8 +1,8 @@
 # Usage Model 
 
-robust is different from other products. 
+play is different from other products. 
 
-robust is a foundation to build games, meaning: 
+play is a foundation to build games, meaning: 
 - it is a skeleton of an mmorpg with important features 
 - it is intended to be modified instead of linked as an library.
 

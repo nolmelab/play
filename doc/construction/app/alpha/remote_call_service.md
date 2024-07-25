@@ -7,7 +7,7 @@ rcs::get_remote("").create(topic, frame_ptr, strand).then().fail().call();
 rcs::get_remote("").create(topic, frame_ptr).then().fail().call(); 
 
 위와 같은 아이디어를 node.js에서 많이 봤습니다. 비동기 처리를 이어가기위한 인터페이스입니다. 
-play::robust의 통신 기능의 최종 인터페이스인 flabuffer_handler와 연계하여 
+play::play의 통신 기능의 최종 인터페이스인 flabuffer_handler와 연계하여 
 어떻게 구조를 만들 수 있을까요? 
 
 
@@ -31,7 +31,7 @@ actor 수준에서도 호출 가능해야 하고 안정적이어야 합니다.
 - strand 호출과 아닌 경우를 분리하면 됩니다. 
 
 앱에서 적절히 편하게 쓸 수 있도록 하고 RPC 구현 방향으로 가지는 않습니다. 
-play::robust의 통신 기능을 충분히 사용하고 flatbuffer_handler의 기능을 
+play::play의 통신 기능을 충분히 사용하고 flatbuffer_handler의 기능을 
 활용하기위해 메세지 정의에 rpc 정보를 일부 (호출 ID)를 포함해서 구현합니다. 
 
 

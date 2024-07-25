@@ -22,8 +22,8 @@ endif()
 # add link libraries. playground_core is available with cmake
 target_link_libraries(
   perf 
-  play_robust_base 
-  play_robust_net
+  play_play_base 
+  play_play_net
   spdlog::spdlog 
   doctest::doctest
   unofficial-sodium::sodium

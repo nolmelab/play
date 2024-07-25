@@ -66,7 +66,7 @@ topic으로 사용할 enum의 이름은 다음과 같이 결정합니다.
 
 ## 진행 
 
-- robust
+- play
   - app 
     - object 
     - service

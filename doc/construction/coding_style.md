@@ -28,7 +28,7 @@
 
 - clarity 
 - easiness
-- robustness (i.e, stability)
+- playness (i.e, stability)
 - testability 
 - debuggability 
 
