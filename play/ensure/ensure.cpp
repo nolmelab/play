@@ -1,5 +1,7 @@
 #include <fstream>
 #include <play/base/json_reader.hpp>
+#include <play/ensure/act_factory.hpp>
+#include <play/ensure/acts/act_message.hpp>
 #include <play/ensure/ensure.hpp>
 
 namespace play { namespace ensure {
@@ -21,6 +23,8 @@ bool ensure::start()
     auto concurrency =
         base::json_reader::read(jconf_, "ensure.concurrency", std::thread::hardware_concurrency());
     auto port = base::json_reader::read(jconf_, "ensure.port", 7000);
+
+    register_default_acts();
 
     runner_ = std::make_unique<net::thread_runner>(concurrency, "ensure");
     server_ = std::make_unique<server>(*runner_.get(), handler_);
@@ -70,6 +74,11 @@ void ensure::stop_bots()
   {
     bp->stop();
   }
+}
+
+void ensure::register_default_acts()
+{
+  PLAY_REGISTER_ACT(act_message);
 }
 
 }}  // namespace play::ensure

@@ -13,6 +13,7 @@ set(SOURCE
   act.cpp
   bot.cpp
   flow.cpp
+  acts/act_message.cpp
 )
 
 # set library target with sources

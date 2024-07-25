@@ -3,6 +3,7 @@
 #include <play/ensure/act_factory.hpp>
 #include <play/ensure/act_parallel.hpp>
 #include <play/ensure/act_serial.hpp>
+#include <play/ensure/acts/act_message.hpp>
 #include <play/ensure/bot.hpp>
 #include <play/ensure/ensure.hpp>
 #include <play/ensure/flow.hpp>
@@ -28,8 +29,8 @@ TEST_CASE("ensure")
 {
   SUBCASE("act_factory")
   {
-    PLAY_REG_ACT(act_serial);
-    PLAY_REG_ACT(act_parallel);
+    PLAY_REGISTER_ACT(act_serial);
+    PLAY_REGISTER_ACT(act_parallel);
 
     mockup_actor owner;
     auto ap = act_factory::get().create("act_serial", owner, {}, "{}", "test");
@@ -39,6 +40,78 @@ TEST_CASE("ensure")
 
     auto ap2 = act_factory::get().create("act_none", owner, {}, "{}", "test");
     CHECK(!ap2);
+  }
+
+  SUBCASE("act_serial")
+  {
+    // act_composite requires flow
+    std::string conf = R"(
+    {
+    "flow" : [
+      {
+      "type" : "act_message", 
+      "name" : "message_1",
+      "message" : "hello ensure! I'm the first act",
+      "slots" : { 
+        "success" : { "cmd" : "next" }, 
+        "fail" : { "cmd" : "next" }
+        }
+      },
+      {
+      "type" : "act_message", 
+      "name" : "message_2",
+      "message" : "hello ensure! I'm the second act",
+      "slots" : { 
+        "success" : { "cmd" : "exit" }, 
+        "fail" : { "cmd" : "exit" }
+        }
+      }
+    ]
+    }
+    )";
+
+    PLAY_REGISTER_ACT(act_message);
+    auto jserial = nlohmann::json::parse(conf);
+    mockup_actor owner;
+    auto ap = act_factory::get().create("act_serial", owner, {}, jserial, "test");
+    CHECK(ap->activate());
+    ap->deactivate();
+  }
+
+  SUBCASE("flow and jump")
+  {
+    std::string conf = R"(
+    {
+    "flow" : [
+      {
+      "type" : "act_message", 
+      "name" : "message_1",
+      "message" : "hello ensure! I'm the first act",
+      "slots" : { 
+        "success" : { "cmd" : "next" }, 
+        "fail" : { "cmd" : "next" }
+        }
+      },
+      {
+      "type" : "act_message", 
+      "name" : "message_2",
+      "message" : "hello ensure! I'm the second act",
+      "slots" : { 
+        "success" : { "cmd" : "exit" }, 
+        "fail" : { "cmd" : "exit" }
+        }
+      }
+    ]
+    }
+    )";
+
+    PLAY_REGISTER_ACT(act_message);
+    auto jserial = nlohmann::json::parse(conf);
+    mockup_actor owner;
+    auto ap = act_factory::get().create("act_serial", owner, {}, jserial, "test");
+    CHECK(ap->activate());
+    ap->deactivate();
+    /
   }
 
   SUBCASE("act::path")
@@ -68,6 +141,4 @@ TEST_CASE("ensure")
       CHECK(act::path::get_child_path(p2.full_path_, p1.full_path_) == "cc/dd");
     }
   }
-
-  SUBCASE("act_serial") {}
 }

@@ -40,9 +40,22 @@ void act_parallel::jump(const std::string& path)
     }
     else
     {
-      get_parent()->jump(path);
+      if (has_parent())
+      {
+        get_parent()->jump(path);
+      }
+      else
+      {
+        LOG()->warn("invalid jump path: {}. no act is found to process the requested jump", path);
+      }
     }
   }
+}
+
+void act_parallel::next()
+{
+  PLAY_CHECK(!"act_parallel does not support next");
+  LOG()->error("act_parallel does not support next");
 }
 
 void act_parallel::jump_child(const std::string& pa)

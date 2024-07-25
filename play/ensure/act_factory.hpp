@@ -30,7 +30,7 @@ private:
 
 }}  // namespace play::ensure
 
-#define PLAY_REG_ACT(act_type)                                                                   \
+#define PLAY_REGISTER_ACT(act_type)                                                              \
   ::play::ensure::act_factory::get().reg(                                                        \
       #act_type,                                                                                 \
       [](::play::app::actor& owner, ::play::ensure::act::ptr parent, const nlohmann::json& json, \

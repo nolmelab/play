@@ -23,14 +23,13 @@ bool act_composite::load_acts()
     auto name = base::json_reader::read(jact, "name", std::string{});
 
     auto ap = act_factory::get().create(type, get_owner(), self(), jact, name);
-    PLAY_CHECK(ap);
     if (ap)
     {
       acts_.push_back(ap);
     }
     else
     {
-      LOG()->error("act creator not found for type: {}, name: {}", type, name);
+      LOG()->error("type: {} not found in act_factory for name: {}", type, name);
       return false;  // better to stop than suffering from the problems
     }
   }

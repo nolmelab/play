@@ -45,6 +45,8 @@ private:
 
   void stop_bots();
 
+  void register_default_acts();
+
 private:
   std::string config_file_;
   nlohmann::json jconf_;

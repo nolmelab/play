@@ -2,38 +2,53 @@
 #include <play/base/macros.hpp>
 #include <play/base/string_util.hpp>
 #include <play/ensure/act.hpp>
+#include <play/ensure/bot.hpp>
 #include <stack>
 
 namespace play { namespace ensure {
 
 bool act::activate()
 {
-  PLAY_CHECK(!active_);
-
-  on_load_json();
-  active_ = on_activate();
-  return active_;
+  if (!active_)
+  {
+    on_load_json();
+    active_ = on_activate();
+    return active_;
+  }
+  return true;  // already active
 }
 
 void act::deactivate()
 {
-  on_deactivate();
-  active_ = false;
+  if (active_)
+  {
+    on_deactivate();
+    active_ = false;
+  }
 }
 
 void act::jump(const std::string& path)
 {
-  get_parent()->jump(path);
+  if (has_parent())
+  {
+    get_parent()->jump(path);
+  }
 }
 
 void act::next()
 {
-  LOG()->warn("act::next not implemented");
+  if (has_parent())
+  {
+    get_parent()->next();
+  }
 }
 
 void act::exit()
 {
-  get_parent()->exit();
+  if (has_parent())
+  {
+    get_parent()->exit();
+  }
 }
 
 bool act::on_activate()

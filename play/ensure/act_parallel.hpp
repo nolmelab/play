@@ -23,6 +23,8 @@ private:
 
   void jump(const std::string& path) final;
 
+  void next() final;
+
   void jump_child(const std::string& path);
 };
 

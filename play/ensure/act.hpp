@@ -83,6 +83,11 @@ public:
     return parent_;
   }
 
+  bool has_parent() const
+  {
+    return !!parent_;
+  }
+
   base::stop_watch& get_stop_watch()
   {
     return stop_watch_;

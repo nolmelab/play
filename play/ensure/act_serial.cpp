@@ -32,7 +32,14 @@ void act_serial::jump(const std::string& path)
     }
     else
     {
-      get_parent()->jump(path);
+      if (has_parent())
+      {
+        get_parent()->jump(path);
+      }
+      else
+      {
+        LOG()->warn("invalid jump path: {}. no act is found to process the requested jump", path);
+      }
     }
   }
 }
@@ -44,6 +51,7 @@ void act_serial::next()
   current_act_index_++;
   if (current_act_index_ >= get_acts().size())
   {
+    current_act_index_--;  // recover to the previous one
     LOG()->error("flow reached the end");
   }
   else
