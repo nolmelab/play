@@ -56,6 +56,39 @@ void act::exit()
   }
 }
 
+act::ptr act::find(const std::string& path)
+{
+  if (path.empty())
+  {
+    return {};
+  }
+
+  if (is_self(path))
+  {
+    return self();
+  }
+
+  // 자식들에서 찾음
+  auto ap_down = find_child(path);
+  if (ap_down)
+  {
+    return ap_down;
+  }
+
+  // 부모에서 찾음
+  auto ap_up = find_up(path);
+  return ap_up;
+}
+
+bool act::is_self(const std::string& path) const
+{
+  if (path::is_relative_path(path))
+  {
+    return path::get_last_act(path) == get_path().act_name_;
+  }
+  return path == get_path().full_path_;
+}
+
 bool act::on_activate()
 {
   return true;
@@ -101,6 +134,20 @@ void act::signal(std::string_view sig, std::string_view message)
       LOG()->error("signal: {} when slots are empty in act: {}", sig, get_name());
     }
   }
+}
+
+act::ptr act::find_up(const std::string& path)
+{
+  if (has_parent())
+  {
+    return get_parent()->find(path);
+  }
+  return {};
+}
+
+act::ptr act::find_child(const std::string& path)
+{
+  return {};
 }
 
 void act::build_path()

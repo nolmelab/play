@@ -135,7 +135,8 @@ TEST_CASE("ensure")
     mockup_actor owner;
     act::ptr fp = std::make_shared<flow>(owner, jflow);
     CHECK(fp->activate());  // jump to message_top_1 from serial_1
-    fp->update(); // to signal
+    fp->update();           // to signal
+    fp->update();
     fp->update();
   }
 

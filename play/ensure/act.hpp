@@ -70,6 +70,8 @@ public:
   // exit by stop bot
   virtual void exit();
 
+  ptr find(const std::string& path);
+
   const path& get_path() const
   {
     return path_;
@@ -90,6 +92,11 @@ public:
     return !!parent_;
   }
 
+  bool is_active() const
+  {
+    return active_;
+  }
+
   base::stop_watch& get_stop_watch()
   {
     return stop_watch_;
@@ -98,7 +105,7 @@ public:
 protected:
   // 하위 클래스의 활성 로직 구현
   virtual bool on_activate();
-  
+
   virtual void on_update();
 
   // 하위 클래스의 비활성 로직 구현
@@ -129,6 +136,12 @@ protected:
   {
     return std::static_pointer_cast<act>(this->shared_from_this());
   }
+
+  bool is_self(const std::string& path) const;
+
+  ptr find_up(const std::string& path);
+
+  virtual ptr find_child(const std::string& path);
 
 private:
   void build_path();

@@ -21,6 +21,8 @@ private:
 
   void on_deactivate() final;
 
+  ptr find_child(const std::string& path) final;
+
   act::ptr find_act(const std::string& name) const;
 
   void jump(const std::string& path) final;

@@ -8,7 +8,6 @@ namespace play { namespace ensure {
 class act_serial : public act_composite
 {
 public:
-public:
   act_serial(app::actor& owner, act::ptr parent, const nlohmann::json& json,
              const std::string& name)
       : act_composite(owner, parent, json, name)
@@ -21,6 +20,8 @@ protected:
     PLAY_CHECK(current_act_index_ >= 0 && current_act_index_ < get_acts().size())
     return get_acts()[current_act_index_];
   }
+
+  ptr find_child(const std::string& path) final;
 
   std::pair<size_t, act::ptr> find_act(const std::string& name) const;
 

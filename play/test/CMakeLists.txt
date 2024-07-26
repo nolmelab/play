@@ -9,13 +9,15 @@ find_package(boost_asio CONFIG REQUIRED)
 find_package(unofficial-sodium CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
+
+
 # custom target can execute a command
+# TODO: 출력 파일과 원본을 비교하여 생성하도록 해야 함.
 add_custom_target(
   fb 
-  # -o option needs to come before the input files
-  # TODO: add dependcy on the generated files (build only when fbs is changed)
   COMMAND flatc --cpp --gen-object-api -o "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/*.fbs" 
 )
+
 
 # add test target
 add_executable(
