@@ -18,6 +18,14 @@ bool act_parallel::on_activate()
   return false;
 }
 
+void act_parallel::on_update()
+{
+  for (auto& ap : get_acts())
+  {
+    ap->update();
+  }
+}
+
 void act_parallel::on_deactivate()
 {
   for (auto& ap : get_acts())

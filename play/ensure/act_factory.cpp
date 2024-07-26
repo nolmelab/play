@@ -23,7 +23,10 @@ act::ptr act_factory::create(const std::string& type, app::actor& owner, act::pt
 void act_factory::reg(std::string_view type, creator fn)
 {
   auto result = creators_.insert(std::pair{type, fn});
-  PLAY_CHECK(result.second);
+  if (!result.second)
+  {
+    LOG()->warn("act type: {} already in factory", type);
+  }
 }
 
 }}  // namespace play::ensure

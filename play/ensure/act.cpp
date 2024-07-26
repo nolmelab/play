@@ -18,6 +18,11 @@ bool act::activate()
   return true;  // already active
 }
 
+void act::update()
+{
+  on_update();
+}
+
 void act::deactivate()
 {
   if (active_)
@@ -55,6 +60,8 @@ bool act::on_activate()
 {
   return true;
 }
+
+void act::on_update() {}
 
 void act::on_deactivate() {}
 

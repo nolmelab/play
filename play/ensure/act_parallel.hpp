@@ -17,6 +17,8 @@ public:
 private:
   bool on_activate() final;
 
+  void on_update() final;
+
   void on_deactivate() final;
 
   act::ptr find_act(const std::string& name) const;

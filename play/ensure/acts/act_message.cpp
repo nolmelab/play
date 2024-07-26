@@ -13,11 +13,13 @@ act_message::act_message(app::actor& owner, act::ptr parent, const nlohmann::jso
 bool act_message::on_activate()
 {
   auto message = base::json_reader::read(get_json(), "message", std::string{});
-
   LOG()->info("message from bot. {}", message);
-
-  succed("succeed after showing the message");
   return true;
+}
+
+void act_message::on_update()
+{
+  succed("succeed after showing the message");
 }
 
 }}  // namespace play::ensure

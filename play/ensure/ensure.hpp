@@ -28,10 +28,13 @@ public:
   using frame_handler = net::flatbuffer_handler<session>;
 
 public:
-  ensure(const std::string& config_file);
+  static ensure& get();
+
+public:
+  ensure();
 
   // 서버 시작. 구성 로딩. 봇 생성. on_start() 호출 후 각 봇 시작
-  bool start();
+  bool start(const std::string& config_file);
 
   void stop();
 

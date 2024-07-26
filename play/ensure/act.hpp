@@ -57,6 +57,8 @@ public:
 
   bool activate();
 
+  void update();
+
   void deactivate();
 
   // jump to the act at path.
@@ -96,6 +98,8 @@ public:
 protected:
   // 하위 클래스의 활성 로직 구현
   virtual bool on_activate();
+  
+  virtual void on_update();
 
   // 하위 클래스의 비활성 로직 구현
   virtual void on_deactivate();

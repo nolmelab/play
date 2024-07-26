@@ -13,6 +13,11 @@ bool act_serial::on_activate()
   return false;
 }
 
+void act_serial::on_update()
+{
+  get_current_act()->update();
+}
+
 void act_serial::on_deactivate()
 {
   get_current_act()->deactivate();
@@ -20,6 +25,12 @@ void act_serial::on_deactivate()
 
 void act_serial::jump(const std::string& path)
 {
+  // 빈 경로가
+  if (path.empty())
+  {
+    return;
+  }
+
   if (path::is_relative_path(path))
   {
     jump_child(path);
@@ -69,8 +80,6 @@ void act_serial::jump_child(const std::string& path)
     get_current_act()->deactivate();
     current_act_index_ = ia.first;
     get_current_act()->activate();
-
-    get_current_act()->jump(path::pop_head_act(path));
   }
 }
 

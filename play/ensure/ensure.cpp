@@ -6,13 +6,18 @@
 
 namespace play { namespace ensure {
 
-ensure::ensure(const std::string& config_file)
-    : config_file_{config_file}
+ensure& ensure::get()
 {
+  static ensure inst_;
+  return inst_;
 }
 
-bool ensure::start()
+ensure::ensure() {}
+
+bool ensure::start(const std::string& config_file)
 {
+  config_file_ = config_file;
+
   try
   {
     std::ifstream ifs("file.json");

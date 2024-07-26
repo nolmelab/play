@@ -27,12 +27,15 @@ protected:
 private:
   bool on_activate() final;
 
+  void on_update() final;
+
   void on_deactivate() final;
 
   void jump(const std::string& path) final;
 
   void next() final;
 
+  // 자식에 대한 점프는 최상위 자식들에 대해서만 실행
   void jump_child(const std::string& path);
 
 private:

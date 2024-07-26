@@ -12,6 +12,8 @@ public:
 
 private:
   bool on_activate() final;
+
+  void on_update() final;
 };
 
 }}  // namespace play::ensure

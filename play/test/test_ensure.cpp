@@ -75,6 +75,7 @@ TEST_CASE("ensure")
     mockup_actor owner;
     auto ap = act_factory::get().create("act_serial", owner, {}, jserial, "test");
     CHECK(ap->activate());
+    ap->update();  // to signal from act_message
     ap->deactivate();
   }
 
@@ -82,11 +83,34 @@ TEST_CASE("ensure")
   {
     std::string conf = R"(
     {
-    "flow" : [
+    "flow": [
+      {
+        "type" : "act_serial", 
+        "name" : "serial_1",
+        "flow" : 
+        [
+          {
+            "type" : "act_message", 
+            "name" : "message_1",
+            "message" : "hello ensure! I'm the first act",
+            "slots" : { 
+              "success" : { "cmd" : "jump", "target" : "/flow/message_top_1" }, 
+              "fail" : { "cmd" : "next" } }
+          },
+          {
+            "type" : "act_message", 
+            "name" : "message_2",
+            "message" : "hello ensure! I'm the second act",
+            "slots" : { 
+              "success" : { "cmd" : "exit" }, 
+              "fail" : { "cmd" : "exit" } }
+          }
+        ]
+      },
       {
       "type" : "act_message", 
-      "name" : "message_1",
-      "message" : "hello ensure! I'm the first act",
+      "name" : "message_top_1",
+      "message" : "hello ensure! I'm the first top act",
       "slots" : { 
         "success" : { "cmd" : "next" }, 
         "fail" : { "cmd" : "next" }
@@ -94,10 +118,10 @@ TEST_CASE("ensure")
       },
       {
       "type" : "act_message", 
-      "name" : "message_2",
-      "message" : "hello ensure! I'm the second act",
+      "name" : "message_top_2",
+      "message" : "hello ensure! I'm the second top act",
       "slots" : { 
-        "success" : { "cmd" : "exit" }, 
+        "success" : { "cmd" : "jump", "target" : "serial_1" }, 
         "fail" : { "cmd" : "exit" }
         }
       }
@@ -106,12 +130,13 @@ TEST_CASE("ensure")
     )";
 
     PLAY_REGISTER_ACT(act_message);
-    auto jserial = nlohmann::json::parse(conf);
+    auto jflow = nlohmann::json::parse(conf);
+
     mockup_actor owner;
-    auto ap = act_factory::get().create("act_serial", owner, {}, jserial, "test");
-    CHECK(ap->activate());
-    ap->deactivate();
-    /
+    act::ptr fp = std::make_shared<flow>(owner, jflow);
+    CHECK(fp->activate());  // jump to message_top_1 from serial_1
+    fp->update(); // to signal
+    fp->update();
   }
 
   SUBCASE("act::path")

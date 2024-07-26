@@ -29,7 +29,10 @@ public:
   virtual void stop() = 0;
 
   // 동적으로 생성한 고유 아이디를 제공
-  size_t get_id() const;
+  size_t get_id() const
+  {
+    return id_;
+  }
 
   template <typename Act, typename... Args>
   bool create_act(Args&&... args);
