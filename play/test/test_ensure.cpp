@@ -234,7 +234,7 @@ TEST_CASE("ensure - bot")
       {
       "type" : "act_message", 
       "name" : "message_top_1",
-      "message" : "hello ensure! I'm the first top act",
+      "message" : "hello ensure! I'm called from the strand timer",
       "slots" : { 
         "success" : { "cmd" : "next" }, 
         "fail" : { "cmd" : "next" }
@@ -243,7 +243,7 @@ TEST_CASE("ensure - bot")
       {
       "type" : "act_message", 
       "name" : "message_top_2",
-      "message" : "hello ensure! I'm the second top act",
+      "message" : "hello ensure! Do I have a chance to be called?",
       "slots" : { 
         "success" : { "cmd" : "exit" },
         "fail" : { "cmd" : "exit" }
@@ -259,7 +259,9 @@ TEST_CASE("ensure - bot")
     CHECK(app.get_bot_count() == 1);
     auto top_1 = app.get_bot(0)->get_flow().find("/flow/message_top_1");
     CHECK(top_1->get_name() == "message_top_1");
-    CHECK(top_1->is_active());  // not sure.
+    CHECK(top_1->is_active());  // XXX: not sure. how to make it sure?
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     app.stop();
   }
