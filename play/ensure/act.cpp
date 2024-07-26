@@ -14,6 +14,10 @@ bool act::activate()
   {
     on_load_json();
     active_ = on_activate();
+    if (active_)
+    {
+      ++active_count_;
+    }
     return active_;
   }
   return true;  // already active

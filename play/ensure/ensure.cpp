@@ -20,13 +20,27 @@ bool ensure::start(const std::string& config_file)
 
   try
   {
+    nlohmann::json jconf;
     std::ifstream ifs("file.json");
-    ifs >> jconf_;
+    ifs >> jconf;
 
-    auto jserver = base::json_reader::read(jconf_, "server");
+    return start(jconf);
+  }
+  catch (std::exception& ex)
+  {
+    LOG()->error("exception: {} while starting ensure", ex.what());
+    return false;
+  }
+}
 
-    auto concurrency =
-        base::json_reader::read(jconf_, "ensure.concurrency", std::thread::hardware_concurrency());
+bool ensure::start(const nlohmann::json& jconf)
+{
+  jconf_ = jconf;
+
+  try
+  {
+    auto default_concurrency = std::thread::hardware_concurrency();
+    auto concurrency = base::json_reader::read(jconf_, "ensure.concurrency", default_concurrency);
     auto port = base::json_reader::read(jconf_, "ensure.port", 7000);
 
     register_default_acts();
@@ -46,15 +60,16 @@ bool ensure::start(const std::string& config_file)
   }
   catch (std::exception& ex)
   {
-    LOG()->error("exception: {} while string ensure", ex.what());
+    LOG()->error("exception: {} while starting ensure", ex.what());
     return false;
   }
 }
 
 void ensure::stop()
 {
-  stop_bots();
   runner_->stop();
+  server_->stop();
+  stop_bots();
 }
 
 bool ensure::start_bots()

@@ -30,17 +30,32 @@ public:
 public:
   static ensure& get();
 
-public:
+private:
   ensure();
 
+public:
   // 서버 시작. 구성 로딩. 봇 생성. on_start() 호출 후 각 봇 시작
   bool start(const std::string& config_file);
+
+  // json 구성에서 서버 시작
+  bool start(const nlohmann::json& jconf);
 
   void stop();
 
   net::runner& get_runner()
   {
     return *runner_.get();
+  }
+
+  size_t get_bot_count() const
+  {
+    return bots_.size();
+  }
+
+  bot::ptr get_bot(size_t index) 
+  {
+    PLAY_CHECK(index >= 0 && index < bots_.size());
+    return bots_[index];
   }
 
 private:

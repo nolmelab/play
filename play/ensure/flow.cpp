@@ -13,41 +13,9 @@ flow::flow(app::actor& bt, const nlohmann::json& json)
 {
 }
 
-bool flow::start()
-{
-  auto rc = activate();
-  if (rc)
-  {
-    auto interval = base::json_reader::read(get_json(), "service.update_interval", 100);
-    auto me = self();
-    update_timer_ =
-        ensure::get().get_runner().repeat(get_owner().get_id(), std::chrono::milliseconds(interval),
-                                          [this, me](net::timer& timer)
-                                          {
-                                            PLAY_UNUSED(timer);
-                                            this->update_acts();
-                                          });
-  }
-  return rc;
-}
-
-void flow::stop()
-{
-  if (update_timer_)
-  {
-    update_timer_->cancel();
-  }
-  deactivate();
-}
-
 void flow::exit()
 {
   get_owner().stop();
-}
-
-void flow::update_acts()
-{
-  this->update();
 }
 
 }}  // namespace play::ensure

@@ -7,6 +7,7 @@
 #include <play/ensure/bot.hpp>
 #include <play/ensure/ensure.hpp>
 #include <play/ensure/flow.hpp>
+#include <play/net/runner.hpp>
 
 using namespace play::ensure;
 
@@ -213,5 +214,53 @@ TEST_CASE("ensure")
       CHECK(act::path::is_child_of(p2.full_path_, p1.full_path_));
       CHECK(act::path::get_child_path(p2.full_path_, p1.full_path_) == "cc/dd");
     }
+  }
+}
+
+TEST_CASE("ensure - bot")
+{
+  SUBCASE("bot start and run timers")
+  {
+    std::string conf = R"(
+    {
+    "ensure" : {
+      "concurrency" : 1, 
+      "port" : 7000, 
+      "bot_count" : 1, 
+      "bot_start_index" : 1, 
+      "bot_prefix" : "bot_"
+    },
+    "flow": [
+      {
+      "type" : "act_message", 
+      "name" : "message_top_1",
+      "message" : "hello ensure! I'm the first top act",
+      "slots" : { 
+        "success" : { "cmd" : "next" }, 
+        "fail" : { "cmd" : "next" }
+        }
+      },
+      {
+      "type" : "act_message", 
+      "name" : "message_top_2",
+      "message" : "hello ensure! I'm the second top act",
+      "slots" : { 
+        "success" : { "cmd" : "exit" },
+        "fail" : { "cmd" : "exit" }
+        }
+      }
+    ]
+    }
+    )";
+
+    ensure& app = ensure::get();  // ensure app은 싱글톤
+    auto jconf = nlohmann::json::parse(conf);
+    CHECK(app.start(jconf));
+    CHECK(app.get_bot_count() == 1);
+    auto top_1 = app.get_bot(0)->get_flow().find("/flow/message_top_1");
+    CHECK(top_1->get_name() == "message_top_1");
+    CHECK(top_1->is_active());  // not sure.
+
+    app.stop();
   }
 }

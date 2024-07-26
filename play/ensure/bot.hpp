@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <play/app/actor.hpp>
 #include <play/ensure/flow.hpp>
+#include <play/net/runner/timer_service.hpp>
 
 namespace play { namespace ensure {
 
@@ -18,6 +19,9 @@ public:
 
   // flow를 로딩. flow를 시작.
   bool start() final;
+
+  // bot timer를 통해 flow update
+  void update();
 
   void stop() final;
 
@@ -41,12 +45,18 @@ public:
     return index_;
   }
 
+  flow& get_flow()
+  {
+    return *flow_;
+  }
+
 private:
   ensure& app_;
   nlohmann::json json_;
   std::string name_;
   size_t index_;
-  std::unique_ptr<flow> flow_;
+  std::shared_ptr<flow> flow_;
+  net::timer::ref bot_timer_;
 };
 
 }}  // namespace play::ensure

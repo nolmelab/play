@@ -100,6 +100,11 @@ public:
     return active_;
   }
 
+  size_t get_active_count() const
+  {
+    return active_count_;
+  }
+
   base::stop_watch& get_stop_watch()
   {
     return stop_watch_;
@@ -155,7 +160,8 @@ private:
   ptr parent_;
   path path_;
   nlohmann::json json_;
-  bool active_;
+  bool active_{false};
+  size_t active_count_{0};
 };
 
 }}  // namespace play::ensure
