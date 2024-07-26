@@ -144,14 +144,25 @@ TEST_CASE("ensure")
       CHECK(fp->find("/flow/message_top_1")->get_name() == "message_top_1");
       CHECK(fp->find("/flow/message_top_2")->get_name() == "message_top_2");
       CHECK(fp->find("/flow/serial_1/message_1")->get_name() == "message_1");
+
       auto serial = fp->find("/flow/serial_1");
       CHECK(!!serial);
+
+      SUBCASE("full path")
       {
         auto message_2 = serial->find("/flow/serial_1/message_2");
         CHECK(message_2->get_name() == "message_2");
       }
+
+      SUBCASE("relative path including self")
       {
         auto message_2 = serial->find("serial_1/message_2");
+        CHECK(message_2->get_name() == "message_2");
+      }
+
+      SUBCASE("relative path excluding self")
+      {
+        auto message_2 = serial->find("message_2");
         CHECK(message_2->get_name() == "message_2");
       }
 
