@@ -30,6 +30,9 @@ public:
     // 절대 경로에서 path의 self_path의 자식 경로를 얻음
     static std::string get_child_path(const std::string& self_path, const std::string& path);
 
+    // 상대 경로에서 path의 자식 경로를 얻음. 최상위가 현재 액트
+    static std::string get_child_path(const std::string& path);
+
     // 상대 경로 또는 절대 경로에서 첫 act를 얻음
     static std::string get_first_act(const std::string& path);
 

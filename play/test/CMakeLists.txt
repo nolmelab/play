@@ -45,7 +45,7 @@ add_executable(
 if (MSVC)
   target_compile_options(test PRIVATE /MTd /utf-8)
 else() 
-  target_compile_options(test PRIVATE -g -fstack-protector-all)
+  target_compile_options(test PRIVATE -g -fstack-protector-all -Wno-unused-value)
 endif()
 
 # dependency makes a build chain

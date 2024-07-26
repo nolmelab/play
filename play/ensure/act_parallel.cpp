@@ -81,6 +81,10 @@ void act_parallel::jump_child(const std::string& pa)
 act::ptr act_parallel::find_child(const std::string& path)
 {
   auto ap = find_act(path::get_first_act(path));
+  if (ap)
+  {
+    return ap->find(path);
+  }
   return ap;
 }
 

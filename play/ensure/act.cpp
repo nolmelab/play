@@ -1,3 +1,4 @@
+#include <play/app/error.hpp>
 #include <play/base/json_reader.hpp>
 #include <play/base/macros.hpp>
 #include <play/base/string_util.hpp>
@@ -68,16 +69,38 @@ act::ptr act::find(const std::string& path)
     return self();
   }
 
-  // 자식들에서 찾음
-  auto ap_down = find_child(path);
-  if (ap_down)
+  if (path::is_absolute_path(path))
   {
-    return ap_down;
+    auto top = path::get_first_act(path);
+    // 나의 하위 경로
+    if (top == get_path().act_name_)
+    {
+      auto child_path = path::get_child_path(get_path().full_path_, path);
+      auto child = find_child(child_path);
+      if (child)
+      {
+        return child;
+      }
+      return {};
+    }
+    return find_up(path);
   }
-
-  // 부모에서 찾음
-  auto ap_up = find_up(path);
-  return ap_up;
+  else
+  {
+    PLAY_CHECK(path::is_relative_path(path))
+    auto first_act = path::get_first_act(path);
+    if (first_act == get_path().act_name_)
+    {
+      auto child_path = path::get_child_path(path);
+      auto child = find_child(child_path);
+      if (child)
+      {
+        return child;
+      }
+      return {};
+    }
+    return {};  // not found
+  }
 }
 
 bool act::is_self(const std::string& path) const
@@ -208,9 +231,18 @@ std::string act::path::get_child_path(const std::string& self_path, const std::s
   return {};
 }
 
+std::string act::path::get_child_path(const std::string& path)
+{
+  return pop_head_act(path);
+}
+
 std::string act::path::get_first_act(const std::string& pa)
 {
-  PLAY_CHECK(!pa.empty());
+  if (pa.empty())
+  {
+    return {};
+  }
+
   path p;
   p.setup(pa);
   return *p.parts_.begin();
@@ -238,7 +270,13 @@ void act::path::setup(const std::string& full_path)
 {
   full_path_ = full_path;
   parts_ = base::string_util::split(full_path_, "/");
+
+  // 이와 같은 입력의 치명적인 실수는 예외를 쓸 수 밖에 없음
+  if (parts_.empty())
+  {
+    throw app::error::create("invalid act path: {}", full_path);
+  }
+
   act_name_ = parts_.back();
 }
-
 }}  // namespace play::ensure

@@ -86,6 +86,10 @@ void act_serial::jump_child(const std::string& path)
 act::ptr act_serial::find_child(const std::string& path)
 {
   auto ia = find_act(path::get_first_act(path));
+  if (ia.second)
+  {
+    return ia.second->find(path);
+  }
   return ia.second;
 }
 

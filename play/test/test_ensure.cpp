@@ -134,10 +134,27 @@ TEST_CASE("ensure")
 
     mockup_actor owner;
     act::ptr fp = std::make_shared<flow>(owner, jflow);
-    CHECK(fp->activate());  // jump to message_top_1 from serial_1
-    fp->update();           // to signal
-    fp->update();
-    fp->update();
+
+    // activate loads from json
+    CHECK(fp->activate());
+
+    SUBCASE("find")
+    {
+      CHECK(fp->find("/flow")->get_name() == "flow");
+      CHECK(fp->find("/flow/message_top_1")->get_name() == "message_top_1");
+      CHECK(fp->find("/flow/message_top_2")->get_name() == "message_top_2");
+      CHECK(fp->find("/flow/serial_1/message_1")->get_name() == "message_1");
+      CHECK(fp->find("/flow/serial_1/message_2")->get_name() == "message_2");
+      CHECK(!fp->find("/flow/serial_1/message_x"));
+      CHECK_THROWS(!fp->find("/"));
+    }
+
+    SUBCASE("jump")
+    {
+      fp->update();  // to signal
+      fp->update();
+      fp->update();
+    }
   }
 
   SUBCASE("act::path")
