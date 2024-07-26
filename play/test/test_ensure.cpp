@@ -144,16 +144,35 @@ TEST_CASE("ensure")
       CHECK(fp->find("/flow/message_top_1")->get_name() == "message_top_1");
       CHECK(fp->find("/flow/message_top_2")->get_name() == "message_top_2");
       CHECK(fp->find("/flow/serial_1/message_1")->get_name() == "message_1");
+      auto serial = fp->find("/flow/serial_1");
+      CHECK(!!serial);
+      {
+        auto message_2 = serial->find("/flow/serial_1/message_2");
+        CHECK(message_2->get_name() == "message_2");
+      }
+      {
+        auto message_2 = serial->find("serial_1/message_2");
+        CHECK(message_2->get_name() == "message_2");
+      }
+
       CHECK(fp->find("/flow/serial_1/message_2")->get_name() == "message_2");
       CHECK(!fp->find("/flow/serial_1/message_x"));
-      CHECK_THROWS(!fp->find("/"));
+      CHECK(!fp->find("/"));
     }
 
     SUBCASE("jump")
     {
-      fp->update();  // to signal
-      fp->update();
-      fp->update();
+      CHECK(fp->find("/flow/serial_1")->is_active());
+      CHECK(fp->find("/flow/serial_1/message_1")->is_active());
+      fp->update();  // message_1 update. jump to message_top_1
+      CHECK(!fp->find("/flow/serial_1/message_1")->is_active());
+      CHECK(!fp->find("/flow/serial_1")->is_active());
+      CHECK(fp->find("/flow/message_top_1")->is_active());
+      fp->update();  // next
+      CHECK(fp->find("/flow/message_top_2")->is_active());
+      fp->update();  // serial_1
+      CHECK(fp->find("/flow/serial_1")->is_active());
+      CHECK(fp->find("/flow/serial_1/message_1")->is_active());
     }
   }
 

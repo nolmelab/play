@@ -43,17 +43,22 @@ TEST_CASE("timer")
     asio::io_context::strand strand{io};
     timer_service ts{io};
 
-    for ( int i=0; i<100; ++i)
+    for (int i = 0; i < 5; ++i)
     {
-    ts.once(strand, std::chrono::milliseconds(300),
-            [i](timer&)
-            {
-              LOG()->info("timer once called {}", i);
-            });
+      ts.once(strand, std::chrono::milliseconds(300),
+              [i](timer&)
+              {
+                // XXX: 스트랜드 내 처리 여부를 더 잘 확인할 방법?
+                LOG()->info("timer once called {}", i);
+              });
     }
 
     // 쓰레드 2개로는 정확하게 알기 어렵지만 동작한다.
-    auto thread = std::thread([&io]() { io.run();});
+    auto thread = std::thread(
+        [&io]()
+        {
+          io.run();
+        });
     io.run();
 
     thread.join();

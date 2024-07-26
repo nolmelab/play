@@ -71,9 +71,8 @@ act::ptr act::find(const std::string& path)
 
   if (path::is_absolute_path(path))
   {
-    auto top = path::get_first_act(path);
-    // 나의 하위 경로
-    if (top == get_path().act_name_)
+    // path가 나의 자식인지 확인
+    if (path::is_child_of(get_path().full_path_, path))
     {
       auto child_path = path::get_child_path(get_path().full_path_, path);
       auto child = find_child(child_path);
@@ -89,7 +88,7 @@ act::ptr act::find(const std::string& path)
   {
     PLAY_CHECK(path::is_relative_path(path))
     auto first_act = path::get_first_act(path);
-    if (first_act == get_path().act_name_)
+    if (first_act == get_path().act_name_)  // 내 이름으로 먼저 시작하는 경우
     {
       auto child_path = path::get_child_path(path);
       auto child = find_child(child_path);
@@ -99,7 +98,13 @@ act::ptr act::find(const std::string& path)
       }
       return {};
     }
-    return {};  // not found
+    // else - 자식 이름으로 시작하는 경우
+    auto child = find_child(path);
+    if (child)
+    {
+      return child;
+    }
+    return {};
   }
 }
 
