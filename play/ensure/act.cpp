@@ -6,7 +6,7 @@
 #include <play/ensure/bot.hpp>
 #include <stack>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 bool act::activate()
 {
@@ -138,14 +138,14 @@ void act::signal(std::string_view sig, std::string_view message)
   if (jslots.is_object())
   {
     // command: { "success" : { "cmd" : "jump", "target" : "/battle/move"}}
-    auto jsig = base::json_reader::read(jslots, std::string{sig}, nlohmann::json{});
+    auto jsig = play::json_reader::read(jslots, std::string{sig}, nlohmann::json{});
     if (jsig.is_object())
     {
-      auto cmd = base::json_reader::read(jsig, "cmd", std::string{});
+      auto cmd = play::json_reader::read(jsig, "cmd", std::string{});
 
       if (cmd == "jump")
       {
-        auto target = base::json_reader::read(jsig, "target", std::string{});
+        auto target = play::json_reader::read(jsig, "target", std::string{});
         jump(target);  // XXX: target check? how?
       }
       else if (cmd == "next")
@@ -222,7 +222,7 @@ bool act::path::is_relative_path(const std::string& path)
 std::string act::path::get_last_act(const std::string& path)
 {
   PLAY_CHECK(!path.empty());
-  auto parts = base::string_util::split(path, "/");
+  auto parts = play::string_util::split(path, "/");
   return parts.back();
 }
 
@@ -278,14 +278,15 @@ std::string act::path::pop_head_act(const std::string& pa)
 void act::path::setup(const std::string& full_path)
 {
   full_path_ = full_path;
-  parts_ = base::string_util::split(full_path_, "/");
+  parts_ = play::string_util::split(full_path_, "/");
 
   // 이와 같은 입력의 치명적인 실수는 예외를 쓸 수 밖에 없음
   if (parts_.empty())
   {
-    throw app::error::create("invalid act path: {}", full_path);
+    throw play::error::create("invalid act path: {}", full_path);
   }
 
   act_name_ = parts_.back();
 }
-}}  // namespace play::ensure
+
+}  // namespace ensure

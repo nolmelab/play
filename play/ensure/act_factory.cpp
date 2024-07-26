@@ -1,7 +1,7 @@
 #include <play/base/macros.hpp>
 #include <play/ensure/act_factory.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 act_factory& act_factory::get()
 {
@@ -9,7 +9,7 @@ act_factory& act_factory::get()
   return inst_;
 }
 
-act::ptr act_factory::create(const std::string& type, app::actor& owner, act::ptr parent,
+act::ptr act_factory::create(const std::string& type, play::actor& owner, act::ptr parent,
                              const nlohmann::json& json, const std::string& name)
 {
   auto iter = creators_.find(std::string{type});
@@ -29,4 +29,4 @@ void act_factory::reg(std::string_view type, creator fn)
   }
 }
 
-}}  // namespace play::ensure
+}  // namespace ensure

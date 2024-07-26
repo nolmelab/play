@@ -2,20 +2,21 @@
 
 #include <nlohmann/json.hpp>
 #include <play/app/actor.hpp>
+#include <play/ensure/blackboard.hpp>
 #include <play/ensure/flow.hpp>
 #include <play/net/runner/timer_service.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
-class ensure;
+class ensure_app;
 
-class bot : public app::actor
+class bot : public play::actor
 {
 public:
   using ptr = std::shared_ptr<bot>;  // override actor::ptr
 
 public:
-  bot(ensure& app, const nlohmann::json& json, const std::string& name, size_t index);
+  bot(ensure_app& app, const nlohmann::json& json, const std::string& name, size_t index);
 
   // flow를 로딩. flow를 시작.
   bool start() final;
@@ -25,12 +26,12 @@ public:
 
   void stop() final;
 
-  ensure& get_app()
+  ensure_app& get_app()
   {
     return app_;
   }
 
-  const ensure& get_app() const
+  const ensure_app& get_app() const
   {
     return app_;
   }
@@ -50,13 +51,24 @@ public:
     return *flow_;
   }
 
+  blackboard& get_blackboard()
+  {
+    return board_;
+  }
+
+  const blackboard& get_blackboard() const
+  {
+    return board_;
+  }
+
 private:
-  ensure& app_;
+  ensure_app& app_;
   nlohmann::json json_;
   std::string name_;
   size_t index_;
   std::shared_ptr<flow> flow_;
-  net::timer::ref bot_timer_;
+  play::timer::ref bot_timer_;
+  blackboard board_;
 };
 
-}}  // namespace play::ensure
+}  // namespace ensure

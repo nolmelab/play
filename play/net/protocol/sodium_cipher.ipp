@@ -1,7 +1,7 @@
 #include <play/base/logger.hpp>
 #include <play/net/protocol/sodium_cipher.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 inline size_t sodium_cipher::encode(const asio::const_buffer& src, asio::streambuf& dst)
 {
@@ -53,7 +53,7 @@ inline std::tuple<size_t, asio::const_buffer> sodium_cipher::decode(const asio::
   return {src.size(), asio::const_buffer{buf, src.size()}};
 }
 
-}}  // namespace play::net
+}  // namespace play
 
 // note:
 // - crypto_stream_chacha20_xor()은 inplace encryption/decryption이 가능.

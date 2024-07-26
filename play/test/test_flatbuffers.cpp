@@ -7,7 +7,7 @@
 #include <play/net/runner/poll_runner.hpp>
 #include <play/net/server.hpp>
 
-using namespace play::net;
+using namespace play;
 
 namespace {
 
@@ -92,7 +92,7 @@ TEST_CASE("faltbuffers")
 
   auto rc = server.start(7000);
 
-  play::base::stop_watch watch;
+  play::stop_watch watch;
 
   client.connect("127.0.0.1", 7000);
   runner.poll_one();

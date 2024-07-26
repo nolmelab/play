@@ -1,6 +1,6 @@
 #include <play/net/client.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 template <typename Protocol, typename Frame>
 client<Protocol, Frame>::client(runner& runner, frame_handler& handler)
@@ -123,4 +123,4 @@ inline void client<Protocol, Frame>::on_receive(session_ptr session, topic topic
   handle_receive(session, topic, data, len);
 }
 
-}}  // namespace play::net
+}  // namespace play

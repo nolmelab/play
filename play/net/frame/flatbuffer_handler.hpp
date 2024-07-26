@@ -4,7 +4,7 @@
 #include <play/net/frame_handler.hpp>
 #include <shared_mutex>
 
-namespace play { namespace net {
+namespace play {
 
 // 프레임 바이트를 받아서 Frame 포인터를 만들어 전달하는 클래스
 /**
@@ -83,6 +83,6 @@ private:
   size_t current_sub_id_{1};
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 #include <play/net/frame/flatbuffer_handler.ipp>

@@ -3,7 +3,7 @@
 #include <play/net/protocol.hpp>
 #include <play/net/protocol/length_delimited.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // length delimited and topic field protocol
 /**
@@ -86,7 +86,7 @@ private:
   std::unique_ptr<length_delimited> length_codec_;
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 // template member function implementation
 #include <play/net/protocol/plain_protocol.ipp>

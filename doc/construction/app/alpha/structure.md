@@ -70,12 +70,10 @@ topic으로 사용할 enum의 이름은 다음과 같이 결정합니다.
   - app 
     - object 
     - service
+    - actor / act
 
 - alpha 
-  - app
-
-  - service
-    - cluster::syn_service_up / cluster::syn_service_down 
+  - alpha
 
   - auth
     - auth::req_login / auth::ack_login 

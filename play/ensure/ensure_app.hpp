@@ -5,7 +5,7 @@
 #include <play/net/frame/flatbuffer_handler.hpp>
 #include <play/net/protocol/secure_protocol.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 // ensure app. flow를 시작. 그러면 전체 테스트가 동작
 /**
@@ -14,24 +14,24 @@ namespace play { namespace ensure {
  * 
  * NOTE: ensure_app의 서버로서 기본 프로토콜은 json으로 변경될 예정 
  */
-class ensure : public app::app_base<net::secure_protocol<uint16_t>, flatbuffers::NativeTable>
+class ensure_app : public play::app_base<play::secure_protocol<uint16_t>, flatbuffers::NativeTable>
 {
 public:
-  using app_base = app::app_base<net::secure_protocol<uint16_t>, flatbuffers::NativeTable>;
-  using protocol = net::secure_protocol<uint16_t>;
+  using app_base = play::app_base<play::secure_protocol<uint16_t>, flatbuffers::NativeTable>;
+  using protocol = play::secure_protocol<uint16_t>;
   using frame = flatbuffers::NativeTable;
-  using server = net::server<protocol, frame>;
-  using client = net::client<protocol, frame>;
+  using server = play::server<protocol, frame>;
+  using client = play::client<protocol, frame>;
   using session = typename server::session;
 
   // TODO: json_handler to report in json
-  using frame_handler = net::flatbuffer_handler<session>;
+  using frame_handler = play::flatbuffer_handler<session>;
 
 public:
-  static ensure& get();
+  static ensure_app& get();
 
 private:
-  ensure();
+  ensure_app();
 
 public:
   // 서버 시작. 구성 로딩. 봇 생성. on_start() 호출 후 각 봇 시작
@@ -40,9 +40,10 @@ public:
   // json 구성에서 서버 시작
   bool start(const nlohmann::json& jconf);
 
+  // TODO: when to stop?
   void stop();
 
-  net::runner& get_runner()
+  play::runner& get_runner()
   {
     return *runner_.get();
   }
@@ -52,7 +53,7 @@ public:
     return bots_.size();
   }
 
-  bot::ptr get_bot(size_t index) 
+  bot::ptr get_bot(size_t index)
   {
     PLAY_CHECK(index >= 0 && index < bots_.size());
     return bots_[index];
@@ -72,10 +73,10 @@ private:
   size_t bot_start_index_;
   std::string bot_prefix_;
 
-  std::unique_ptr<net::thread_runner> runner_;
+  std::unique_ptr<play::thread_runner> runner_;
   std::unique_ptr<server> server_;
   frame_handler handler_;
   std::vector<bot::ptr> bots_;
 };
 
-}}  // namespace play::ensure
+}  // namespace ensure

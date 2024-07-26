@@ -3,12 +3,12 @@
 #include <play/base/macros.hpp>
 #include <play/ensure/act_composite.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 class act_serial : public act_composite
 {
 public:
-  act_serial(app::actor& owner, act::ptr parent, const nlohmann::json& json,
+  act_serial(play::actor& owner, act::ptr parent, const nlohmann::json& json,
              const std::string& name)
       : act_composite(owner, parent, json, name)
   {
@@ -43,4 +43,4 @@ private:
   size_t current_act_index_{0};
 };
 
-}}  // namespace play::ensure
+}  // namespace ensure

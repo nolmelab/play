@@ -5,7 +5,7 @@
 #include <play/net/frame/flatbuffer_handler.hpp>
 #include <play/net/server.hpp>
 
-namespace play { namespace app {
+namespace play {
 
 // app의 기반 클래스
 /**
@@ -15,8 +15,8 @@ template <typename Protocol, typename Frame>
 class app_base
 {
 public:
-  using server_type = net::server<Protocol, Frame>;
-  using client_type = net::client<Protocol, Frame>;
+  using server_type = server<Protocol, Frame>;
+  using client_type = client<Protocol, Frame>;
   using session_type = typename server_type::session;
 
 public:
@@ -35,6 +35,6 @@ private:
   service_map services_;
 };
 
-}}  // namespace play::app
+}  // namespace play
 
 #include <play/app/app_base.ipp>

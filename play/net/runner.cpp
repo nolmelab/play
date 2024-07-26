@@ -6,7 +6,7 @@
 #include <unistd.h>
 #endif
 
-namespace play { namespace net {
+namespace play {
 
 runner::runner(std::string_view name, size_t strand_count)
     : ioc_{},
@@ -27,10 +27,10 @@ void runner::sleep(int ms)
 
 void runner::make_strands(size_t strand_count)
 {
-  for (size_t i=0; i<strand_count; ++i)
+  for (size_t i = 0; i < strand_count; ++i)
   {
     strands_.push_back(strand_type(get_ioc()));
   }
 }
 
-}}  // namespace play::net
+}  // namespace play::net

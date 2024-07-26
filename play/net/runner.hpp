@@ -3,7 +3,7 @@
 #include <play/net/asio.hpp>
 #include <play/net/runner/timer_service.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // io_context runner base class
 /**
@@ -58,16 +58,22 @@ public:
     return timer_service_.repeat(strand, ms, std::forward<CompletionToken>(handler));
   }
 
-  asio::io_context& get_ioc() { return ioc_; }
+  asio::io_context& get_ioc()
+  {
+    return ioc_;
+  }
 
-  const std::string& get_name() const { return name_; }
+  const std::string& get_name() const
+  {
+    return name_;
+  }
 
   // sleep for ms milliseconds
   static void sleep(int ms);
 
 private:
   void make_strands(size_t strand_count);
-  
+
   strand_type& get_strand(size_t strand_key)
   {
     return strands_[strand_key % strands_.size()];
@@ -80,4 +86,4 @@ private:
   std::vector<strand_type> strands_;
 };
 
-}}  // namespace play::net
+}  // namespace play

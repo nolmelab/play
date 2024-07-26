@@ -5,7 +5,7 @@
 #include <play/base/logger.hpp>
 #include <string>
 
-namespace play { namespace app {
+namespace play {
 
 struct error : public std::exception
 {
@@ -30,4 +30,4 @@ struct error : public std::exception
   }
 };
 
-}}  // namespace play::app
+}  // namespace play

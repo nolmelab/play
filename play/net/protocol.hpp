@@ -3,7 +3,7 @@
 #include <functional>
 #include <play/net/asio.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // type used to mark empty topic (topic not used)
 struct empty_topic
@@ -24,4 +24,4 @@ public:
   protocol() {}
 };
 
-}}  // namespace play::net
+}  // namespace play

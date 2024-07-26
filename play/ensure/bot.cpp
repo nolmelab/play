@@ -1,11 +1,11 @@
 #include <play/base/json_reader.hpp>
 #include <play/ensure/act_factory.hpp>
 #include <play/ensure/bot.hpp>
-#include <play/ensure/ensure.hpp>
+#include <play/ensure/ensure_app.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
-bot::bot(ensure& app, const nlohmann::json& json, const std::string& name, size_t index)
+bot::bot(ensure_app& app, const nlohmann::json& json, const std::string& name, size_t index)
     : app_{app},
       json_{json},
       name_{name},
@@ -20,14 +20,15 @@ bool bot::start()
 
   if (rc)
   {
-    auto interval = base::json_reader::read(json_, "ensure.update_interval", 200);
+    auto interval = play::json_reader::read(json_, "ensure.update_interval", 200);
     auto self = shared_from_this();
-    bot_timer_ = ensure::get().get_runner().repeat(get_id(), std::chrono::milliseconds(interval),
-                                                   [this, self](net::timer& timer)
-                                                   {
-                                                     PLAY_UNUSED(timer);
-                                                     this->update();
-                                                   });
+    bot_timer_ =
+        ensure_app::get().get_runner().repeat(get_id(), std::chrono::milliseconds(interval),
+                                              [this, self](play::timer& timer)
+                                              {
+                                                PLAY_UNUSED(timer);
+                                                this->update();
+                                              });
     LOG()->info("bot: {}. timer started.", get_name());
     return true;
   }
@@ -51,4 +52,4 @@ void bot::stop()
   LOG()->info("bot: {} stopped.", get_name());
 }
 
-}}  // namespace play::ensure
+}  // namespace ensure

@@ -1,7 +1,7 @@
 #include <play/app/app_base.hpp>
 #include <play/base/logger.hpp>
 
-namespace play { namespace app {
+namespace play {
 
 template <typename Protocol, typename Frame>
 template <typename Service, typename... Args>
@@ -31,4 +31,4 @@ inline std::shared_ptr<Service> app_base<Protocol, Frame>::get_service()
   return iter->second;
 }
 
-}}  // namespace play::app
+}  // namespace play

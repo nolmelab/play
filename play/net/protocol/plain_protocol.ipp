@@ -2,7 +2,7 @@
 #include <play/net/protocol/plain_protocol.hpp>
 #include <play/net/util/serializer.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 template <typename Topic>
 inline asio::const_buffer plain_protocol<Topic>::accepted()
@@ -57,7 +57,7 @@ inline size_t plain_protocol<Topic>::encode(topic pic, const asio::const_buffer&
   auto total_len = length_codec_->length_field_size + src.size() + sizeof(topic);
   auto dst_buf = dst.prepare(total_len);
   auto wbuf = reinterpret_cast<char*>(dst_buf.data());
-  base::serializer::serialize(reinterpret_cast<uint8_t*>(wbuf), src.size(), pic);
+  serializer::serialize(reinterpret_cast<uint8_t*>(wbuf), src.size(), pic);
   dst.commit(sizeof(Topic));
 
   auto size = length_codec_->encode(src, dst);  // prepare, write,commit to dst
@@ -76,7 +76,7 @@ inline std::tuple<size_t, asio::const_buffer, Topic> plain_protocol<Topic>::deco
 
   auto rbuf = reinterpret_cast<const char*>(src.data());
   Topic pic{};
-  base::serializer::deserialize(reinterpret_cast<const uint8_t*>(rbuf), src.size(), pic);
+  serializer::deserialize(reinterpret_cast<const uint8_t*>(rbuf), src.size(), pic);
 
   auto cbuf = asio::const_buffer{rbuf + sizeof(Topic), src.size() - sizeof(Topic)};
   auto sbuf = length_codec_->decode(cbuf);
@@ -99,4 +99,4 @@ inline std::pair<size_t, asio::const_buffer> plain_protocol<Topic>::handshake(
   return {0, {}};  // no handshake required
 }
 
-}}  // namespace play::net
+}  // namespace play

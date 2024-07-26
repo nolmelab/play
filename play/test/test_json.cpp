@@ -3,7 +3,7 @@
 #include <play/base/json_reader.hpp>
 
 using nlohmann::json;
-using namespace play::base;
+using namespace play;
 
 TEST_CASE("json")
 {

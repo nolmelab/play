@@ -6,7 +6,7 @@
 #include <play/net/asio.hpp>
 #include <play/net/protocol/length_delimited.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // sodium 암호화 처리를 위한 정보 교환을 담당한다.
 /**
@@ -133,6 +133,6 @@ private:
   uint8_t nonce_exchange_buf_[nonce_exchange_size];
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 #include <play/net/protocol/sodium_handshake.ipp>

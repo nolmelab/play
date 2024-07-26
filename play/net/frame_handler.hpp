@@ -4,7 +4,7 @@
 
 #include <memory>
 
-namespace play { namespace net {
+namespace play {
 
 // client와 server의 하위 클래스에서 처리할 경우 표시를 하기 위한 frame 클래스
 struct frame_subclass
@@ -48,4 +48,4 @@ public:
   }
 };
 
-}}  // namespace play::net
+}  // namespace play

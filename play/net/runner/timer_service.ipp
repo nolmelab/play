@@ -1,7 +1,7 @@
 #include <play/base/macros.hpp>
 #include <play/net/runner/timer_service.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 template <typename CompletionToken>
 inline void timer::once(asio::chrono::milliseconds ms, CompletionToken&& handler)
@@ -111,7 +111,7 @@ inline timer::ref timer_service::repeat(asio::chrono::milliseconds ms, Completio
 
 template <typename CompletionToken>
 inline timer::ref timer_service::once(timer::strand_type& strand, asio::chrono::milliseconds ms,
-                       CompletionToken&& handler)
+                                      CompletionToken&& handler)
 {
   auto ref = pool_.construct(std::reference_wrapper<asio::io_context>(ioc_), &strand);
   ref->once(ms, std::forward<CompletionToken>(handler));
@@ -120,14 +120,14 @@ inline timer::ref timer_service::once(timer::strand_type& strand, asio::chrono::
 
 template <typename CompletionToken>
 inline timer::ref timer_service::repeat(timer::strand_type& strand, asio::chrono::milliseconds ms,
-                         CompletionToken&& handler)
+                                        CompletionToken&& handler)
 {
   auto ref = pool_.construct(std::reference_wrapper<asio::io_context>(ioc_), &strand);
   ref->repeat(ms, std::forward<CompletionToken>(handler));
   return ref;
 }
 
-}}  // namespace play::net
+}  // namespace play
 
 // note:
 // recursive labmda를 lambda를 리턴하는 람다로 구현 가능하지만

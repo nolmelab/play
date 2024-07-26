@@ -2,7 +2,7 @@
 #include <play/app/act.hpp>
 #include <play/app/actor.hpp>
 
-using namespace play::app;
+using namespace play;
 
 namespace {
 

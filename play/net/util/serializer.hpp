@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <play/base/macros.hpp>
 
-namespace play { namespace base {
+namespace play {
 
 class serializer
 {
@@ -62,4 +62,4 @@ inline void serializer::deserialize(const uint8_t* buf, size_t len, bool& v)
   v = tv == 0 ? false : true;
 }
 
-}}  // namespace play::base
+}  // namespace play

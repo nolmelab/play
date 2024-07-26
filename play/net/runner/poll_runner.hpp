@@ -2,7 +2,7 @@
 
 #include <play/net/runner.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // io_context runner base class
 /**
@@ -29,4 +29,4 @@ public:
   }
 };
 
-}}  // namespace play::net
+}  // namespace play

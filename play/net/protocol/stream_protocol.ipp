@@ -1,7 +1,7 @@
 #include <play/base/macros.hpp>
 #include <play/net/protocol/stream_protocol.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 inline asio::const_buffer stream_protocol::accepted()
 {
@@ -34,7 +34,7 @@ inline void stream_protocol::closed()
 }
 
 inline size_t stream_protocol::encode(topic pic, const asio::const_buffer& src,
-                                      asio::streambuf& dst, bool /*ignore */ )
+                                      asio::streambuf& dst, bool /*ignore */)
 {
   PLAY_CHECK(!closed_);
   if (closed_)
@@ -61,4 +61,4 @@ std::pair<size_t, asio::const_buffer> stream_protocol::handshake(const asio::con
   return {0, {}};
 }
 
-}}  // namespace play::net
+}  // namespace play

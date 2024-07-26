@@ -2,12 +2,12 @@
 
 #include <play/ensure/act.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 class act_composite : public act
 {
 public:
-  act_composite(app::actor& owner, act::ptr parent, const nlohmann::json& json,
+  act_composite(play::actor& owner, act::ptr parent, const nlohmann::json& json,
                 const std::string& name)
       : act(owner, parent, json, name)
   {
@@ -25,4 +25,4 @@ private:
   std::vector<act::ptr> acts_;  // this is the sequential flow
 };
 
-}}  // namespace play::ensure
+}  // namespace ensure

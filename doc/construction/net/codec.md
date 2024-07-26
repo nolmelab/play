@@ -78,3 +78,20 @@ chacha20을 암호화에 주로 사용하는데 xor이 붙은 함수로 암복�
 
 - [x] cipher 반복 테스트 OK
 - [ ] 로그 정리
+
+
+ sodium_handshake:
+ [1] 메모리가 깨지는 현상
+ - h1.on_handshake(), h2.on_handshake()에서 h1의 메모리가 깨짐
+ - -fstack-protector-all로 확인 안 됨
+   - debugging이 안 돼서 -g 옵션 추가
+ - valgrind를 WSL에 설치하고 실행했으나 디버그 정보 오류가 나옴
+ [2] unique_ptr로 바꾸고 nonce open에 실패
+ - 키 값들은 다 맞는데 그런다.
+ -
+ 여러가지 문제의 원인이 crypto_box_SEALBYTES를 누락해서 생긴 문제.
+ C++에서 이와 같은 문제가 쉽게 드러나지 않는다.
+ Ubuntu + clang에서 더 정확하게 동작한다. 바로 죽어준다.
+
+ sodium_cipher:
+ - 바로 된 듯 하나 secure_protocol로 확인해야 한다.

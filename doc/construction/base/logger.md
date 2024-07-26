@@ -35,7 +35,7 @@ but it does not help much.
 [4] dynamic link 
 
 - set static 
-- target_compile_options(play_play_base PRIVATE /MT)
+- target_compile_options(play_base PRIVATE /MT)
   - still error with _ITERATOR_DEBUG_LEVEL and RuntimeLibrary 
   - /MTd works 
   - needs to make it optional for MSVC 

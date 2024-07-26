@@ -2,7 +2,7 @@
 
 #include <play/app/actor.hpp>
 
-namespace play { namespace app {
+namespace play {
 
 // service들의 기반 클래스
 class service : public actor
@@ -14,4 +14,4 @@ public:
   service() = default;
 };
 
-}}  // namespace play::app
+}  // namespace play

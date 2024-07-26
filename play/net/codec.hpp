@@ -2,7 +2,7 @@
 
 #include <boost/asio/streambuf.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // codec translates buffer with encode and decode
 /**
@@ -13,4 +13,4 @@ class codec
 public:
 };
 
-}}  // namespace play::net
+}  // namespace play

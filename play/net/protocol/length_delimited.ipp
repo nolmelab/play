@@ -2,7 +2,7 @@
 #include <play/net/protocol/length_delimited.hpp>
 #include <play/net/util/serializer.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 inline size_t length_delimited::encode(const asio::const_buffer& src, asio::streambuf& dst)
 {
@@ -68,4 +68,4 @@ inline asio::const_buffer length_delimited::decode(const asio::const_buffer& src
   return {};
 }
 
-}}  // namespace play::net
+}  // namespace play

@@ -1,7 +1,7 @@
 #include <doctest/doctest.h>
 #include <play/base/string_util.hpp>
 
-using namespace play::base;
+using namespace play;
 
 TEST_CASE("string_util")
 {

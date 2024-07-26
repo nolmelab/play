@@ -54,10 +54,10 @@ add_dependencies(test fb)
 # add link libraries. playground_core is available with cmake
 target_link_libraries(
   test
-  play_play_base 
-  play_play_net
-  play_play_app
-  play_play_ensure
+  play_base 
+  play_net
+  play_app
+  play_ensure
   spdlog::spdlog 
   doctest::doctest
   unofficial-sodium::sodium

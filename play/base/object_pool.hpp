@@ -5,7 +5,7 @@
 #include <mutex>
 #include <shared_mutex>
 
-namespace play { namespace base {
+namespace play {
 
 // std::shared_ptr에 deleter를 추가하여 풀로 반환하게 한 간단한 풀
 template <typename T, typename Mutex = std::recursive_mutex>
@@ -79,4 +79,4 @@ private:
   size_t pool_size_{0};
 };
 
-}}  // namespace play::base
+}  // namespace play

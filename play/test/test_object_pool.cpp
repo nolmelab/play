@@ -6,7 +6,7 @@
 
 #include <play/base/object_pool.hpp>
 
-using namespace play::base;
+using namespace play;
 
 namespace {
 struct simple

@@ -3,12 +3,12 @@
 #include <play/base/macros.hpp>
 #include <play/ensure/act_composite.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 class act_parallel : public act_composite
 {
 public:
-  act_parallel(app::actor& owner, act::ptr parent, const nlohmann::json& json,
+  act_parallel(play::actor& owner, act::ptr parent, const nlohmann::json& json,
                const std::string& name)
       : act_composite(owner, parent, json, name)
   {
@@ -23,7 +23,7 @@ private:
 
   ptr find_child(const std::string& path) final;
 
-  act::ptr find_act(const std::string& name) const;
+  ptr find_act(const std::string& name) const;
 
   void jump(const std::string& path) final;
 
@@ -32,4 +32,4 @@ private:
   void jump_child(const std::string& path);
 };
 
-}}  // namespace play::ensure
+}  // namespace ensure

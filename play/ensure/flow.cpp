@@ -3,12 +3,11 @@
 #include <play/base/string_util.hpp>
 #include <play/ensure/act_factory.hpp>
 #include <play/ensure/bot.hpp>
-#include <play/ensure/ensure.hpp>
 #include <play/ensure/flow.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
-flow::flow(app::actor& bt, const nlohmann::json& json)
+flow::flow(play::actor& bt, const nlohmann::json& json)
     : act_serial(bt, ptr{}, json, std::string{"flow"})
 {
 }
@@ -18,4 +17,4 @@ void flow::exit()
   get_owner().stop();
 }
 
-}}  // namespace play::ensure
+}  // namespace ensure

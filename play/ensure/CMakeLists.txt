@@ -4,27 +4,28 @@ find_package(spdlog CONFIG REQUIRED)
 
 # set sources for playground_core
 set(SOURCE 
-  ensure.cpp
+  ensure_app.cpp
   bot.cpp
   act_composite.cpp
   act_factory.cpp
   act_parallel.cpp
   act_serial.cpp
   act.cpp
+  blackboard.cpp
   bot.cpp
   flow.cpp
   acts/act_message.cpp
 )
 
 # set library target with sources
-add_library(play_play_ensure ${SOURCE})
+add_library(play_ensure ${SOURCE})
 
 if (MSVC)
-  target_compile_options(play_play_ensure PRIVATE /MTd)
+  target_compile_options(play_ensure PRIVATE /MTd)
 endif()
 
 # add include path
-target_include_directories(play_play_ensure PRIVATE "${CMAKE_SOURCE_DIR}/..")
+target_include_directories(play_ensure PRIVATE "${CMAKE_SOURCE_DIR}/..")
 
 # add link libaries
-target_link_libraries(play_play_ensure spdlog::spdlog)
+target_link_libraries(play_ensure spdlog::spdlog)

@@ -2,7 +2,7 @@
 #include <play/base/logger.hpp>
 #include <play/net/runner/thread_runner.hpp>
 
-using namespace play::net;
+using namespace play;
 
 TEST_CASE("timer")
 {

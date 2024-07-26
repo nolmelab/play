@@ -8,7 +8,7 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace play { namespace net {
+namespace play {
 
 // 프로토콜이 지정된 서버로 클라 연결을 받아 통신을 한다.
 /**
@@ -90,6 +90,6 @@ private:
   shared_mutex mutex_;
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 #include <play/net/server.ipp>

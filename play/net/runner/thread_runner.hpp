@@ -3,7 +3,7 @@
 #include <atomic>
 #include <play/net/runner.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // io_context를 여러 쓰레드에서 실행
 class thread_runner : public runner
@@ -31,4 +31,4 @@ private:
   std::vector<std::thread> threads_;
 };
 
-}}  // namespace play::net
+}  // namespace play

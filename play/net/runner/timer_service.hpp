@@ -3,7 +3,7 @@
 #include <play/base/object_pool.hpp>
 #include <play/net/asio.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 class timer
 {
@@ -82,10 +82,10 @@ public:
                     CompletionToken&& handler);
 
 private:
-  inline static base::object_pool<timer> pool_;
+  inline static object_pool<timer> pool_;
   asio::io_context& ioc_;
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 #include <play/net/runner/timer_service.ipp>

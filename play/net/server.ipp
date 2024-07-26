@@ -1,6 +1,6 @@
 #include <play/net/server.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 template <typename Protocol, typename Frame>
 server<Protocol, Frame>::server(runner& runner, frame_handler& handler)
@@ -152,4 +152,4 @@ void server<Protocol, Frame>::handle_accept(session_ptr se, error_code ec)
   start_accept();
 }
 
-}}  // namespace play::net
+}  // namespace play

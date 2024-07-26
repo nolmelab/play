@@ -1,6 +1,6 @@
 #include <play/ensure/act_serial.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 bool act_serial::on_activate()
 {
@@ -106,4 +106,4 @@ std::pair<size_t, act::ptr> act_serial::find_act(const std::string& name) const
   return {0, {}};
 }
 
-}}  // namespace play::ensure
+}  // namespace ensure

@@ -2,8 +2,7 @@
 #include <play/net/protocol.hpp>
 #include <play/net/util/serializer.hpp>
 
-using namespace play::base;
-using namespace play::net;
+using namespace play;
 
 namespace {
 void func(int v) {}

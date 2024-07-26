@@ -2,7 +2,7 @@
 #include <play/net/protocol/secure_protocol.hpp>
 #include <play/net/util/serializer.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 template <typename Topic>
 inline asio::const_buffer secure_protocol<Topic>::accepted()
@@ -70,11 +70,11 @@ inline size_t secure_protocol<Topic>::encode(Topic pic, const asio::const_buffer
   auto wdst = dst.prepare(total_len);
 
   auto pdst = reinterpret_cast<uint8_t*>(wdst.data());
-  base::serializer::serialize(pdst, sizeof(pic), pic);  // prepare()로 공간이 충분
+  serializer::serialize(pdst, sizeof(pic), pic);  // prepare()로 공간이 충분
   pdst += sizeof(Topic);
-  base::serializer::serialize(pdst, enc_field_size, encrypt);
+  serializer::serialize(pdst, enc_field_size, encrypt);
   pdst += enc_field_size;
-  base::serializer::serialize(pdst, length_field_size, static_cast<uint32_t>(src.size()));
+  serializer::serialize(pdst, length_field_size, static_cast<uint32_t>(src.size()));
 
   auto pbody = pdst + length_field_size;
 
@@ -108,11 +108,11 @@ inline std::tuple<size_t, asio::const_buffer, Topic> secure_protocol<Topic>::dec
   bool encrypt{false};
   uint32_t len{0};
 
-  base::serializer::deserialize(psrc, sizeof(pic), pic);
+  serializer::deserialize(psrc, sizeof(pic), pic);
   psrc += sizeof(Topic);
-  base::serializer::deserialize(psrc, enc_field_size, encrypt);
+  serializer::deserialize(psrc, enc_field_size, encrypt);
   psrc += enc_field_size;
-  base::serializer::deserialize(psrc, length_field_size, len);
+  serializer::deserialize(psrc, length_field_size, len);
 
   auto total_len = len + length_field_size + sizeof(Topic) + enc_field_size;
   if (src.size() < total_len)
@@ -174,4 +174,4 @@ inline asio::const_buffer secure_protocol<Topic>::encode_handshake(const asio::c
   return send;
 }
 
-}}  // namespace play::net
+}  // namespace play

@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <play/base/string_util.hpp>
 
-namespace play { namespace base {
+namespace play {
 
 class json_reader
 {
@@ -50,4 +50,4 @@ public:
   }
 };
 
-}}  // namespace play::base
+}  // namespace play

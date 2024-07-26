@@ -4,7 +4,7 @@
 #include <play/ensure/act_composite.hpp>
 #include <play/ensure/act_factory.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 bool act_composite::load_acts()
 {
@@ -19,8 +19,8 @@ bool act_composite::load_acts()
 
   for (auto& jact : jflow)
   {
-    auto type = base::json_reader::read(jact, "type", std::string{});
-    auto name = base::json_reader::read(jact, "name", std::string{});
+    auto type = play::json_reader::read(jact, "type", std::string{});
+    auto name = play::json_reader::read(jact, "name", std::string{});
 
     auto ap = act_factory::get().create(type, get_owner(), self(), jact, name);
     if (ap)
@@ -37,4 +37,4 @@ bool act_composite::load_acts()
   return true;
 }
 
-}}  // namespace play::ensure
+}  // namespace ensure

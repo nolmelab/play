@@ -5,7 +5,7 @@
 #include <memory>
 #include <string_view>
 
-namespace play { namespace base {
+namespace play {
 
 /// @brief system logger
 /**
@@ -13,21 +13,23 @@ namespace play { namespace base {
  */
 class logger
 {
- public:
+public:
   static std::shared_ptr<spdlog::logger> get();
 
-  static void dump_hex(spdlog::level::level_enum lvl, std::string_view m, const void* data, size_t len);
+  static void dump_hex(spdlog::level::level_enum lvl, std::string_view m, const void* data,
+                       size_t len);
 
-  static void dump_hex(spdlog::level::level_enum lvl, std::string_view m, const char* data, size_t len);
+  static void dump_hex(spdlog::level::level_enum lvl, std::string_view m, const char* data,
+                       size_t len);
 
- private:
+private:
   static logger& get_instance();
   static void setup();
 
- private:
+private:
   std::atomic<bool> initialized_{false};
 };
 
-}}  // namespace play::base
+}  // namespace play
 
-#define LOG() play::base::logger::get()
+#define LOG() play::logger::get()

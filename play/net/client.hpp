@@ -9,7 +9,7 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace play { namespace net {
+namespace play {
 
 // 프로토콜이 지정된 클라이언트로 서버와 연결하여 통신한다.
 /**
@@ -86,6 +86,6 @@ private:
   frame_handler& frame_handler_;
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 #include <play/net/client.ipp>

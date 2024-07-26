@@ -2,7 +2,7 @@
 
 #include <memory>
 
-namespace play { namespace app {
+namespace play {
 
 class actor;
 
@@ -38,4 +38,4 @@ private:
   actor& owner_;
 };
 
-}}  // namespace play::app
+}  // namespace play

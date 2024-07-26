@@ -5,7 +5,7 @@
 #include <play/ensure/act_serial.hpp>
 #include <play/net/runner/timer_service.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 class bot;
 
@@ -19,10 +19,10 @@ public:
   using act_ptr = std::shared_ptr<act>;
 
 public:
-  flow(app::actor& bt, const nlohmann::json& json);
+  flow(play::actor& bt, const nlohmann::json& json);
 
 private:
   void exit() final;
 };
 
-}}  // namespace play::ensure
+}  // namespace ensure

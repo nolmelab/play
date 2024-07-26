@@ -1,7 +1,7 @@
 #include <play/base/logger.hpp>
 #include <play/net/frame/flatbuffer_handler.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 template <typename Session>
 template <typename FlatBufferObj, typename Obj>
@@ -139,4 +139,4 @@ inline typename flatbuffer_handler<Session>::frame_ptr flatbuffer_handler<Sessio
   return obj;
 }
 
-}}  // namespace play::net
+}  // namespace play

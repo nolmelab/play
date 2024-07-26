@@ -5,15 +5,15 @@
 #include <play/ensure/act_serial.hpp>
 #include <play/ensure/acts/act_message.hpp>
 #include <play/ensure/bot.hpp>
-#include <play/ensure/ensure.hpp>
+#include <play/ensure/ensure_app.hpp>
 #include <play/ensure/flow.hpp>
 #include <play/net/runner.hpp>
 
-using namespace play::ensure;
+using namespace ensure;
 
 namespace {
 
-class mockup_actor : public ::play::app::actor
+class mockup_actor : public ::play::actor
 {
 public:
   bool start() final
@@ -253,7 +253,7 @@ TEST_CASE("ensure - bot")
     }
     )";
 
-    ensure& app = ensure::get();  // ensure app은 싱글톤
+    ensure_app& app = ensure_app::get();  // ensure app은 싱글톤
     auto jconf = nlohmann::json::parse(conf);
     CHECK(app.start(jconf));
     CHECK(app.get_bot_count() == 1);
@@ -262,6 +262,10 @@ TEST_CASE("ensure - bot")
     CHECK(top_1->is_active());  // XXX: not sure. how to make it sure?
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    auto top_2 = app.get_bot(0)->get_flow().find("/flow/message_top_2");
+    CHECK(top_2);
+    CHECK(top_2->get_active_count() > 0);
 
     app.stop();
   }

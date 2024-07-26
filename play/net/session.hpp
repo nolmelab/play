@@ -6,7 +6,7 @@
 
 using tcp = asio::ip::tcp;
 
-namespace play { namespace net {
+namespace play {
 
 // tcp 세션의 바이트 송수신을 처리한다.
 /**
@@ -115,7 +115,7 @@ private:
   asio::streambuf send_bufs_[2];
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 // template member function implementation
 #include <play/net/session.ipp>

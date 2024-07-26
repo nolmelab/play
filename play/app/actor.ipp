@@ -1,14 +1,14 @@
 #include <play/app/actor.hpp>
+#include <play/base/dynamic_snowflake.hpp>
 #include <play/base/logger.hpp>
 #include <play/base/macros.hpp>
-#include <play/base/dynamic_snowflake.hpp>
 #include <typeindex>
 
-namespace play { namespace app {
+namespace play {
 
-inline actor::actor() 
+inline actor::actor()
 {
-  id_ = base::dynamic_snowflake::get().next();
+  id_ = dynamic_snowflake::get().next();
 }
 
 template <typename Act, typename... Args>
@@ -22,7 +22,7 @@ inline bool actor::create_act(Args&&... args)
   {
     LOG()->warn("act exists. type_name: {}", index.name());
   }
-  else 
+  else
   {
     on_created_act(index, act);
   }
@@ -56,4 +56,4 @@ inline void actor::on_created_act(const std::type_index& type_index, act::ptr ap
   PLAY_UNUSED(ap);
 }
 
-}}  // namespace play::app
+}  // namespace play

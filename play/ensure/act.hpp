@@ -5,9 +5,9 @@
 #include <play/base/stop_watch.hpp>
 #include <string>
 
-namespace play { namespace ensure {
+namespace ensure {
 
-class act : public app::act
+class act : public play::act
 {
 public:
   using ptr = std::shared_ptr<act>;  // hide app::act::ptr
@@ -48,8 +48,8 @@ public:
   };
 
 public:
-  act(app::actor& owner, act::ptr parent, const nlohmann::json& json, const std::string& name)
-      : app::act(owner),
+  act(play::actor& owner, act::ptr parent, const nlohmann::json& json, const std::string& name)
+      : play::act(owner),
         parent_{parent},
         json_{json},
         name_{name},
@@ -105,7 +105,7 @@ public:
     return active_count_;
   }
 
-  base::stop_watch& get_stop_watch()
+  play::stop_watch& get_stop_watch()
   {
     return stop_watch_;
   }
@@ -155,7 +155,7 @@ private:
   void build_path();
 
 private:
-  base::stop_watch stop_watch_;
+  play::stop_watch stop_watch_;
   std::string name_;
   ptr parent_;
   path path_;
@@ -164,4 +164,4 @@ private:
   size_t active_count_{0};
 };
 
-}}  // namespace play::ensure
+}  // namespace ensure

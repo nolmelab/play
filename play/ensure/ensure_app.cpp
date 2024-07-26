@@ -2,19 +2,19 @@
 #include <play/base/json_reader.hpp>
 #include <play/ensure/act_factory.hpp>
 #include <play/ensure/acts/act_message.hpp>
-#include <play/ensure/ensure.hpp>
+#include <play/ensure/ensure_app.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
-ensure& ensure::get()
+ensure_app& ensure_app::get()
 {
-  static ensure inst_;
+  static ensure_app inst_;
   return inst_;
 }
 
-ensure::ensure() {}
+ensure_app::ensure_app() {}
 
-bool ensure::start(const std::string& config_file)
+bool ensure_app::start(const std::string& config_file)
 {
   config_file_ = config_file;
 
@@ -28,31 +28,32 @@ bool ensure::start(const std::string& config_file)
   }
   catch (std::exception& ex)
   {
-    LOG()->error("exception: {} while starting ensure", ex.what());
+    LOG()->error("exception: {} while starting ensure_app", ex.what());
     return false;
   }
 }
 
-bool ensure::start(const nlohmann::json& jconf)
+bool ensure_app::start(const nlohmann::json& jconf)
 {
   jconf_ = jconf;
 
   try
   {
     auto default_concurrency = std::thread::hardware_concurrency();
-    auto concurrency = base::json_reader::read(jconf_, "ensure.concurrency", default_concurrency);
-    auto port = base::json_reader::read(jconf_, "ensure.port", 7000);
+    auto concurrency =
+        play::json_reader::read(jconf_, "ensure_app.concurrency", default_concurrency);
+    auto port = play::json_reader::read(jconf_, "ensure_app.port", 7000);
 
     register_default_acts();
 
-    runner_ = std::make_unique<net::thread_runner>(concurrency, "ensure");
+    runner_ = std::make_unique<play::thread_runner>(concurrency, "ensure_app");
     server_ = std::make_unique<server>(*runner_.get(), handler_);
 
     server_->start(port);
 
-    bot_count_ = base::json_reader::read(jconf_, "ensure.bot_count", 1);
-    bot_start_index_ = base::json_reader::read(jconf_, "ensure.bot_start_index", 1);
-    bot_prefix_ = base::json_reader::read(jconf_, "ensure.bot_prefix", std::string{"bot_"});
+    bot_count_ = play::json_reader::read(jconf_, "ensure_app.bot_count", 1);
+    bot_start_index_ = play::json_reader::read(jconf_, "ensure_app.bot_start_index", 1);
+    bot_prefix_ = play::json_reader::read(jconf_, "ensure_app.bot_prefix", std::string{"bot_"});
 
     start_bots();
 
@@ -60,19 +61,19 @@ bool ensure::start(const nlohmann::json& jconf)
   }
   catch (std::exception& ex)
   {
-    LOG()->error("exception: {} while starting ensure", ex.what());
+    LOG()->error("exception: {} while starting ensure_app", ex.what());
     return false;
   }
 }
 
-void ensure::stop()
+void ensure_app::stop()
 {
   runner_->stop();
   server_->stop();
   stop_bots();
 }
 
-bool ensure::start_bots()
+bool ensure_app::start_bots()
 {
   for (size_t i = 0; i < bot_count_; ++i)
   {
@@ -88,7 +89,7 @@ bool ensure::start_bots()
   return true;
 }
 
-void ensure::stop_bots()
+void ensure_app::stop_bots()
 {
   for (auto& bp : bots_)
   {
@@ -96,9 +97,9 @@ void ensure::stop_bots()
   }
 }
 
-void ensure::register_default_acts()
+void ensure_app::register_default_acts()
 {
   PLAY_REGISTER_ACT(act_message);
 }
 
-}}  // namespace play::ensure
+}  // namespace ensure

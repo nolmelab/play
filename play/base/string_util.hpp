@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace play { namespace base {
+namespace play {
 
 class string_util
 {
@@ -39,4 +39,4 @@ public:
   }
 };
 
-}}  // namespace play::base
+}  // namespace play

@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-namespace play { namespace base {
+namespace play {
 
 class stop_watch
 {
@@ -23,4 +23,4 @@ private:
   std::chrono::time_point<std::chrono::steady_clock> start_;
 };
 
-}}  // namespace play::base
+}  // namespace play

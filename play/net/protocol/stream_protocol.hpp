@@ -4,7 +4,7 @@
 #include <play/net/protocol.hpp>
 #include <play/net/protocol/length_delimited.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // stream_protocol 전용 토픽.
 struct stream_protocol_topic
@@ -74,7 +74,7 @@ private:
   bool closed_;
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 // template member function implementation
 #include <play/net/protocol/stream_protocol.ipp>

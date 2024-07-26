@@ -1,6 +1,6 @@
 #include <play/ensure/act_parallel.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 bool act_parallel::on_activate()
 {
@@ -101,4 +101,4 @@ act::ptr act_parallel::find_act(const std::string& name) const
   return {};
 }
 
-}}  // namespace play::ensure
+}  // namespace ensure

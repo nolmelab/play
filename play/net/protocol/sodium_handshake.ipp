@@ -3,7 +3,7 @@
 #include <play/net/protocol/sodium_handshake.hpp>
 #include <string_view>
 
-namespace play { namespace net {
+namespace play {
 
 inline sodium_handshake::sodium_handshake(size_t handle, bool accepted)
     : handle_{handle},
@@ -104,23 +104,23 @@ inline void sodium_handshake::dump_state(std::string_view step)
 {
   LOG()->debug("handshake step: {}", step);
 
-  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. pub_key", handle_), pub_key_,
-                         key_size);
+  logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. pub_key", handle_), pub_key_,
+                   key_size);
 
-  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. peer_pub_key", handle_),
-                         peer_pub_key_, key_size);
+  logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. peer_pub_key", handle_),
+                   peer_pub_key_, key_size);
 
-  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. rx_key", handle_), rx_key_,
-                         key_size);
+  logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. rx_key", handle_), rx_key_,
+                   key_size);
 
-  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. tx_key", handle_), tx_key_,
-                         key_size);
+  logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. tx_key", handle_), tx_key_,
+                   key_size);
 
-  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. rx_nonce", handle_),
-                         rx_nonce_, nonce_size);
+  logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. rx_nonce", handle_), rx_nonce_,
+                   nonce_size);
 
-  base::logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. tx_nonce", handle_),
-                         tx_nonce_, nonce_size);
+  logger::dump_hex(spdlog::level::info, fmt::format("handle: {}. tx_nonce", handle_), tx_nonce_,
+                   nonce_size);
 }
 
-}}  // namespace play::net
+}  // namespace play

@@ -5,7 +5,7 @@
 #include <play/net/protocol/sodium_cipher.hpp>
 #include <play/net/protocol/sodium_handshake.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // Topic으로 구분하고 길이를 포함하는 암호화 가능한 프로토콜
 /**
@@ -98,7 +98,7 @@ private:
   length_delimited hs_length_codec_{};
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 // template member function implementation
 #include <play/net/protocol/secure_protocol.ipp>

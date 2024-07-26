@@ -2,12 +2,12 @@
 
 #include <play/ensure/act.hpp>
 
-namespace play { namespace ensure {
+namespace ensure {
 
 class act_message : public act
 {
 public:
-  act_message(app::actor& owner, act::ptr parent, const nlohmann::json& json,
+  act_message(play::actor& owner, act::ptr parent, const nlohmann::json& json,
               const std::string& name);
 
 private:
@@ -16,4 +16,4 @@ private:
   void on_update() final;
 };
 
-}}  // namespace play::ensure
+}  // namespace ensure

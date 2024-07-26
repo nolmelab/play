@@ -5,7 +5,7 @@
 #include <play/net/runner/poll_runner.hpp>
 #include <play/net/server.hpp>
 
-using namespace play::net;
+using namespace play;
 
 TEST_CASE("client & server")
 {

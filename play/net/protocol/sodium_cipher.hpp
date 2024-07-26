@@ -5,7 +5,7 @@
 #include <play/net/codec.hpp>
 #include <play/net/protocol/sodium_handshake.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 class sodium_cipher : public codec
 {
@@ -57,6 +57,6 @@ private:
   sodium_handshake& handshake_;
 };
 
-}}  // namespace play::net
+}  // namespace play
 
 #include <play/net/protocol/sodium_cipher.ipp>

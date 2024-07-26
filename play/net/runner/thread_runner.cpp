@@ -1,7 +1,7 @@
 #include <play/base/logger.hpp>
 #include <play/net/runner/thread_runner.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 thread_runner::thread_runner(size_t thread_count, const std::string& name)
     : runner(name),
@@ -41,7 +41,7 @@ void thread_runner::stop()
 
   stop_ = true;
   guard_.reset();
-  get_ioc().stop(); // needs to call to escape from run()
+  get_ioc().stop();  // needs to call to escape from run()
 
   for (auto& thread : threads_)
   {
@@ -63,4 +63,4 @@ void thread_runner::run()
   }
 }
 
-}}  // namespace play::net
+}  // namespace play

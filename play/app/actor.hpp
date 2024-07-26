@@ -5,7 +5,7 @@
 #include <play/base/dynamic_snowflake.hpp>
 #include <typeindex>
 
-namespace play { namespace app {
+namespace play {
 
 // actor들의 기반 클래스
 /**
@@ -54,6 +54,6 @@ private:
   size_t id_;
 };
 
-}}  // namespace play::app
+}  // namespace play
 
 #include <play/app/actor.ipp>

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace play { namespace net {
+namespace play {
 
 // 세션에서 통지를 위해 사용하는 인터페이스
 /**
@@ -23,4 +23,4 @@ struct session_handler
   virtual void on_receive(session_ptr se, topic topic, const void* data, size_t len) = 0;
 };
 
-}}  // namespace play::net
+}  // namespace play

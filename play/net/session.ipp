@@ -1,7 +1,7 @@
 #include <play/base/macros.hpp>
 #include <play/net/session.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 template <typename Protocol>
 session<Protocol>::session(session_handler& handler, asio::io_context& ioc, bool accepted)
@@ -112,11 +112,11 @@ bool session<Protocol>::send(topic pic, const void* data, size_t len, bool encry
   // protocol::encode() prepare, encode, and commit
   auto cbuf = asio::const_buffer{data, len};
 
-  try 
+  try
   {
     auto total_len = protocol_->encode(pic, cbuf, acc_buf, encrypt);
   }
-  catch ( std::exception& ex)
+  catch (std::exception& ex)
   {
     LOG()->error("protocol encode error. handle: {}", handle_);
     close();
@@ -127,7 +127,6 @@ bool session<Protocol>::send(topic pic, const void* data, size_t len, bool encry
   {
     start_send();
   }
-
 
   return false;
 }
@@ -312,4 +311,4 @@ size_t session<Protocol>::recv_frames()
   return frame_count;
 }
 
-}}  // namespace play::net
+}  // namespace play

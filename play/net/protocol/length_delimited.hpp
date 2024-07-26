@@ -4,7 +4,7 @@
 #include <play/net/asio.hpp>
 #include <play/net/codec.hpp>
 
-namespace play { namespace net {
+namespace play {
 
 // 페이로드 길이를 앞에 32비트 갖는 코덱이다.
 class length_delimited : public codec
@@ -31,6 +31,6 @@ private:
   size_t handle_;
 };
 
-}}  // namespace play::net
+}  // namespace play::net
 
 #include <play/net/protocol/length_delimited.ipp>
