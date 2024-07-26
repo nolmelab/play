@@ -152,6 +152,7 @@ TEST_CASE("ensure")
     SUBCASE("jump")
     {
       fp->update();  // to signal
+      // TODO: CHECK on is_active()
       fp->update();
       fp->update();
     }
