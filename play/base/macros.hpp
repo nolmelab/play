@@ -18,4 +18,8 @@
     assert(cond);                                                   \
   }
 
-#define PLAY_UNUSED(expr) do { (void)(expr); } while (0)
+#define PLAY_UNUSED(expr) \
+  do                      \
+  {                       \
+    (void)(expr);         \
+  } while (0)

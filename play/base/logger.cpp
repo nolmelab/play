@@ -11,12 +11,14 @@ void logger::setup()
 {
   get_instance().initialized_ = true;
 
+  auto filename = fmt::format("logs/{}", name);
+
   spdlog::init_thread_pool(32 * 1024, 1);
   auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-  auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>("logs/system.log", 0, 0);
+  auto daily_sink = std::make_shared<spdlog::sinks::daily_file_sink_mt>(filename, 0, 0);
   std::vector<spdlog::sink_ptr> sinks{stdout_sink, daily_sink};
 
-  auto logger = std::make_shared<spdlog::async_logger>("system", sinks.begin(), sinks.end(),
+  auto logger = std::make_shared<spdlog::async_logger>(name, sinks.begin(), sinks.end(),
                                                        spdlog::thread_pool(),
                                                        spdlog::async_overflow_policy::block);
 
@@ -32,7 +34,7 @@ std::shared_ptr<spdlog::logger> logger::get()
     setup();
   }
 
-  return spdlog::get("system");
+  return spdlog::get(name);
 }
 
 logger& logger::get_instance()

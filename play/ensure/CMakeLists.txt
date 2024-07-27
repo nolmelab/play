@@ -15,6 +15,7 @@ set(SOURCE
   bot.cpp
   flow.cpp
   acts/act_message.cpp
+  acts/act_wait_duration.cpp
 )
 
 # set library target with sources

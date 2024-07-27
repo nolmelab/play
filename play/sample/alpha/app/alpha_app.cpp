@@ -26,16 +26,18 @@ bool alpha_app::start(const std::string& config_file)
 bool alpha_app::start(const nlohmann::json& jconf)
 {
   jconf_ = jconf;
+  stop_ = false;
 
   try
   {
     auto default_concurrency = std::thread::hardware_concurrency();
     auto concurrency = play::json_reader::read(jconf_, "alpha.concurrency", default_concurrency);
     auto port = play::json_reader::read(jconf_, "alpha.port", 7000);
-    role_ = play::json_reader::read(jconf_, "alpha.role", "back");  // or front
+    role_ = play::json_reader::read(jconf_, "alpha.role", std::string{"back"});  // or front
 
     runner_ = std::make_unique<play::thread_runner>(concurrency, "alpha_app");
-    server_ = std::make_unique<server>(*runner_.get(), handler_);
+    handler_ = std::make_unique<frame_handler>(*runner_);
+    server_ = std::make_unique<server>(*handler_);
 
     server_->start(port);
 
@@ -45,6 +47,14 @@ bool alpha_app::start(const nlohmann::json& jconf)
   {
     LOG()->error("exception: {} while starting ensure_app", ex.what());
     return false;
+  }
+}
+
+void alpha_app::wait()
+{
+  while (!stop_)
+  {
+    play::runner::sleep(100);
   }
 }
 

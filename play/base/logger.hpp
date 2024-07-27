@@ -14,6 +14,9 @@ namespace play {
 class logger
 {
 public:
+  inline static std::string name = "system";
+
+public:
   static std::shared_ptr<spdlog::logger> get();
 
   static void dump_hex(spdlog::level::level_enum lvl, std::string_view m, const void* data,

@@ -1,0 +1,7 @@
+{
+  "alpha": {
+    "concurrency": 4,
+    "port": 7000,
+    "role": "back"
+  }
+}

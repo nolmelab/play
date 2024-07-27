@@ -24,6 +24,8 @@ public:
   // json 구성에서 서버 시작
   bool start(const nlohmann::json& jconf);
 
+  void wait();
+
   // TODO: when to stop?
   void stop();
 
@@ -42,8 +44,9 @@ private:
   nlohmann::json jconf_;
   std::unique_ptr<play::thread_runner> runner_;
   std::unique_ptr<server> server_;
-  frame_handler handler_;
+  std::unique_ptr<frame_handler> handler_;
   std::string role_;
+  bool stop_{false};
 };
 
 }  // namespace alpha

@@ -11,6 +11,7 @@ find_package(nlohmann_json CONFIG REQUIRED)
 add_executable(
   ensure_alpha
   ensure_alpha.cpp
+  main.cpp
 )
 
 if (MSVC)

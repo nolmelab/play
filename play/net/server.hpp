@@ -1,6 +1,7 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
+#include <play/base/observer_ptr.hpp>
 #include <play/net/frame_handler.hpp>
 #include <play/net/runner/thread_runner.hpp>
 #include <play/net/session.hpp>
@@ -26,14 +27,12 @@ public:
   using session_ptr = std::shared_ptr<session>;
   using topic = typename Protocol::topic;
   using handle = typename session::handle;
+  using frame = Frame;
   using frame_handler = frame_handler<session, topic, Frame>;
 
 public:
   // json 문자열에서 읽어 서버를 준비
-  server(runner& runner, frame_handler& handler);
-
-  // frame_subclass_handler를 사용하여 subclass 인터페이스를 지원
-  server(runner& runner);
+  server(frame_handler& handler);
 
   bool start(uint16_t port);
 

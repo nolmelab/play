@@ -63,7 +63,7 @@ private:
   nlohmann::json jconf_;
   std::unique_ptr<play::thread_runner> runner_;
   std::unique_ptr<server> server_;
-  frame_handler handler_;
+  std::unique_ptr<frame_handler> handler_;
 
   size_t bot_count_;
   size_t bot_start_index_;

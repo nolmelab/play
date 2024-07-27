@@ -13,8 +13,8 @@ static constexpr int test_bytes = 1 * 1024;
 
 struct test_server : public server<plain_protocol<uint32_t>>
 {
-  test_server(runner& runner)
-      : server<plain_protocol<uint32_t>>(runner)
+  test_server(frame_handler& handler)
+      : server<plain_protocol<uint32_t>>(handler)
   {
   }
 
@@ -33,8 +33,8 @@ struct test_server : public server<plain_protocol<uint32_t>>
 
 struct test_client : public client<plain_protocol<uint32_t>>
 {
-  test_client(runner& runner)
-      : client<plain_protocol<uint32_t>>(runner)
+  test_client(frame_handler& handler)
+      : client<plain_protocol<uint32_t>>(handler)
   {
   }
 
@@ -72,8 +72,9 @@ TEST_CASE("plain_protocol")
   SUBCASE("basics")
   {
     poll_runner runner{"plain_protocol runner"};
-    test_server server(runner);
-    test_client client(runner);
+    frame_default_handler<test_server> handler{runner};
+    test_server server(handler);
+    test_client client(handler);
 
     auto rc = server.start(7000);
 
@@ -97,18 +98,5 @@ TEST_CASE("plain_protocol")
     auto elapsed = watch.stop();
 
     LOG()->info("plain_protocol. elapsed: {}, bytes; {}", elapsed, test_bytes);
-
-    // [1] send() 호출이 진행되었으나 통신이 되지 않는다.
-    // - 길이가 503으로 오류가 있다.
-    // - topic 처리를 consume 하면 안 된다. unconsume 기능이 없기 때문이다.
-    // - length codec의 인터페이스가 달라져야 한다.
-
-    // [2] plain_protocol에서 전송시 불필요한 복사가 한 번 발생한다.
-    // - 헤더만 보내고, 그 다음 나머지를 보낸다.
-    // - adapter에 두 개 퍼버를 받는 인터페이스가 필요하다.
-
-    // [3] plain_protocol에서 수신시 불필요한 복사가 한 번 발생한다.
-    // - streambuf를 받아서 처리하도록 한다.
-    // - 전체 인터페이스의 수정이 필요하다.
   }
 }

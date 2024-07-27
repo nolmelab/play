@@ -26,16 +26,16 @@ using client_t = client<secure_protocol<uint16_t>, flatbuffers::NativeTable>;
 
 struct test_server : public server_t
 {
-  test_server(runner& runner, server_t::frame_handler& handler)
-      : server_t(runner, handler)
+  test_server(server_t::frame_handler& handler)
+      : server_t(handler)
   {
   }
 };
 
 struct test_client : public client_t
 {
-  test_client(runner& runner, client_t::frame_handler& handler)
-      : client_t(runner, handler)
+  test_client(client_t::frame_handler& handler)
+      : client_t(handler)
   {
   }
 
@@ -61,15 +61,16 @@ TEST_CASE("faltbuffers")
   using server_handler_t = flatbuffer_handler<test_server::session>;
   using client_handler_t = flatbuffer_handler<test_client::session>;
 
-  server_handler_t server_handler;
-  client_handler_t client_handler;
+  poll_runner runner{"secure_protocol runner"};
+
+  server_handler_t server_handler{runner};
+  client_handler_t client_handler{runner};
 
   server_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
   client_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
 
-  poll_runner runner{"secure_protocol runner"};
-  test_server server(runner, server_handler);
-  test_client client(runner, client_handler);
+  test_server server(server_handler);
+  test_client client(client_handler);
 
   server_handler_t::receiver cb =
       [&server_handler](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
@@ -78,7 +79,7 @@ TEST_CASE("faltbuffers")
     auto v = req_move->pos->x();
     server_handler.send<fb::req_move>(se, 1, *req_move.get(), false);
   };
-  server_handler.sub(1, cb);
+  server_handler.sub_topic(1, cb);
 
   client_handler_t::receiver cb_2 =
       [&client, &client_handler](client_handler_t::session_ptr se, client_handler_t::frame_ptr f)
@@ -88,7 +89,7 @@ TEST_CASE("faltbuffers")
     auto v = req_move->pos->x();
     client_handler.send<fb::req_move>(se, 1, *req_move.get(), true);
   };
-  client_handler.sub(1, cb_2);
+  client_handler.sub_topic(1, cb_2);
 
   auto rc = server.start(7000);
 
@@ -120,13 +121,15 @@ TEST_CASE("flatbuffer_handler")
   {
     using server_handler_t = flatbuffer_handler<test_server::session>;
 
-    server_handler_t h1;
+    poll_runner runner{"secure_protocol runner"};
+    server_handler_t h1{runner};
+
     server_handler_t::receiver cb =
         [](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
     {
     };
-    auto sub_id_1 = h1.sub(1, cb);
-    auto sub_id_2 = h1.sub(1, cb);
+    auto sub_id_1 = h1.sub_topic(1, cb);
+    auto sub_id_2 = h1.sub_topic(1, cb);
     CHECK(h1.get_subs_size(1) == 2);
     h1.unsub(1, sub_id_1);
     h1.unsub(1, sub_id_2);
@@ -137,13 +140,14 @@ TEST_CASE("flatbuffer_handler")
   {
     using server_handler_t = flatbuffer_handler<test_server::session>;
 
-    server_handler_t h1;
+    poll_runner runner{"secure_protocol runner"};
+    server_handler_t h1{runner};
     server_handler_t::receiver cb =
         [](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
     {
     };
-    auto sub_id_1 = h1.sub(1, cb);
-    auto sub_id_2 = h1.sub(1, cb);
+    auto sub_id_1 = h1.sub_topic(1, cb);
+    auto sub_id_2 = h1.sub_topic(1, cb);
     CHECK(h1.get_subs_size(1) == 2);
     h1.unsub_topic(1);
     CHECK(h1.get_subs_size(1) == 0);

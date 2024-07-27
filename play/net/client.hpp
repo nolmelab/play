@@ -29,9 +29,7 @@ public:
   using frame_handler = frame_handler<session, topic, Frame>;
 
 public:
-  client(runner& runner, frame_handler& handler);
-
-  client(runner& runner);
+  client(frame_handler& handler);
 
   // 연결을 시작. ip:port 형식 주소.
   /**

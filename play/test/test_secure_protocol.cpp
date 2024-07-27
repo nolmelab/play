@@ -21,8 +21,8 @@ struct test_config
 
 struct test_server : public server<secure_protocol<uint32_t>>
 {
-  test_server(runner& runner)
-      : server<secure_protocol<uint32_t>>(runner)
+  test_server(frame_handler& handler)
+      : server<secure_protocol<uint32_t>>(handler)
   {
   }
 
@@ -48,8 +48,8 @@ struct test_server : public server<secure_protocol<uint32_t>>
 
 struct test_client : public client<secure_protocol<uint32_t>>
 {
-  test_client(runner& runner)
-      : client<secure_protocol<uint32_t>>(runner)
+  test_client(frame_handler& handler)
+      : client<secure_protocol<uint32_t>>(handler)
   {
   }
 
@@ -90,8 +90,9 @@ struct test_client : public client<secure_protocol<uint32_t>>
 void run_test(std::string_view name)
 {
   poll_runner runner{"secure_protocol runner"};
-  test_server server(runner);
-  test_client client(runner);
+  frame_default_handler<test_server> handler{runner};
+  test_server server(handler);
+  test_client client(handler);
 
   auto rc = server.start(7000);
 

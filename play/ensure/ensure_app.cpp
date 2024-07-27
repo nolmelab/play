@@ -40,7 +40,8 @@ bool ensure_app::start(const nlohmann::json& jconf)
     register_default_acts();
 
     runner_ = std::make_unique<play::thread_runner>(concurrency, "ensure_app");
-    server_ = std::make_unique<server>(*runner_.get(), handler_);
+    handler_ = std::make_unique<frame_handler>(*runner_);
+    server_ = std::make_unique<server>(*handler_);
 
     server_->start(port);
 

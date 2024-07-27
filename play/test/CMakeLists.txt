@@ -33,6 +33,7 @@ add_executable(
   test_json.cpp
   test_logger.cpp
   test_object_pool.cpp
+  test_observer_ptr.cpp
   test_plain_protocol.cpp
   test_protocol.cpp
   test_runner.cpp

@@ -3,16 +3,9 @@
 namespace play {
 
 template <typename Protocol, typename Frame>
-server<Protocol, Frame>::server(runner& runner, frame_handler& handler)
-    : runner_{runner},
+server<Protocol, Frame>::server(frame_handler& handler)
+    : runner_{handler.get_runner()},
       frame_handler_{handler}
-{
-}
-
-template <typename Protocol, typename Frame>
-server<Protocol, Frame>::server(runner& runner)
-    : runner_{runner},
-      frame_handler_{frame_subclass_handler<session, topic, Frame>::get()}
 {
 }
 
@@ -81,6 +74,7 @@ void server<Protocol, Frame>::on_established(session_ptr session)
               session->get_remote_addr());
 
   handle_established(session);
+  frame_handler_.established(session);
 }
 
 template <typename Protocol, typename Frame>
@@ -96,6 +90,7 @@ void server<Protocol, Frame>::on_closed(session_ptr session, error_code ec)
               session->get_remote_addr(), ec.message());
 
   handle_closed(session, ec);
+  frame_handler_.closed(session, ec);
 }
 
 template <typename Protocol, typename Frame>
