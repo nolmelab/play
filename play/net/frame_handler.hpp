@@ -30,6 +30,7 @@ public:
   virtual void recv(session_ptr se, topic pic, const void* data, size_t len) = 0;
 };
 
+// dummy 핸들러로 client/server의 인터페이스를 추가하기 위해 사용
 template <typename Session, typename Topic, typename Frame>
 class frame_subclass_handler : public frame_handler<Session, Topic, frame_subclass>
 {

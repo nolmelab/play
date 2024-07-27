@@ -24,22 +24,15 @@
     - ensure tests   
 
 - 2024/09
-  - ensure ui
-    - tui   
-  - enhance alpha
-  - enhance documentation
-  - review
-  - add more tests
-
-- 2024/10
-  - element completed
+  - element 
     - csv
     - constraints 
     - excel export 
     - load and manage
       - code generation
       - use boost::multiindex
-- 2024/11
+
+- 2024/10 ~ 2024/11
   - beta 
     - recastdetour 
     - box2d 
@@ -48,11 +41,12 @@
     - spawn / move
 
 - 2024/12
-  - item / inven
-  - skill 
-  - battle 
-  - death / revival
-  - town
+  - beta
+    - item / inven
+    - skill 
+    - battle 
+    - death / revival
+    - town
 
 - 2024/01
   - beta documentation
@@ -60,3 +54,4 @@
   - ensure 2d gui
     - navimesh
     - shapes  
+
