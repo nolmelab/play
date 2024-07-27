@@ -2,6 +2,6 @@
   "alpha": {
     "concurrency": 4,
     "port": 7001,
-    "role": " front"
+    "role": "front"
   }
 }

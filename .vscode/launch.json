@@ -16,10 +16,21 @@
   ],
   "configurations": [
     {
-      "name": "Debug",
+      "name": "test",
       "type": "lldb",
       "request": "launch",
-      "program": "${workspaceRoot}/build/test/test"
+      "program": "${workspaceRoot}/build/test/test",
+      "cwd": "${workspaceRoot}",
+    },
+    {
+      "name": "alpha",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceRoot}/build/sample/alpha/app/alpha",
+      "args": [
+        "front_1"
+      ],
+      "cwd": "${workspaceRoot}/build/sample/alpha/app/",
     }
   ]
 }

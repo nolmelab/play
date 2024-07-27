@@ -17,6 +17,8 @@ int main(int argc, char** argv)
     name = argv[1];
   }
 
+  play::logger::name = name;
+
   signal(SIGINT, interrupt_handler);
 
   if (app.start(fmt::format("{}.json", name)))

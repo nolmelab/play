@@ -32,7 +32,9 @@ public:
   // json 구성에서 서버 시작
   bool start(const nlohmann::json& jconf);
 
-  // TODO: when to stop?
+  void wait();
+
+  // signal or service calls stop
   void stop();
 
   play::runner& get_runner()
@@ -64,6 +66,7 @@ private:
   std::unique_ptr<play::thread_runner> runner_;
   std::unique_ptr<server> server_;
   std::unique_ptr<frame_handler> handler_;
+  bool stop_{false};
 
   size_t bot_count_;
   size_t bot_start_index_;

@@ -28,6 +28,7 @@ bool ensure_app::start(const std::string& config_file)
 
 bool ensure_app::start(const nlohmann::json& jconf)
 {
+  stop_ = false;
   jconf_ = jconf;
 
   try
@@ -60,8 +61,22 @@ bool ensure_app::start(const nlohmann::json& jconf)
   }
 }
 
+void ensure_app::wait()
+{
+  while (!stop_)
+  {
+    play::runner::sleep(100);
+  }
+}
+
 void ensure_app::stop()
 {
+  if (stop_)
+  {
+    return;
+  }
+
+  stop_ = true;
   runner_->stop();
   server_->stop();
   stop_bots();
