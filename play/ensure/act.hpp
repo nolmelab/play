@@ -56,6 +56,7 @@ public:
         active_{false}
   {
     build_path();
+    load_json();
   }
 
   bool activate();
@@ -153,6 +154,8 @@ protected:
 
 private:
   void build_path();
+
+  void load_json();
 
 private:
   play::stop_watch stop_watch_;

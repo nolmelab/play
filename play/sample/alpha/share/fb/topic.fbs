@@ -1,0 +1,38 @@
+namespace alpha;
+
+enum topic 
+{
+  auth_req_login = 101, 
+  auto_req_login_f2b,
+  auth_syn_login_b2f,
+  auth_res_login, 
+  auth_req_logout,
+  auth_req_logout_f2b, 
+  auth_syn_logout_b2f, 
+  auth_res_logout_b2f,
+  auth_res_logout,
+  room_req_create = 201, 
+  room_req_create_f2b, 
+  room_req_create_b2f, 
+  room_res_create_f2b, 
+  room_res_create, 
+  room_req_page, 
+  room_req_page_f2b, 
+  room_res_page_b2f, 
+  room_res_page, 
+  room_req_reserve, 
+  room_req_reserve_f2b, 
+  room_req_reserve_b2f,
+  room_res_reserve_f2b,
+  room_res_reserve_b2f, 
+  room_res_reserve,
+  room_req_checkin, 
+  room_syn_checkin_f2b, 
+  room_res_checkin, 
+  room_req_chat, 
+  room_res_chat,        // req / res가 맞는가? req / syn?
+  room_syn_chat,
+  room_req_leave, 
+  room_syn_leave_f2b, 
+  room_res_leave
+}

@@ -12,7 +12,6 @@ bool act::activate()
 {
   if (!active_)
   {
-    on_load_json();
     active_ = on_activate();
     if (active_)
     {
@@ -287,6 +286,11 @@ void act::path::setup(const std::string& full_path)
   }
 
   act_name_ = parts_.back();
+}
+
+void act::load_json()
+{
+  on_load_json();
 }
 
 }  // namespace ensure

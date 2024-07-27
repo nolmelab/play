@@ -31,4 +31,13 @@ inline std::shared_ptr<Service> app_base<Protocol, Frame>::get_service()
   return iter->second;
 }
 
+template <typename Protocol, typename Frame>
+void app_base<Protocol, Frame>::for_each(std::function<void(service::ptr)> fn)
+{
+  for (auto& kv : services_)
+  {
+    fn(kv.second);
+  }
+}
+
 }  // namespace play

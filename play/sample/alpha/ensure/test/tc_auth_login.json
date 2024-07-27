@@ -1,0 +1,51 @@
+{
+  "ensure": {
+    "concurrency": 1,
+    "port": 7000,
+    "bot_count": 1,
+    "bot_start_index": 1,
+    "bot_prefix": "bot_"
+  },
+  "flow": [
+    {
+      "type": "act_connect_lobby",
+      "name": "connect_lobby",
+      "address": "127.0.0.1:7000",
+      "slots": {
+        "success": {
+          "cmd": "next"
+        },
+        "fail": {
+          "cmd": "jump",
+          "target": "end_test"
+        }
+      }
+    },
+    {
+      "type": "act_login",
+      "name": "login",
+      "slots": {
+        "success": {
+          "cmd": "exit"
+        },
+        "fail": {
+          "cmd": "jump",
+          "target": "end_test"
+        }
+      }
+    },
+    {
+      "type": "act_wait",
+      "name": "end_test",
+      "duration": 1000,
+      "slots": {
+        "success": {
+          "cmd": "exit"
+        },
+        "fail": {
+          "cmd": "exit"
+        }
+      }
+    }
+  ]
+}

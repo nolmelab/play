@@ -28,6 +28,8 @@ public:
   template <typename Service>
   std::shared_ptr<Service> get_service();
 
+  void for_each(std::function<void(service::ptr)>);
+
 private:
   using service_map = std::map<std::type_index, service::ptr>;
 

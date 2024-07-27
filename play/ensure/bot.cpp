@@ -22,13 +22,12 @@ bool bot::start()
   {
     auto interval = play::json_reader::read(json_, "ensure.update_interval", 200);
     auto self = shared_from_this();
-    bot_timer_ =
-        ensure_app::get().get_runner().repeat(get_id(), std::chrono::milliseconds(interval),
-                                              [this, self](play::timer& timer)
-                                              {
-                                                PLAY_UNUSED(timer);
-                                                this->update();
-                                              });
+    bot_timer_ = app_.get_runner().repeat(get_id(), std::chrono::milliseconds(interval),
+                                          [this, self](play::timer& timer)
+                                          {
+                                            PLAY_UNUSED(timer);
+                                            this->update();
+                                          });
     LOG()->info("bot: {}. timer started.", get_name());
     return true;
   }

@@ -20,7 +20,7 @@ public:
 public:
   actor();
 
-  ~actor() {}
+  virtual ~actor() {}
 
   // 시작
   virtual bool start() = 0;

@@ -2,17 +2,10 @@
 #include <play/base/json_reader.hpp>
 #include <play/ensure/act_factory.hpp>
 #include <play/ensure/acts/act_message.hpp>
+#include <play/ensure/acts/act_wait_duration.hpp>
 #include <play/ensure/ensure_app.hpp>
 
 namespace ensure {
-
-ensure_app& ensure_app::get()
-{
-  static ensure_app inst_;
-  return inst_;
-}
-
-ensure_app::ensure_app() {}
 
 bool ensure_app::start(const std::string& config_file)
 {
@@ -100,6 +93,7 @@ void ensure_app::stop_bots()
 void ensure_app::register_default_acts()
 {
   PLAY_REGISTER_ACT(act_message);
+  PLAY_REGISTER_ACT(act_wait_duration);
 }
 
 }  // namespace ensure

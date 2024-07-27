@@ -38,6 +38,6 @@ target_include_directories(
   ensure_alpha 
   PRIVATE 
   "${CMAKE_SOURCE_DIR}/.."
-  "${CMAKE_SOURCE_DIR}/sample/alpha/"
+  "${CMAKE_SOURCE_DIR}/sample/"
 )
 

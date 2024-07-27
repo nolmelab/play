@@ -253,7 +253,7 @@ TEST_CASE("ensure - bot")
     }
     )";
 
-    ensure_app& app = ensure_app::get();  // ensure app은 싱글톤
+    ensure_app app;
     auto jconf = nlohmann::json::parse(conf);
     CHECK(app.start(jconf));
     CHECK(app.get_bot_count() == 1);
