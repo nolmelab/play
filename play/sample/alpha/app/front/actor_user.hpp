@@ -18,6 +18,11 @@ public:
   }
 
 private:
+  bool start() final;
+
+  void stop() final;
+
+private:
   void on_room_req_create(session_ptr session, frame_ptr frame);
 
   void on_room_req_page(session_ptr session, frame_ptr frame);

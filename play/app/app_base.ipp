@@ -7,7 +7,7 @@ template <typename Protocol, typename Frame>
 template <typename Service, typename... Args>
 bool app_base<Protocol, Frame>::create_service(Args&&... args)
 {
-  auto service = std::make_shared<Service>(*this, std::forward(args)...);
+  auto service = std::make_shared<Service>(std::forward<Args>(args)...);
   auto index = std::type_index{typeid(Service)};
   auto result = services_.insert(std::pair{index, service});
 
@@ -28,7 +28,7 @@ inline std::shared_ptr<Service> app_base<Protocol, Frame>::get_service()
   {
     return {};
   }
-  return iter->second;
+  return std::static_pointer_cast<Service>(iter->second);
 }
 
 template <typename Protocol, typename Frame>

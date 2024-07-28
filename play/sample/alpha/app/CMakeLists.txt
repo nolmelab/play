@@ -8,6 +8,12 @@ find_package(nlohmann_json CONFIG REQUIRED)
 set(SOURCE 
   main.cpp
   alpha_app.cpp
+  front/lobby_runner.cpp
+  front/actor_user.cpp
+  front/room_runner.cpp 
+  front/actor_room.cpp 
+  back/lobby_master.cpp 
+  back/room_master.cpp 
 )
 
 set(INC

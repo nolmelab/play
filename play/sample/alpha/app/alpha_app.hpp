@@ -1,3 +1,5 @@
+#pragma once
+
 #include <play/app/app_base.hpp>
 #include <play/net/frame/flatbuffer_handler.hpp>
 #include <play/net/protocol/secure_protocol.hpp>

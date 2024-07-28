@@ -1,0 +1,12 @@
+namespace alpha.auth;
+
+table req_login
+{
+    user_id : string;
+    password : string;
+}
+
+table req_logout
+{
+}
+

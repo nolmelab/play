@@ -1,6 +1,6 @@
 namespace alpha;
 
-enum topic 
+enum topic : ushort
 {
   auth_req_login = 101, 
   auto_req_login_f2b,

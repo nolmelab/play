@@ -1,0 +1,7 @@
+namespace alpha.room;
+
+table req_create 
+{
+    name : string;
+    size : ushort;
+}

@@ -14,7 +14,9 @@ public:
   using frame_handler = alpha_app::frame_handler;
 
 public:
-  service_base(alpha_app& app);
+  service_base(alpha_app& app)
+  : app_{app}
+  {}
 
   alpha_app& get_app()
   {
