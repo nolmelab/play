@@ -149,3 +149,33 @@ rcs를 작은 아이디어로 시작했습니다. 점점 더 나아지고 있고
 잘 마무리해야겠습니다. 끝나고 지워질 내용이겠지만. 
 
 
+## lobby_runner 
+
+- alpha::service_base의 하위 클래스 
+  - frame_handler와 runner에 접근 가능. alpha_app을 통해서. 
+
+- 역할 
+  - boost::multiindex 기반의 container에 actor_user 관리 
+  - on_auth_req_login 이후의 메세지들은 actor_user로 전달하여 처리 
+    - 어떻게 전달할 것인가? 
+    
+### on_auth_req_login
+
+- create a actor_user 
+  - mark it pending users 
+  - pending_users_, login_users_
+  - request to back 
+    - auth_req_login_f2b 
+      - rcs::call()
+
+
+
+
+### on_auth_req_logout
+
+
+
+### room 메세지 처리 
+
+
+

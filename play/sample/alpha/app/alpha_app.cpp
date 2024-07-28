@@ -1,4 +1,8 @@
 #include <alpha/app/alpha_app.hpp>
+#include <alpha/app/back/lobby_master.hpp>
+#include <alpha/app/back/room_master.hpp>
+#include <alpha/app/front/lobby_runner.hpp>
+#include <alpha/app/front/room_runner.hpp>
 #include <fstream>
 #include <play/base/json_reader.hpp>
 
@@ -84,12 +88,21 @@ bool alpha_app::start_services()
   // be or fe에 따라 필요한 서비스를 생성한다.
   if (role_ == "front")
   {
-    // lobby_runner, room_runner
+    create_service<lobby_runner>(*this);
+    get_service<lobby_runner>()->start();
+
+    create_service<room_runner>(*this);
+    get_service<room_runner>()->start();
   }
   else
   {
     PLAY_CHECK(role_ == "back");
-    // user_master, room_master
+    // TODO: error handling
+    create_service<lobby_master>(*this);
+    get_service<lobby_master>()->start();
+
+    create_service<room_master>(*this);
+    get_service<room_master>()->start();
   }
 
   return true;

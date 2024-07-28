@@ -16,6 +16,13 @@ public:
   bool start() final;
 
   void stop() final;
+
+private:
+  void on_room_req_checkin(session_ptr session, frame_ptr frame);
+
+  void on_room_req_leave(session_ptr session, frame_ptr frame);
+
+  void on_session_closed(session_ptr session);
 };
 
 }  // namespace alpha

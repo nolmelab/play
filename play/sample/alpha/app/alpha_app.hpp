@@ -26,12 +26,17 @@ public:
 
   void wait();
 
-  // TODO: when to stop?
+  // signal로 stop
   void stop();
 
   play::runner& get_runner()
   {
-    return *runner_.get();
+    return *runner_;
+  }
+
+  frame_handler& get_handler()
+  {
+    return *handler_;
   }
 
 private:
