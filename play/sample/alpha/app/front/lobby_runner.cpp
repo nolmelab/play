@@ -27,8 +27,8 @@ void lobby_runner::on_auth_req_login(session_ptr session, frame_ptr frame)
   auto user = std::make_shared<actor_user>(*this);
   // put it into pending_users_
 
-  auto& rcs = get_app().get_service<rcs_service>();
-  rcs.call<auth_req_login_f2b>(shared_from_this(), req);
+  // auto& rcs = get_app().get_service<rcs_service>();
+  // rcs.call<auth_req_login_f2b>(shared_from_this(), req);
 }
 
 void lobby_runner::on_auth_req_logout(session_ptr session, frame_ptr frame)
