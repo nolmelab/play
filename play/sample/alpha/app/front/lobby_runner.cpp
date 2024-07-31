@@ -1,3 +1,4 @@
+#include <alpha/share/fb/topic_generated.h>
 #include <alpha/app/front/actor_user.hpp>
 #include <alpha/app/front/lobby_runner.hpp>
 
@@ -5,14 +6,9 @@ namespace alpha {
 
 bool lobby_runner::start()
 {
-  // get_handler().sub_topic();
-
-  get_handler().sub_session_strand(
-      [this](session_ptr s, frame_handler::session_state state)
-      {
-        this->on_session_state(s, state);
-      },
-      get_id());
+  SERVICE_SUB_TOPIC(alpha::topic::auth_req_login, on_auth_req_login);
+  SERVICE_SUB_TOPIC(alpha::topic::auth_req_logout, on_auth_req_logout);
+  SERVICE_SUB_SESSION(on_session_state);
 
   return true;
 }

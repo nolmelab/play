@@ -14,6 +14,10 @@ public:
   using frame = flatbuffers::NativeTable;
   using session = typename client_base::session;
   using frame_handler = play::flatbuffer_handler<session>;
+
+  client(frame_handler& handler)
+  : client_base{handler}
+  {}
 };
 
 }  // namespace alpha

@@ -15,8 +15,9 @@ public:
 
 public:
   service_base(alpha_app& app)
-  : app_{app}
-  {}
+      : app_{app}
+  {
+  }
 
   alpha_app& get_app()
   {
@@ -38,3 +39,22 @@ private:
 };
 
 }  // namespace alpha
+
+// 서비스에서 topic 구독 함수 등록. strand를 기본으로 함
+#define SERVICE_SUB_TOPIC(pic, func)                                                 \
+  get_handler().sub_topic_strand(                                                    \
+      static_cast<uint16_t>(pic),                                                    \
+      [this](alpha::service_base::session_ptr se, alpha::service_base::frame_ptr fr) \
+      {                                                                              \
+        this->func(se, fr);                                                          \
+      },                                                                             \
+      get_id());
+
+// 서비스에서 세션 상태 구독. strand를 기본으로 함
+#define SERVICE_SUB_SESSION(func)                               \
+  get_handler().sub_session_strand(                             \
+      [this](session_ptr s, frame_handler::session_state state) \
+      {                                                         \
+        this->on_session_state(s, state);                       \
+      },                                                        \
+      get_id());

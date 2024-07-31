@@ -15,3 +15,7 @@ public:
 };
 
 }  // namespace alpha
+
+#define ACT_SUB_SESSION(func)
+
+#define ACT_SUB_TOPIC(func)
