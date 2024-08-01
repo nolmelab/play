@@ -1,7 +1,7 @@
 #pragma once
 
+#include <alpha/ensure/act/client.hpp>
 #include <alpha/ensure/act_base.hpp>
-#include <alpha/ensure/client.hpp>
 
 namespace alpha {
 
@@ -21,7 +21,6 @@ private:
 
 private:
   std::string address_;
-  std::unique_ptr<client::frame_handler> handler_;
 };
 
 }  // namespace alpha

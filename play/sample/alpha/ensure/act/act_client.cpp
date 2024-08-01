@@ -1,6 +1,6 @@
 #include <alpha/ensure/act/act_client.hpp>
 #include <alpha/ensure/ensure_alpha.hpp>
-#include <ensure/bot.hpp>
+#include <play/ensure/bot.hpp>
 
 namespace alpha {
 act_client::act_client(play::actor& owner)

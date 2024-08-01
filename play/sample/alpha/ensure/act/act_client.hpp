@@ -19,8 +19,14 @@ public:
     return handler_;
   }
 
+  client& get_client()
+  {
+    return client_;
+  }
+
 private:
   client::frame_handler handler_;  // 자체 핸들러가 필요. 봇별로 동작
   client client_;
 };
+
 }  // namespace alpha
