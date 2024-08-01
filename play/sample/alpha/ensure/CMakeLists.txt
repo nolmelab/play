@@ -12,6 +12,12 @@ add_executable(
   ensure_alpha
   ensure_alpha.cpp
   main.cpp
+  act/client.cpp
+  act/act_client.cpp
+  act/act_client_lobby.cpp 
+  act/act_client_room.cpp
+  act/act_auth_login.cpp
+  act/act_connect_lobby.cpp
 )
 
 if (MSVC)

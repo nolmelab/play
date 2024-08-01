@@ -12,6 +12,8 @@ public:
       : ensure::act_base(owner, parent, json, name)
   {
   }
+
+  ~act_base();
 };
 
 }  // namespace alpha

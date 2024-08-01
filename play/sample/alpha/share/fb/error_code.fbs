@@ -1,0 +1,9 @@
+namespace alpha;
+
+enum error_code : ushort
+{
+  success = 0, 
+  fail_backend_not_responding, 
+  fail_user_not_authenticated,
+  // add all errors here
+}

@@ -39,7 +39,12 @@ public:
 
   play::runner& get_runner()
   {
-    return *runner_.get();
+    return *runner_;
+  }
+
+  frame_handler& get_handler()
+  {
+    return *handler_;
   }
 
   size_t get_bot_count() const

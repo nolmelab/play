@@ -7,6 +7,7 @@ namespace alpha {
 class ensure_alpha : public ensure::ensure_app
 {
 public:
+  static ensure_alpha& get();
 };
 
 }  // namespace alpha
