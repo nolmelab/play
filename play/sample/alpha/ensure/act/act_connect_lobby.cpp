@@ -8,7 +8,6 @@ namespace alpha {
 bool act_connect_lobby::on_activate()
 {
   get_bot().create_act<act_client_lobby>();
-
   auto cp = get_bot().get_act<act_client_lobby>();
 
   // TODO: define ACT_SUB_TOPIC, ACT_SUB_SESSION

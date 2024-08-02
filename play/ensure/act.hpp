@@ -7,6 +7,13 @@
 
 namespace ensure {
 
+// flow를 구성하는 act.
+/**
+ * actor의 컴포넌트 클래스이지만 여기서는 act_composite인
+ * act_serial, act_parallel에 포함하여 사용. 
+ * 
+ * actor의 컴포넌트로도 사용할 수 있음 
+ */
 class act : public play::act
 {
 public:
