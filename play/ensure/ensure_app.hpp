@@ -21,6 +21,8 @@ public:
   using server = play::server<protocol, frame>;
   using client = play::client<protocol, frame>;
   using session = typename server::session;
+  using session_ptr = std::shared_ptr<session>;
+  using frame_ptr = std::shared_ptr<frame>;
   using frame_handler = play::flatbuffer_handler<session>;
 
 public:

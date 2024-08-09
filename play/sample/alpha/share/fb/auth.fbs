@@ -1,9 +1,16 @@
+include "error_code.fbs";
+
 namespace alpha.auth;
 
 table req_login
 {
     user_id : string;
     password : string;
+}
+
+table res_login
+{
+  ec : error_code;
 }
 
 table req_logout

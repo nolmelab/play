@@ -24,6 +24,8 @@ public:
   {
   }
 
+  virtual ~act() {}
+
   actor& get_owner()
   {
     return owner_;

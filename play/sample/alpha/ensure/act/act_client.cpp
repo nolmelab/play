@@ -4,7 +4,7 @@
 
 namespace alpha {
 act_client::act_client(play::actor& owner)
-    : play::act{owner},
+    : act_base{owner, {}, {}, "act_client"},
       handler_{ensure_alpha::get().get_runner()},
       client_{handler_}
 {

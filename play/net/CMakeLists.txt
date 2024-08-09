@@ -8,6 +8,7 @@ find_package(nlohmann_json CONFIG REQUIRED)
 set(SOURCE 
   runner/thread_runner.cpp
   runner.cpp
+  util/address.cpp
 )
 
 # set library target with sources

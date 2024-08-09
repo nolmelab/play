@@ -2,7 +2,7 @@
 
 #include <alpha/ensure/act_base.hpp>
 
-namespace ensure {
+namespace alpha {
 
 // 로그인 처리
 class act_auth_login : public act_base
@@ -17,11 +17,14 @@ public:
 private:
   bool on_activate() final;
 
-  void on_load_json() final;
+  void on_deactivate() final;
 
-  void req_login();
+  bool req_login();
 
-  void on_res_login();
+  void on_res_login(session_ptr se, frame_ptr fr);
+
+private:
+  size_t sub_id_{0};
 };
 
-}  // namespace ensure
+}  // namespace alpha

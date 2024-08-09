@@ -19,6 +19,8 @@ private:
 
   void on_load_json() final;
 
+  void on_session_state(session_ptr session, frame_handler::session_state state);
+
 private:
   std::string address_;
 };

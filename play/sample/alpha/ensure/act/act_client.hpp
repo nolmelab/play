@@ -1,6 +1,7 @@
 #pragma once
 
 #include <alpha/ensure/act/client.hpp>
+#include <alpha/ensure/act_base.hpp>
 #include <play/app/act.hpp>
 
 namespace alpha {
@@ -9,7 +10,7 @@ namespace alpha {
 /**
  * 봇별로 클라이언트 연결과 frame_handler가 필요하여 컴포넌트로 처리
  */
-class act_client : public play::act
+class act_client : public act_base
 {
 public:
   act_client(play::actor& owner);

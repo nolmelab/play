@@ -13,12 +13,18 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
               FLATBUFFERS_VERSION_REVISION == 25,
              "Non-compatible flatbuffers version included");
 
+#include "error_code_generated.h"
+
 namespace alpha {
 namespace auth {
 
 struct req_login;
 struct req_loginBuilder;
 struct req_loginT;
+
+struct res_login;
+struct res_loginBuilder;
+struct res_loginT;
 
 struct req_logout;
 struct req_logoutBuilder;
@@ -101,6 +107,58 @@ inline ::flatbuffers::Offset<req_login> Createreq_loginDirect(
 
 ::flatbuffers::Offset<req_login> Createreq_login(::flatbuffers::FlatBufferBuilder &_fbb, const req_loginT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct res_loginT : public ::flatbuffers::NativeTable {
+  typedef res_login TableType;
+  alpha::error_code ec = alpha::error_code::success;
+};
+
+struct res_login FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_loginT NativeTableType;
+  typedef res_loginBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EC = 4
+  };
+  alpha::error_code ec() const {
+    return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_EC, 2) &&
+           verifier.EndTable();
+  }
+  res_loginT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_loginT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_login> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_loginT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_loginBuilder {
+  typedef res_login Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_ec(alpha::error_code ec) {
+    fbb_.AddElement<uint16_t>(res_login::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
+  explicit res_loginBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_login> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_login>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_login> Createres_login(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success) {
+  res_loginBuilder builder_(_fbb);
+  builder_.add_ec(ec);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<res_login> Createres_login(::flatbuffers::FlatBufferBuilder &_fbb, const res_loginT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct req_logoutT : public ::flatbuffers::NativeTable {
   typedef req_logout TableType;
 };
@@ -167,6 +225,32 @@ inline ::flatbuffers::Offset<req_login> Createreq_login(::flatbuffers::FlatBuffe
       _fbb,
       _user_id,
       _password);
+}
+
+inline res_loginT *res_login::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_loginT>(new res_loginT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_login::UnPackTo(res_loginT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = ec(); _o->ec = _e; }
+}
+
+inline ::flatbuffers::Offset<res_login> res_login::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_loginT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_login(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_login> Createres_login(::flatbuffers::FlatBufferBuilder &_fbb, const res_loginT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_loginT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _ec = _o->ec;
+  return alpha::auth::Createres_login(
+      _fbb,
+      _ec);
 }
 
 inline req_logoutT *req_logout::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
