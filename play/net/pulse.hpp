@@ -144,6 +144,10 @@ private:
   // 나로 부터 시작하여 부모에서 runner를 얻음
   runner* get_runner();
 
+  bool is_root() const;
+
+  pulse* get_root();
+
 private:
   mode mode_;
   mutable shared_mutex mutex_;
