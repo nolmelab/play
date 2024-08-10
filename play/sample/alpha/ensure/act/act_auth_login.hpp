@@ -1,6 +1,7 @@
 #pragma once
 
 #include <alpha/ensure/act.hpp>
+#include <alpha/ensure/ensure.hpp>
 
 namespace alpha {
 
@@ -21,6 +22,7 @@ private:
 
 private:
   size_t sub_id_{0};
+  std::unique_ptr<ensure::pulse> pulse_;
 };
 
 }  // namespace alpha

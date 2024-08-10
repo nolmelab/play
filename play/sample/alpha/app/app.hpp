@@ -25,6 +25,11 @@ public:
   // signal로 stop
   void stop();
 
+  pulse& get_pulse()
+  {
+    return pulse_;
+  }
+
   play::runner& get_runner()
   {
     return *runner_;

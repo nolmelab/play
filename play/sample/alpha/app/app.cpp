@@ -112,7 +112,7 @@ bool app::start_services()
 void app::stop_services()
 {
   for_each(
-      [](play::service::ptr service)
+      [](auto service)
       {
         service->stop();
       });

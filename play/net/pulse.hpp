@@ -7,6 +7,17 @@
 
 namespace play {
 
+// 통신 처리의 박동, pulse.
+/**
+ * Frame을 알고 서버와 클라를 갖고 구독을 처리
+ * - server 내장, client 내장, 자식 펄스, 독립적인 펄스의 모드를 가짐
+ * - start()할 때 각 모드에 맞게 시작.
+ * - with_strand()로 키를 지정하면 해당 키로 strand를 선택하여 처리 
+ * - with_session()으로 세션을 지정하면 구독을 세션으로도 필터링
+ * - post(), once(), repeat()로 이어처리, 타이머 처리를 함.
+ * 
+ * - TODO: 원격지 전송 call()과 단선시 에러 콜백
+ */
 template <typename Protocol, typename Frame>
 class pulse : public pulse_listener<session<Protocol>>
 {
