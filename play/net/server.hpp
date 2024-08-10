@@ -79,7 +79,7 @@ private:
   runner& runner_;
   std::string json_;
   std::unique_ptr<acceptor> acceptor_;
-  pulse_listener* listener_{nullptr};
+  pulse_listener* pulse_{nullptr};
   shared_mutex mutex_;
   session_map sessions_;
 };

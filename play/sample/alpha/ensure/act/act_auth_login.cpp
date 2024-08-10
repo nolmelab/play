@@ -2,7 +2,6 @@
 #include <alpha/share/fb/topic_generated.h>
 #include <alpha/ensure/act/act_auth_login.hpp>
 #include <play/base/json_reader.hpp>
-#include <play/ensure/bot.hpp>
 
 namespace alpha {
 

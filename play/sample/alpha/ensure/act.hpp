@@ -2,6 +2,7 @@
 
 #include <alpha/ensure/ensure.hpp>
 #include <play/ensure/act_ensure.hpp>
+#include <play/ensure/bot.hpp>
 
 namespace alpha {
 

@@ -233,7 +233,7 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::unsubscribe(Subscriber* s
   auto key = reinterpret_cast<uintptr_t>(subscriber);
 
   std::unique_lock guard(mutex_);
-  for (auto& kv = subscriptions_)
+  for (auto& kv : subscriptions_)
   {
     auto& vec = kv.second;
     vec.erase(std::remove_if(vec.begin(), vec.end(),

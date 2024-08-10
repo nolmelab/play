@@ -3,10 +3,12 @@
 #include <nlohmann/json.hpp>
 #include <play/app/act.hpp>
 #include <play/base/stop_watch.hpp>
-#include <play/ensure/bot.hpp>
 #include <string>
 
 namespace play {
+
+// forward decl. 다른 곳에서는 bot.hpp 포함해서 사용
+class bot;
 
 // flow를 구성하는 act.
 /**
@@ -85,6 +87,8 @@ public:
 
   ptr find(const std::string& path);
 
+  bot& get_bot();
+
   const path& get_path() const
   {
     return path_;
@@ -93,11 +97,6 @@ public:
   const std::string& get_name() const
   {
     return name_;
-  }
-
-  bot& get_bot()
-  {
-    return static_cast<bot&>(get_owner());
   }
 
   ptr get_parent() const

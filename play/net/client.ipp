@@ -80,10 +80,10 @@ inline void client<Protocol>::handle_connect(error_code ec)
 }
 
 template <typename Protocol>
-void client<Protocol>::bind_pulse(pulse_listener* listener)
+void client<Protocol>::bind_pulse(pulse_listener* pulse)
 {
-  PLAY_CHECK(listener != nullptr);
-  listener_ = listener;
+  PLAY_CHECK(pulse != nullptr);
+  pulse_ = pulse;
 }
 
 template <typename Protocol>
@@ -93,9 +93,9 @@ inline void client<Protocol>::on_established(session_ptr session)
               session->get_remote_addr());
 
   handle_established(session);
-  if (listener_ != nullptr)
+  if (pulse_ != nullptr)
   {
-    listener_->on_established(session);
+    pulse_->on_established(session);
   }
 }
 
@@ -107,9 +107,9 @@ inline void client<Protocol>::on_closed(session_ptr session, error_code ec)
 
   handle_closed(session, ec);
 
-  if (listener_ != nullptr)
+  if (pulse_ != nullptr)
   {
-    listener_->on_closed(session, ec);
+    pulse_->on_closed(session, ec);
   }
 
   session_.reset();
@@ -119,9 +119,9 @@ template <typename Protocol>
 inline void client<Protocol>::on_receive(session_ptr session, topic topic, const void* data,
                                          size_t len)
 {
-  if (listener_ != nullptr)
+  if (pulse_ != nullptr)
   {
-    listener_->on_receive(session, topic, data, len);
+    pulse_->on_receive(session, topic, data, len);
   }
   handle_receive(session, topic, data, len);
 }

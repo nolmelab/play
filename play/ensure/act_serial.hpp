@@ -21,7 +21,7 @@ protected:
     return get_acts()[current_act_index_];
   }
 
-  ptr find_child(const std::string& path) final;
+  act_ensure::ptr find_child(const std::string& path) final;
 
   std::pair<size_t, act_ensure::ptr> find_act(const std::string& name) const;
 

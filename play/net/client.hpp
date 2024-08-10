@@ -80,7 +80,7 @@ private:
   uint16_t port_;
   tcp::endpoint endpoint_;
   session_ptr session_;
-  pulse_listener* listener_{nullptr};
+  pulse_listener* pulse_{nullptr};
 };
 
 }  // namespace play

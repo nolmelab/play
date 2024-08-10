@@ -111,6 +111,11 @@ act_ensure::ptr act_ensure::find(const std::string& path)
   }
 }
 
+bot& act_ensure::get_bot()
+{
+  return static_cast<bot&>(get_owner());
+}
+
 bool act_ensure::is_self(const std::string& path) const
 {
   if (path::is_relative_path(path))

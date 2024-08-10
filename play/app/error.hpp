@@ -23,7 +23,7 @@ struct error : public std::exception
 
   // throw error::create(...);
   template <typename... Args>
-  inline static error create(const std::string& fmt, Args&&... args)
+  inline static error create(std::string_view fmt, Args&&... args)
   {
     LOG()->error(fmt, std::forward<Args>(args)...);
     return error(fmt::format(fmt, std::forward<Args>(args)...));

@@ -119,7 +119,7 @@ public:
     {
       return {};
     }
-    auto p = static_pointer_cast<mem_obj<Obj>>(iter->second);
+    auto p = static_pointer_cast<blackboard::mem_obj<Obj>>(iter->second);
     return p->value();
   }
 
@@ -131,7 +131,7 @@ public:
     {
       return {};
     }
-    auto p = static_pointer_cast<mem_ptr<T>>(iter->second);
+    auto p = static_pointer_cast<blackboard::mem_ptr<T>>(iter->second);
     return p->value();
   }
 
