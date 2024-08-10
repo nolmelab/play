@@ -79,13 +79,13 @@ public:
   }
 
   template <typename T>
-  void set(const std::string& key, T&& v)
+  void set_obj(const std::string& key, T&& v)
   {
     set(key, std::make_shared<mem_obj<T>>(std::forward<T>(v)));
   }
 
   template <typename T>
-  void set(const std::string& key, std::shared_ptr<T> p)
+  void set_ptr(const std::string& key, std::shared_ptr<T> p)
   {
     set(key, std::make_shared<mem_ptr<T>>(p));
   }

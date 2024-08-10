@@ -10,7 +10,7 @@ namespace alpha {
 bool act_connect_lobby::on_activate()
 {
   auto pulse = std::make_shared<ensure::pulse>();
-  get_bot().get_blackboard().set("lobby", pulse);
+  get_bot().get_blackboard().set_ptr("lobby", pulse);
 
   pulse->as_client(address_)
       .with_strand(get_owner().get_id())

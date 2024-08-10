@@ -25,8 +25,8 @@ struct error : public std::exception
   template <typename... Args>
   inline static error create(std::string_view fmt, Args&&... args)
   {
-    LOG()->error(fmt, std::forward<Args>(args)...);
-    return error(fmt::format(fmt, std::forward<Args>(args)...));
+    LOG()->error(fmt::runtime(fmt), std::forward<Args>(args)...);
+    return error(fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...));
   }
 };
 

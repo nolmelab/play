@@ -3,7 +3,7 @@
 namespace play {
 
 template <typename Protocol>
-template <typename TopicInput, typename FlatBufferObj, typename Obj>
+template <typename FlatBufferObj, typename TopicInput, typename Obj>
 inline bool pulse_fb<Protocol>::send(session_ptr se, TopicInput topic_in, Obj& obj, bool encrypt)
 {
   auto pic = static_cast<topic>(topic_in);
