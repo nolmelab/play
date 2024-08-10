@@ -36,6 +36,7 @@ add_executable(
   test_observer_ptr.cpp
   test_plain_protocol.cpp
   test_protocol.cpp
+  test_pulse.cpp
   test_runner.cpp
   test_secure_protocol.cpp
   test_stream_protocol.cpp

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
-#include <play/net/frame_handler.hpp>
+#include <play/base/observer_ptr.hpp>
+#include <play/net/pulse_listener.hpp>
 #include <play/net/runner/thread_runner.hpp>
 #include <play/net/session.hpp>
 #include <play/net/session_handler.hpp>
@@ -16,9 +17,8 @@ namespace play {
  * 연결이 실패하면 재연결을 시도한다. 연결이 끊어지면 통지만 한다.
  * 
  * @tparam Protocol secure_protocol<uint16_t>와 같은 프로토콜 
- * @tparam Frame flatbuffers::NativeTable과 같은 앱 프레임
  */
-template <typename Protocol, typename Frame = frame_subclass>
+template <typename Protocol>
 class client : public session_handler<session<Protocol>>
 {
 public:
@@ -26,10 +26,10 @@ public:
   using handle = typename session::handle;
   using session_ptr = std::shared_ptr<session>;
   using topic = typename Protocol::topic;
-  using frame_handler = frame_handler<session, topic, Frame>;
+  using pulse_listener = pulse_listener<session>;
 
 public:
-  client(frame_handler& handler);
+  client(runner& runner);
 
   // 연결을 시작. ip:port 형식 주소.
   /**
@@ -45,11 +45,10 @@ public:
     return session_;
   }
 
-  template <typename FrameHandler>
-  FrameHandler& get_handler() const;
-
   // 연결 종료
   void close();
+
+  void bind_pulse(pulse_listener* listener);
 
   // 세션에서 프로토콜 협상 완료 통지
   void on_established(session_ptr se) final;
@@ -81,7 +80,7 @@ private:
   uint16_t port_;
   tcp::endpoint endpoint_;
   session_ptr session_;
-  frame_handler& frame_handler_;
+  pulse_listener* listener_{nullptr};
 };
 
 }  // namespace play

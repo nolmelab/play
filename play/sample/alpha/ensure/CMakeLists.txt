@@ -10,10 +10,8 @@ find_package(nlohmann_json CONFIG REQUIRED)
 # add test target
 add_executable(
   ensure_alpha
-  ensure_alpha.cpp
+  ensure.cpp
   main.cpp
-  act/client.cpp
-  act/act_client.cpp
   act/act_auth_login.cpp
   act/act_connect_lobby.cpp
 )

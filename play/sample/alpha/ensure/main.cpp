@@ -1,6 +1,6 @@
-#include <alpha/ensure/ensure_alpha.hpp>
+#include <alpha/ensure/ensure.hpp>
 
-alpha::ensure_alpha app;
+alpha::ensure app;
 
 void interrupt_handler(int signum)
 {

@@ -13,8 +13,8 @@ static constexpr int test_bytes = 1 * 1024;
 
 struct test_server : public server<plain_protocol<uint32_t>>
 {
-  test_server(frame_handler& handler)
-      : server<plain_protocol<uint32_t>>(handler)
+  test_server(runner& runner)
+      : server<plain_protocol<uint32_t>>(runner)
   {
   }
 
@@ -33,8 +33,8 @@ struct test_server : public server<plain_protocol<uint32_t>>
 
 struct test_client : public client<plain_protocol<uint32_t>>
 {
-  test_client(frame_handler& handler)
-      : client<plain_protocol<uint32_t>>(handler)
+  test_client(runner& runner)
+      : client<plain_protocol<uint32_t>>(runner)
   {
   }
 
@@ -72,9 +72,8 @@ TEST_CASE("plain_protocol")
   SUBCASE("basics")
   {
     poll_runner runner{"plain_protocol runner"};
-    frame_default_handler<test_server> handler{runner};
-    test_server server(handler);
-    test_client client(handler);
+    test_server server(runner);
+    test_client client(runner);
 
     auto rc = server.start(7000);
 

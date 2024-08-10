@@ -4,7 +4,7 @@
 #include <play/ensure/act_composite.hpp>
 #include <play/ensure/act_factory.hpp>
 
-namespace ensure {
+namespace play {
 
 bool act_composite::load_acts()
 {
@@ -37,4 +37,4 @@ bool act_composite::load_acts()
   return true;
 }
 
-}  // namespace ensure
+}  // namespace play

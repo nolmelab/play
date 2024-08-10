@@ -6,9 +6,9 @@
 #include <play/ensure/flow.hpp>
 #include <play/net/runner/timer_service.hpp>
 
-namespace ensure {
+namespace play {
 
-class ensure_app;
+class ensure;
 
 class bot : public play::actor
 {
@@ -16,7 +16,7 @@ public:
   using ptr = std::shared_ptr<bot>;  // override actor::ptr
 
 public:
-  bot(ensure_app& app, const nlohmann::json& json, const std::string& name, size_t index);
+  bot(ensure& app, const nlohmann::json& json, const std::string& name, size_t index);
 
   // flow를 로딩. flow를 시작.
   bool start() final;
@@ -26,12 +26,12 @@ public:
 
   void stop() final;
 
-  ensure_app& get_app()
+  ensure& get_app()
   {
     return app_;
   }
 
-  const ensure_app& get_app() const
+  const ensure& get_app() const
   {
     return app_;
   }
@@ -62,7 +62,7 @@ public:
   }
 
 private:
-  ensure_app& app_;
+  ensure& app_;
   nlohmann::json json_;
   std::string name_;
   size_t index_;
@@ -71,4 +71,4 @@ private:
   blackboard board_;
 };
 
-}  // namespace ensure
+}  // namespace play

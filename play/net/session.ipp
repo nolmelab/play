@@ -128,7 +128,7 @@ bool session<Protocol>::send(topic pic, const void* data, size_t len, bool encry
     start_send();
   }
 
-  return false;
+  return true;
 }
 
 template <typename Protocol>

@@ -10,6 +10,7 @@ struct empty_topic
 {
 };
 
+// protocol 기반 클래스. Topic은 Topic{1}이 되고 비트 연산을 지원하는 숫자 타잎
 template <typename Topic>
 class protocol
 {

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
-#include <play/ensure/act.hpp>
+#include <play/ensure/act_ensure.hpp>
 #include <play/ensure/act_serial.hpp>
 #include <play/net/runner/timer_service.hpp>
 
-namespace ensure {
+namespace play {
 
 class bot;
 
@@ -16,7 +16,7 @@ class bot;
 class flow : public act_serial
 {
 public:
-  using act_ptr = std::shared_ptr<act>;
+  using act_ptr = std::shared_ptr<act_ensure>;
 
 public:
   flow(play::actor& bt, const nlohmann::json& json);
@@ -25,4 +25,4 @@ private:
   void exit() final;
 };
 
-}  // namespace ensure
+}  // namespace play

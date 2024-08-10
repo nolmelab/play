@@ -1,6 +1,6 @@
-#include <alpha/app/alpha_app.hpp>
+#include <alpha/app/app.hpp>
 
-alpha::alpha_app app;
+alpha::app app;
 
 void interrupt_handler(int signum)
 {

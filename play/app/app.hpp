@@ -2,7 +2,6 @@
 
 #include <play/app/service.hpp>
 #include <play/net/client.hpp>
-#include <play/net/frame/flatbuffer_handler.hpp>
 #include <play/net/server.hpp>
 
 namespace play {
@@ -11,16 +10,10 @@ namespace play {
 /**
  * 서비스를 관리. 구체적인 기능은 서비스에서 구현
  */
-template <typename Protocol, typename Frame>
-class app_base
+class app
 {
 public:
-  using server_type = server<Protocol, Frame>;
-  using client_type = client<Protocol, Frame>;
-  using session_type = typename server_type::session;
-
-public:
-  app_base() {}
+  app() {}
 
   template <typename Service, typename... Args>
   bool create_service(Args&&... args);
@@ -39,4 +32,4 @@ private:
 
 }  // namespace play
 
-#include <play/app/app_base.ipp>
+#include <play/app/app.ipp>

@@ -2,11 +2,11 @@
 #include <play/base/logger.hpp>
 #include <play/ensure/acts/act_message.hpp>
 
-namespace ensure {
+namespace play {
 
-act_message::act_message(play::actor& owner, act::ptr parent, const nlohmann::json& json,
+act_message::act_message(play::actor& owner, act_ensure::ptr parent, const nlohmann::json& json,
                          const std::string& name)
-    : act(owner, parent, json, name)
+    : act_ensure(owner, parent, json, name)
 {
 }
 
@@ -22,4 +22,4 @@ void act_message::on_update()
   succed("succeed after showing the message");
 }
 
-}  // namespace ensure
+}  // namespace play

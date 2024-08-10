@@ -1,11 +1,11 @@
 #include <play/base/json_reader.hpp>
 #include <play/ensure/act_factory.hpp>
 #include <play/ensure/bot.hpp>
-#include <play/ensure/ensure_app.hpp>
+#include <play/ensure/ensure.hpp>
 
-namespace ensure {
+namespace play {
 
-bot::bot(ensure_app& app, const nlohmann::json& json, const std::string& name, size_t index)
+bot::bot(ensure& app, const nlohmann::json& json, const std::string& name, size_t index)
     : app_{app},
       json_{json},
       name_{name},
@@ -51,4 +51,4 @@ void bot::stop()
   LOG()->info("bot: {} stopped.", get_name());
 }
 
-}  // namespace ensure
+}  // namespace play

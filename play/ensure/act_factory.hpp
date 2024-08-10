@@ -2,24 +2,24 @@
 
 #include <functional>
 #include <map>
-#include <play/ensure/act.hpp>
+#include <play/ensure/act_ensure.hpp>
 
-namespace ensure {
+namespace play {
 
 class act_factory
 {
 public:
-  using creator =
-      std::function<act::ptr(play::actor&, act::ptr, const nlohmann::json&, const std::string&)>;
+  using creator = std::function<act_ensure::ptr(play::actor&, act_ensure::ptr,
+                                                const nlohmann::json&, const std::string&)>;
 
 public:
   static act_factory& get();
 
 public:
-  act::ptr create(const std::string& type, play::actor& owner, act::ptr parent,
-                  const nlohmann::json& json, const std::string& name);
+  act_ensure::ptr create(const std::string& type, play::actor& owner, act_ensure::ptr parent,
+                         const nlohmann::json& json, const std::string& name);
 
-  void reg(std::string_view type, creator fn);
+  void add_creator(std::string_view type, creator fn);
 
 private:
   using creator_map = std::map<std::string, creator>;
@@ -28,12 +28,13 @@ private:
   creator_map creators_;
 };
 
-}  // namespace ensure
+}  // namespace play
 
-#define PLAY_REGISTER_ACT(act_type)                                                                \
-  ::ensure::act_factory::get().reg(#act_type,                                                      \
-                                   [](::play::actor& owner, ensure::act::ptr parent,               \
-                                      const nlohmann::json& json, const std::string& name)         \
-                                   {                                                               \
-                                     return std::make_shared<act_type>(owner, parent, json, name); \
-                                   })
+#define PLAY_REGISTER_ACT(act_type)                                                               \
+  ::play::act_factory::get().add_creator(#act_type,                                               \
+                                         [](::play::actor& owner, ::play::act_ensure::ptr parent, \
+                                            const nlohmann::json& json, const std::string& name)  \
+                                         {                                                        \
+                                           return std::make_shared<act_type>(owner, parent, json, \
+                                                                             name);               \
+                                         })

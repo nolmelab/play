@@ -55,10 +55,21 @@ void thread_runner::run()
 {
   while (!stop_)
   {
-    size_t run_count = get_ioc().run();
-    if (run_count == 0)
+    try
     {
-      sleep(1);
+      size_t run_count = get_ioc().run();
+      if (run_count == 0)
+      {
+        sleep(1);
+      }
+    }
+    catch (std::exception& ex)
+    {
+      LOG()->error("exception in thread_runner::run. what: {}", ex.what());
+    }
+    catch (...)
+    {
+      LOG()->error("unknown exception in thread_runner::run");
     }
   }
 }

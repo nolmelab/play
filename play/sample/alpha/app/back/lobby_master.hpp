@@ -8,7 +8,7 @@ namespace alpha {
 class lobby_master : public service_base
 {
 public:
-  lobby_master(alpha_app& app)
+  lobby_master(app& app)
       : service_base(app)
   {
   }

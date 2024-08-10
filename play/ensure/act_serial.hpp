@@ -3,19 +3,19 @@
 #include <play/base/macros.hpp>
 #include <play/ensure/act_composite.hpp>
 
-namespace ensure {
+namespace play {
 
 class act_serial : public act_composite
 {
 public:
-  act_serial(play::actor& owner, act::ptr parent, const nlohmann::json& json,
+  act_serial(play::actor& owner, act_ensure::ptr parent, const nlohmann::json& json,
              const std::string& name)
       : act_composite(owner, parent, json, name)
   {
   }
 
 protected:
-  act::ptr get_current_act() const
+  act_ensure::ptr get_current_act() const
   {
     PLAY_CHECK(current_act_index_ >= 0 && current_act_index_ < get_acts().size())
     return get_acts()[current_act_index_];
@@ -23,7 +23,7 @@ protected:
 
   ptr find_child(const std::string& path) final;
 
-  std::pair<size_t, act::ptr> find_act(const std::string& name) const;
+  std::pair<size_t, act_ensure::ptr> find_act(const std::string& name) const;
 
 private:
   bool on_activate() final;
@@ -43,4 +43,4 @@ private:
   size_t current_act_index_{0};
 };
 
-}  // namespace ensure
+}  // namespace play

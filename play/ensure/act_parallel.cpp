@@ -1,6 +1,6 @@
 #include <play/ensure/act_parallel.hpp>
 
-namespace ensure {
+namespace play {
 
 bool act_parallel::on_activate()
 {
@@ -78,7 +78,7 @@ void act_parallel::jump_child(const std::string& pa)
   }
 }
 
-act::ptr act_parallel::find_child(const std::string& path)
+act_ensure::ptr act_parallel::find_child(const std::string& path)
 {
   auto ap = find_act(path::get_first_act(path));
   if (ap)
@@ -88,7 +88,7 @@ act::ptr act_parallel::find_child(const std::string& path)
   return ap;
 }
 
-act::ptr act_parallel::find_act(const std::string& name) const
+act_ensure::ptr act_parallel::find_act(const std::string& name) const
 {
   for (size_t i = 0; i < get_acts().size(); ++i)
   {
@@ -101,4 +101,4 @@ act::ptr act_parallel::find_act(const std::string& name) const
   return {};
 }
 
-}  // namespace ensure
+}  // namespace play

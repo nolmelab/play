@@ -8,7 +8,7 @@ namespace alpha {
 class lobby_runner : public service_base
 {
 public:
-  lobby_runner(alpha_app& app)
+  lobby_runner(app& app)
       : service_base(app)
   {
   }
@@ -17,15 +17,6 @@ public:
 
   void stop() final;
 
-private:
-  void on_auth_req_login(session_ptr session, frame_ptr frame);
-
-  void on_auth_req_logout(session_ptr session, frame_ptr frame);
-
-  void on_session_state(session_ptr session, frame_handler::session_state state);
-
-private:
-  //
 };
 
 }  // namespace alpha

@@ -1,13 +1,13 @@
 #pragma once
 
-#include <play/ensure/act.hpp>
+#include <play/ensure/act_ensure.hpp>
 
-namespace ensure {
+namespace play {
 
-class act_message : public act
+class act_message : public act_ensure
 {
 public:
-  act_message(play::actor& owner, act::ptr parent, const nlohmann::json& json,
+  act_message(play::actor& owner, act_ensure::ptr parent, const nlohmann::json& json,
               const std::string& name);
 
 private:
@@ -16,4 +16,4 @@ private:
   void on_update() final;
 };
 
-}  // namespace ensure
+}  // namespace play

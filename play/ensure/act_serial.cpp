@@ -1,6 +1,6 @@
 #include <play/ensure/act_serial.hpp>
 
-namespace ensure {
+namespace play {
 
 bool act_serial::on_activate()
 {
@@ -83,7 +83,7 @@ void act_serial::jump_child(const std::string& path)
   }
 }
 
-act::ptr act_serial::find_child(const std::string& path)
+act_ensure::ptr act_serial::find_child(const std::string& path)
 {
   auto ia = find_act(path::get_first_act(path));
   if (ia.second)
@@ -93,7 +93,7 @@ act::ptr act_serial::find_child(const std::string& path)
   return ia.second;
 }
 
-std::pair<size_t, act::ptr> act_serial::find_act(const std::string& name) const
+std::pair<size_t, act_ensure::ptr> act_serial::find_act(const std::string& name) const
 {
   for (size_t i = 0; i < get_acts().size(); ++i)
   {
@@ -106,4 +106,4 @@ std::pair<size_t, act::ptr> act_serial::find_act(const std::string& name) const
   return {0, {}};
 }
 
-}  // namespace ensure
+}  // namespace play

@@ -12,8 +12,7 @@ TEST_CASE("client & server")
   SUBCASE("compile server")
   {
     poll_runner runner;
-    frame_default_handler<server<stream_protocol>> handler{runner};
-    server<stream_protocol> server(handler);
+    server<stream_protocol> server(runner);
   }
 }
 
@@ -25,8 +24,8 @@ struct test_server : public server<stream_protocol>
 {
   using server = server<stream_protocol>;
 
-  test_server(frame_handler& handler)
-      : server(handler)
+  test_server(runner& runner)
+      : server(runner)
   {
   }
 
@@ -48,8 +47,8 @@ struct test_client : public client<stream_protocol>
 {
   using client = client<stream_protocol>;
 
-  test_client(frame_handler& handler)
-      : client(handler)
+  test_client(runner& runner)
+      : client(runner)
   {
   }
 
@@ -90,9 +89,8 @@ TEST_CASE("communication")
   SUBCASE("stream_protocol")
   {
     poll_runner runner{"stream_protocol runner"};
-    frame_default_handler<test_server> handler{runner};
-    test_server server(handler);
-    test_client client(handler);
+    test_server server(runner);
+    test_client client(runner);
 
     auto rc = server.start(7000);
 
@@ -115,9 +113,8 @@ TEST_CASE("communication")
   SUBCASE("stream_protocol echo perf")
   {
     poll_runner runner{"stream_protocol runner"};
-    frame_default_handler<test_server> handler{runner};
-    test_server server(handler);
-    test_client client(handler);
+    test_server server(runner);
+    test_client client(runner);
 
     auto rc = server.start(7000);
 

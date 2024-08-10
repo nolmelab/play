@@ -4,13 +4,13 @@ find_package(spdlog CONFIG REQUIRED)
 
 # set sources for playground_core
 set(SOURCE 
-  ensure_app.cpp
+  ensure.cpp
   bot.cpp
   act_composite.cpp
   act_factory.cpp
   act_parallel.cpp
   act_serial.cpp
-  act.cpp
+  act_ensure.cpp
   blackboard.cpp
   bot.cpp
   flow.cpp

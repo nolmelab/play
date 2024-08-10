@@ -23,12 +23,6 @@ private:
   void stop() final;
 
 private:
-  void on_room_req_create(session_ptr session, frame_ptr frame);
-
-  void on_room_req_page(session_ptr session, frame_ptr frame);
-
-  void on_room_req_join(session_ptr session, frame_ptr frame);
-
   service_base& get_service()
   {
     return service_;
@@ -37,7 +31,7 @@ private:
   template <typename Service>
   Service& get_service()
   {
-    return static_cast<Service>(get_service());
+    return static_cast<Service&>(get_service());
   }
 
 private:

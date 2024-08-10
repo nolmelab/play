@@ -7,7 +7,7 @@ namespace alpha {
 class room_master : public service_base
 {
 public:
-  room_master(alpha_app& app)
+  room_master(app& app)
       : service_base(app)
   {
   }

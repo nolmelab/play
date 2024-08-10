@@ -1,5 +1,7 @@
 #pragma once
 
+#include <play/net/asio.hpp>
+
 namespace play {
 
 // 세션에서 통지를 위해 사용하는 인터페이스

@@ -27,6 +27,7 @@ target_include_directories(play_net PRIVATE "${CMAKE_SOURCE_DIR}/..")
 target_link_libraries(
   play_net 
   PRIVATE 
+  play_base
   spdlog::spdlog 
   nlohmann_json::nlohmann_json
 )

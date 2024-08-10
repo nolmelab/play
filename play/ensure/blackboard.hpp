@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-namespace ensure {
+namespace play {
 
 // 초간단 블랙보드
 /**
@@ -106,4 +106,4 @@ private:
   ptr p_;
 };
 
-}  // namespace ensure
+}  // namespace play

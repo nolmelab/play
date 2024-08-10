@@ -2,15 +2,14 @@
 
 namespace play {
 
-template <typename Protocol, typename Frame>
-server<Protocol, Frame>::server(frame_handler& handler)
-    : runner_{handler.get_runner()},
-      frame_handler_{handler}
+template <typename Protocol>
+server<Protocol>::server(runner& runner)
+    : runner_{runner}
 {
 }
 
-template <typename Protocol, typename Frame>
-bool server<Protocol, Frame>::start(uint16_t port)
+template <typename Protocol>
+bool server<Protocol>::start(uint16_t port)
 {
   try
   {
@@ -35,8 +34,8 @@ bool server<Protocol, Frame>::start(uint16_t port)
   return on_start();
 }
 
-template <typename Protocol, typename Frame>
-typename server<Protocol, Frame>::session_ptr server<Protocol, Frame>::get_session(size_t handle)
+template <typename Protocol>
+typename server<Protocol>::session_ptr server<Protocol>::get_session(size_t handle)
 {
   std::shared_lock<shared_mutex> guard(mutex_);
   auto iter = sessions_.find(handle);
@@ -47,15 +46,8 @@ typename server<Protocol, Frame>::session_ptr server<Protocol, Frame>::get_sessi
   return iter->second;
 }
 
-template <typename Protocol, typename Frame>
-template <typename FrameHandler>
-FrameHandler& server<Protocol, Frame>::get_handler() const
-{
-  return static_cast<FrameHandler&>(frame_handler_);
-}
-
-template <typename Protocol, typename Frame>
-void server<Protocol, Frame>::stop()
+template <typename Protocol>
+void server<Protocol>::stop()
 {
   on_stop();
 
@@ -67,18 +59,28 @@ void server<Protocol, Frame>::stop()
   LOG()->info("server stopped");
 }
 
-template <typename Protocol, typename Frame>
-void server<Protocol, Frame>::on_established(session_ptr session)
+template <typename Protocol>
+void server<Protocol>::bind_pulse(pulse_listener* listener)
+{
+  PLAY_CHECK(listener != nullptr);
+  listener_ = listener;
+}
+
+template <typename Protocol>
+void server<Protocol>::on_established(session_ptr session)
 {
   LOG()->info("server session: {} established. remote: {}", session->get_handle(),
               session->get_remote_addr());
 
   handle_established(session);
-  frame_handler_.established(session);
+  if (listener_ != nullptr)
+  {
+    listener_->on_established(session);
+  }
 }
 
-template <typename Protocol, typename Frame>
-void server<Protocol, Frame>::on_closed(session_ptr session, error_code ec)
+template <typename Protocol>
+void server<Protocol>::on_closed(session_ptr session, error_code ec)
 {
   // remove
   {
@@ -90,30 +92,35 @@ void server<Protocol, Frame>::on_closed(session_ptr session, error_code ec)
               session->get_remote_addr(), ec.message());
 
   handle_closed(session, ec);
-  frame_handler_.closed(session, ec);
+  if (listener_ != nullptr)
+  {
+    listener_->on_closed(session, ec);
+  }
 }
 
-template <typename Protocol, typename Frame>
-void server<Protocol, Frame>::on_receive(session_ptr session, topic topic, const void* data,
-                                         size_t len)
+template <typename Protocol>
+void server<Protocol>::on_receive(session_ptr session, topic topic, const void* data, size_t len)
 {
-  frame_handler_.recv(session, topic, data, len);
+  if (listener_ != nullptr)
+  {
+    listener_->on_receive(session, topic, data, len);
+  }
   handle_receive(session, topic, data, len);
 }
 
-template <typename Protocol, typename Frame>
-bool server<Protocol, Frame>::on_start()
+template <typename Protocol>
+bool server<Protocol>::on_start()
 {
   return true;
 }
 
-template <typename Protocol, typename Frame>
-void server<Protocol, Frame>::on_stop()
+template <typename Protocol>
+void server<Protocol>::on_stop()
 {
 }
 
-template <typename Protocol, typename Frame>
-void server<Protocol, Frame>::start_accept()
+template <typename Protocol>
+void server<Protocol>::start_accept()
 {
   auto se = std::make_shared<session>(*this, runner_.get_ioc(), true);
 
@@ -124,8 +131,8 @@ void server<Protocol, Frame>::start_accept()
                           });
 }
 
-template <typename Protocol, typename Frame>
-void server<Protocol, Frame>::handle_accept(session_ptr se, error_code ec)
+template <typename Protocol>
+void server<Protocol>::handle_accept(session_ptr se, error_code ec)
 {
   if (!ec)
   {

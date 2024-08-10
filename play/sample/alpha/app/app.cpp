@@ -1,4 +1,4 @@
-#include <alpha/app/alpha_app.hpp>
+#include <alpha/app/app.hpp>
 #include <alpha/app/back/lobby_master.hpp>
 #include <alpha/app/back/room_master.hpp>
 #include <alpha/app/front/lobby_runner.hpp>
@@ -8,7 +8,7 @@
 
 namespace alpha {
 
-bool alpha_app::start(const std::string& config_file)
+bool app::start(const std::string& config_file)
 {
   config_file_ = config_file;
 
@@ -27,7 +27,7 @@ bool alpha_app::start(const std::string& config_file)
   }
 }
 
-bool alpha_app::start(const nlohmann::json& jconf)
+bool app::start(const nlohmann::json& jconf)
 {
   jconf_ = jconf;
   stop_ = false;
@@ -39,20 +39,21 @@ bool alpha_app::start(const nlohmann::json& jconf)
     auto port = play::json_reader::read(jconf_, "alpha.port", 7000);
     role_ = play::json_reader::read(jconf_, "alpha.role", std::string{"back"});  // or front
 
-    LOG()->info("starting alpha_app with role: {}", role_);
+    LOG()->info("starting app with role: {}", role_);
 
-    runner_ = std::make_unique<play::thread_runner>(concurrency, "alpha_app");
-    handler_ = std::make_unique<frame_handler>(*runner_);
-    server_ = std::make_unique<server>(*handler_);
-
-    server_->start(port);
-
-    auto rc = start_services();
-    if (rc)
+    runner_ = std::make_unique<play::thread_runner>(concurrency, "app");
+    auto rc_1 = pulse_.as_server(port).with_runner(runner_.get()).start();
+    if (!rc_1)
     {
-      LOG()->info("started alpha_app");
+      return false;
     }
-    return rc;
+
+    auto rc_2 = start_services();
+    if (rc_2)
+    {
+      LOG()->info("started app");
+    }
+    return rc_2;
   }
   catch (std::exception& ex)
   {
@@ -61,7 +62,7 @@ bool alpha_app::start(const nlohmann::json& jconf)
   }
 }
 
-void alpha_app::wait()
+void app::wait()
 {
   while (!stop_)
   {
@@ -69,7 +70,7 @@ void alpha_app::wait()
   }
 }
 
-void alpha_app::stop()
+void app::stop()
 {
   if (stop_)
   {
@@ -78,12 +79,12 @@ void alpha_app::stop()
 
   stop_ = true;
   runner_->stop();
-  server_->stop();
+  pulse_.stop();
 
   stop_services();
 }
 
-bool alpha_app::start_services()
+bool app::start_services()
 {
   // be or fe에 따라 필요한 서비스를 생성한다.
   if (role_ == "front")
@@ -108,7 +109,7 @@ bool alpha_app::start_services()
   return true;
 }
 
-void alpha_app::stop_services()
+void app::stop_services()
 {
   for_each(
       [](play::service::ptr service)

@@ -5,7 +5,7 @@
 #include <play/base/stop_watch.hpp>
 #include <string>
 
-namespace ensure {
+namespace play {
 
 // flow를 구성하는 act.
 /**
@@ -14,10 +14,10 @@ namespace ensure {
  * 
  * actor의 컴포넌트로도 사용할 수 있음 
  */
-class act : public play::act
+class act_ensure : public play::act
 {
 public:
-  using ptr = std::shared_ptr<act>;  // hide app::act::ptr
+  using ptr = std::shared_ptr<act_ensure>;  // hide app::act::ptr
 
 public:
   struct path
@@ -55,7 +55,8 @@ public:
   };
 
 public:
-  act(play::actor& owner, act::ptr parent, const nlohmann::json& json, const std::string& name)
+  act_ensure(play::actor& owner, act_ensure::ptr parent, const nlohmann::json& json,
+             const std::string& name)
       : play::act(owner),
         parent_{parent},
         json_{json},
@@ -150,7 +151,7 @@ protected:
 
   ptr self()
   {
-    return std::static_pointer_cast<act>(this->shared_from_this());
+    return std::static_pointer_cast<act_ensure>(this->shared_from_this());
   }
 
   bool is_self(const std::string& path) const;
@@ -174,4 +175,4 @@ private:
   size_t active_count_{0};
 };
 
-}  // namespace ensure
+}  // namespace play

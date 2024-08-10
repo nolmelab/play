@@ -2,13 +2,13 @@
 #include <play/base/json_reader.hpp>
 #include <play/base/macros.hpp>
 #include <play/base/string_util.hpp>
-#include <play/ensure/act.hpp>
+#include <play/ensure/act_ensure.hpp>
 #include <play/ensure/bot.hpp>
 #include <stack>
 
-namespace ensure {
+namespace play {
 
-bool act::activate()
+bool act_ensure::activate()
 {
   if (!active_)
   {
@@ -22,12 +22,12 @@ bool act::activate()
   return true;  // already active
 }
 
-void act::update()
+void act_ensure::update()
 {
   on_update();
 }
 
-void act::deactivate()
+void act_ensure::deactivate()
 {
   if (active_)
   {
@@ -36,7 +36,7 @@ void act::deactivate()
   }
 }
 
-void act::jump(const std::string& path)
+void act_ensure::jump(const std::string& path)
 {
   if (has_parent())
   {
@@ -44,7 +44,7 @@ void act::jump(const std::string& path)
   }
 }
 
-void act::next()
+void act_ensure::next()
 {
   if (has_parent())
   {
@@ -52,7 +52,7 @@ void act::next()
   }
 }
 
-void act::exit()
+void act_ensure::exit()
 {
   if (has_parent())
   {
@@ -60,7 +60,7 @@ void act::exit()
   }
 }
 
-act::ptr act::find(const std::string& path)
+act_ensure::ptr act_ensure::find(const std::string& path)
 {
   if (path.empty())
   {
@@ -111,7 +111,7 @@ act::ptr act::find(const std::string& path)
   }
 }
 
-bool act::is_self(const std::string& path) const
+bool act_ensure::is_self(const std::string& path) const
 {
   if (path::is_relative_path(path))
   {
@@ -120,18 +120,18 @@ bool act::is_self(const std::string& path) const
   return path == get_path().full_path_;
 }
 
-bool act::on_activate()
+bool act_ensure::on_activate()
 {
   return true;
 }
 
-void act::on_update() {}
+void act_ensure::on_update() {}
 
-void act::on_deactivate() {}
+void act_ensure::on_deactivate() {}
 
-void act::on_load_json() {}
+void act_ensure::on_load_json() {}
 
-void act::signal(std::string_view sig, std::string_view message)
+void act_ensure::signal(std::string_view sig, std::string_view message)
 {
   auto jslots = json_["slots"];
   if (jslots.is_object())
@@ -157,17 +157,17 @@ void act::signal(std::string_view sig, std::string_view message)
       }
       else
       {
-        LOG()->error("unknown command: {} in act: {}", cmd, get_name());
+        LOG()->error("unknown command: {} in act_ensure: {}", cmd, get_name());
       }
     }
     else
     {
-      LOG()->error("signal: {} when slots are empty in act: {}", sig, get_name());
+      LOG()->error("signal: {} when slots are empty in act_ensure: {}", sig, get_name());
     }
   }
 }
 
-act::ptr act::find_up(const std::string& path)
+act_ensure::ptr act_ensure::find_up(const std::string& path)
 {
   if (has_parent())
   {
@@ -176,12 +176,12 @@ act::ptr act::find_up(const std::string& path)
   return {};
 }
 
-act::ptr act::find_child(const std::string& path)
+act_ensure::ptr act_ensure::find_child(const std::string& path)
 {
   return {};
 }
 
-void act::build_path()
+void act_ensure::build_path()
 {
   std::stack<std::string> path_stack;
 
@@ -208,43 +208,43 @@ void act::build_path()
   path_.setup(full_path);
 }
 
-bool act::path::is_absolute_path(const std::string& path)
+bool act_ensure::path::is_absolute_path(const std::string& path)
 {
   return (path.length() > 0 && path[0] == '/');
 }
 
-bool act::path::is_relative_path(const std::string& path)
+bool act_ensure::path::is_relative_path(const std::string& path)
 {
   return (path.length() > 0 && path[0] != '/');
 }
 
-std::string act::path::get_last_act(const std::string& path)
+std::string act_ensure::path::get_last_act(const std::string& path)
 {
   PLAY_CHECK(!path.empty());
   auto parts = play::string_util::split(path, "/");
   return parts.back();
 }
 
-bool act::path::is_child_of(const std::string& self_path, const std::string& path)
+bool act_ensure::path::is_child_of(const std::string& self_path, const std::string& path)
 {
   return (path.substr(0, self_path.length()) == self_path);
 }
 
-std::string act::path::get_child_path(const std::string& self_path, const std::string& path)
+std::string act_ensure::path::get_child_path(const std::string& self_path, const std::string& path)
 {
-  if (act::path::is_child_of(self_path, path))
+  if (act_ensure::path::is_child_of(self_path, path))
   {
     return path.substr(self_path.length() + 1);
   }
   return {};
 }
 
-std::string act::path::get_child_path(const std::string& path)
+std::string act_ensure::path::get_child_path(const std::string& path)
 {
   return pop_head_act(path);
 }
 
-std::string act::path::get_first_act(const std::string& pa)
+std::string act_ensure::path::get_first_act(const std::string& pa)
 {
   if (pa.empty())
   {
@@ -256,7 +256,7 @@ std::string act::path::get_first_act(const std::string& pa)
   return *p.parts_.begin();
 }
 
-std::string act::path::pop_head_act(const std::string& pa)
+std::string act_ensure::path::pop_head_act(const std::string& pa)
 {
   path p;
   p.setup(pa);
@@ -274,7 +274,7 @@ std::string act::path::pop_head_act(const std::string& pa)
   return join;
 }
 
-void act::path::setup(const std::string& full_path)
+void act_ensure::path::setup(const std::string& full_path)
 {
   full_path_ = full_path;
   parts_ = play::string_util::split(full_path_, "/");
@@ -282,15 +282,15 @@ void act::path::setup(const std::string& full_path)
   // 이와 같은 입력의 치명적인 실수는 예외를 쓸 수 밖에 없음
   if (parts_.empty())
   {
-    throw play::error::create("invalid act path: {}", full_path);
+    throw play::error::create("invalid act_ensure path: {}", full_path);
   }
 
   act_name_ = parts_.back();
 }
 
-void act::load_json()
+void act_ensure::load_json()
 {
   on_load_json();
 }
 
-}  // namespace ensure
+}  // namespace play

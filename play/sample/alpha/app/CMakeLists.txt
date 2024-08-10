@@ -7,7 +7,7 @@ find_package(nlohmann_json CONFIG REQUIRED)
 
 set(SOURCE 
   main.cpp
-  alpha_app.cpp
+  app.cpp
   front/lobby_runner.cpp
   front/actor_user.cpp
   front/room_runner.cpp 

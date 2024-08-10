@@ -2,14 +2,17 @@
 #include <play/test/test_fb_generated.h>
 #include <play/base/stop_watch.hpp>
 #include <play/net/client.hpp>
-#include <play/net/frame/flatbuffer_handler.hpp>
 #include <play/net/protocol/secure_protocol.hpp>
+#include <play/net/pulse_fb.hpp>
 #include <play/net/runner/poll_runner.hpp>
 #include <play/net/server.hpp>
 
 using namespace play;
 
 namespace {
+
+// 1, 2는 시스템에서 사용
+const uint16_t topic_message = 11;
 
 struct test_config
 {
@@ -21,21 +24,22 @@ struct test_config
   inline static int echo_count = 5;
 };
 
-using server_t = server<secure_protocol<uint16_t>, flatbuffers::NativeTable>;
-using client_t = client<secure_protocol<uint16_t>, flatbuffers::NativeTable>;
+using server_t = server<secure_protocol<uint16_t>>;
+using client_t = client<secure_protocol<uint16_t>>;
+using pulse_t = pulse_fb<secure_protocol<uint16_t>>;
 
 struct test_server : public server_t
 {
-  test_server(server_t::frame_handler& handler)
-      : server_t(handler)
+  test_server(runner& runner)
+      : server_t(runner)
   {
   }
 };
 
 struct test_client : public client_t
 {
-  test_client(client_t::frame_handler& handler)
-      : client_t(handler)
+  test_client(runner& runner)
+      : client_t(runner)
   {
   }
 
@@ -47,8 +51,7 @@ struct test_client : public client_t
     move.pos = std::make_unique<fb::vec3>(1, 1, 1);
     move.name = "hello";
 
-    get_handler<flatbuffer_handler<test_client::session>>().send<fb::req_move>(session, 1, move,
-                                                                               false);
+    pulse_t::send<fb::req_move>(session, topic_message, move, false);
   }
 
   size_t recv_count_{0};
@@ -56,40 +59,42 @@ struct test_client : public client_t
 
 }  // namespace
 
-TEST_CASE("faltbuffers")
+TEST_CASE("flatbuffers")
 {
-  using server_handler_t = flatbuffer_handler<test_server::session>;
-  using client_handler_t = flatbuffer_handler<test_client::session>;
-
   poll_runner runner{"secure_protocol runner"};
 
-  server_handler_t server_handler{runner};
-  client_handler_t client_handler{runner};
+  pulse_t pulse_server;
+  pulse_t pulse_client;
 
-  server_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
-  client_handler.reg(1, &server_handler_t::unpack<fb::req_move, fb::req_moveT>);
+  pulse_server.as_independent();
+  pulse_client.as_independent();
 
-  test_server server(server_handler);
-  test_client client(client_handler);
+  pulse_t::add_unpacker(topic_message, &pulse_t::unpack_fn<fb::req_move, fb::req_moveT>);
 
-  server_handler_t::receiver cb =
-      [&server_handler](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
+  test_server server(runner);
+  test_client client(runner);
+
+  server.bind_pulse(&pulse_server);
+  client.bind_pulse(&pulse_client);
+
+  pulse_t::receiver cb_1 = [](pulse_t::session_ptr se, pulse_t::frame_ptr f)
   {
     auto req_move = std::static_pointer_cast<fb::req_moveT>(f);
     auto v = req_move->pos->x();
-    server_handler.send<fb::req_move>(se, 1, *req_move.get(), false);
+    pulse_t::send<fb::req_move>(se, topic_message, *req_move.get(), false);
   };
-  server_handler.sub_topic(1, cb);
 
-  client_handler_t::receiver cb_2 =
-      [&client, &client_handler](client_handler_t::session_ptr se, client_handler_t::frame_ptr f)
+  pulse_server.subscribe(topic_message, cb_1);
+
+  pulse_t::receiver cb_2 = [&client](pulse_t::session_ptr se, pulse_t::frame_ptr f)
   {
     client.recv_count_++;
     auto req_move = std::static_pointer_cast<fb::req_moveT>(f);
     auto v = req_move->pos->x();
-    client_handler.send<fb::req_move>(se, 1, *req_move.get(), true);
+    pulse_t::send<fb::req_move>(se, topic_message, *req_move.get(), true);
   };
-  client_handler.sub_topic(1, cb_2);
+
+  pulse_client.subscribe(topic_message, cb_2);
 
   auto rc = server.start(7000);
 
@@ -113,43 +118,4 @@ TEST_CASE("faltbuffers")
   auto elapsed = watch.stop();
 
   LOG()->info("elapsed: {}, frames; {}", elapsed, test_config::test_frame_count);
-}
-
-TEST_CASE("flatbuffer_handler")
-{
-  SUBCASE("sub / unsub")
-  {
-    using server_handler_t = flatbuffer_handler<test_server::session>;
-
-    poll_runner runner{"secure_protocol runner"};
-    server_handler_t h1{runner};
-
-    server_handler_t::receiver cb =
-        [](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
-    {
-    };
-    auto sub_id_1 = h1.sub_topic(1, cb);
-    auto sub_id_2 = h1.sub_topic(1, cb);
-    CHECK(h1.get_subs_size(1) == 2);
-    h1.unsub(1, sub_id_1);
-    h1.unsub(1, sub_id_2);
-    CHECK(h1.get_subs_size(1) == 0);
-  }
-
-  SUBCASE("sub / unsub_topic")
-  {
-    using server_handler_t = flatbuffer_handler<test_server::session>;
-
-    poll_runner runner{"secure_protocol runner"};
-    server_handler_t h1{runner};
-    server_handler_t::receiver cb =
-        [](server_handler_t::session_ptr se, server_handler_t::frame_ptr f)
-    {
-    };
-    auto sub_id_1 = h1.sub_topic(1, cb);
-    auto sub_id_2 = h1.sub_topic(1, cb);
-    CHECK(h1.get_subs_size(1) == 2);
-    h1.unsub_topic(1);
-    CHECK(h1.get_subs_size(1) == 0);
-  }
 }

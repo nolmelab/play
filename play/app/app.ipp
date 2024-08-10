@@ -1,11 +1,10 @@
-#include <play/app/app_base.hpp>
+#include <play/app/app.hpp>
 #include <play/base/logger.hpp>
 
 namespace play {
 
-template <typename Protocol, typename Frame>
 template <typename Service, typename... Args>
-bool app_base<Protocol, Frame>::create_service(Args&&... args)
+bool app::create_service(Args&&... args)
 {
   auto service = std::make_shared<Service>(std::forward<Args>(args)...);
   auto index = std::type_index{typeid(Service)};
@@ -18,9 +17,8 @@ bool app_base<Protocol, Frame>::create_service(Args&&... args)
   return result.second;
 }
 
-template <typename Protocol, typename Frame>
 template <typename Service>
-inline std::shared_ptr<Service> app_base<Protocol, Frame>::get_service()
+inline std::shared_ptr<Service> app::get_service()
 {
   auto index = std::type_index{typeid(Service)};
   auto iter = services_.find(index);
@@ -31,8 +29,7 @@ inline std::shared_ptr<Service> app_base<Protocol, Frame>::get_service()
   return std::static_pointer_cast<Service>(iter->second);
 }
 
-template <typename Protocol, typename Frame>
-void app_base<Protocol, Frame>::for_each(std::function<void(service::ptr)> fn)
+inline void app::for_each(std::function<void(service::ptr)> fn)
 {
   for (auto& kv : services_)
   {

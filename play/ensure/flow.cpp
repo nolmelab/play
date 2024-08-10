@@ -5,7 +5,7 @@
 #include <play/ensure/bot.hpp>
 #include <play/ensure/flow.hpp>
 
-namespace ensure {
+namespace play {
 
 flow::flow(play::actor& bt, const nlohmann::json& json)
     : act_serial(bt, ptr{}, json, std::string{"flow"})
@@ -17,4 +17,4 @@ void flow::exit()
   get_owner().stop();
 }
 
-}  // namespace ensure
+}  // namespace play

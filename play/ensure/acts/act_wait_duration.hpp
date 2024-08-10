@@ -1,14 +1,14 @@
 #pragma once
 
-#include <play/ensure/act.hpp>
+#include <play/ensure/act_ensure.hpp>
 
-namespace ensure {
+namespace play {
 
 // duration으로 지정한 시간을 대기
-class act_wait_duration : public act
+class act_wait_duration : public act_ensure
 {
 public:
-  act_wait_duration(play::actor& owner, act::ptr parent, const nlohmann::json& json,
+  act_wait_duration(play::actor& owner, act_ensure::ptr parent, const nlohmann::json& json,
                     const std::string& name);
 
 private:
@@ -20,4 +20,4 @@ private:
   int duration_{0};
 };
 
-}  // namespace ensure
+}  // namespace play
