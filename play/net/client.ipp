@@ -13,7 +13,7 @@ inline bool client<Protocol>::connect(std::string_view addr, uint16_t port)
 {
   if (session_ && session_->is_open())
   {
-    LOG()->warn("current sesion is open. closing it. handle: {}", session_->get_handle());
+    LOG()->warn("current sesion is open. handle: {}", session_->get_handle());
     return false;
   }
 
@@ -25,7 +25,6 @@ inline bool client<Protocol>::connect(std::string_view addr, uint16_t port)
   endpoint_.port(port);
 
   session_ = std::make_shared<session>(*this, runner_.get_ioc(), false);
-
   session_->get_socket().async_connect(endpoint_,
                                        [this](error_code ec)
                                        {

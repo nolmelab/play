@@ -9,6 +9,7 @@ namespace alpha {
 bool act_auth_login::on_activate()
 {
   auto pulse_lobby = get_bot().get_blackboard().get_ptr<ensure::pulse>("lobby");
+
   pulse_ = std::make_unique<ensure::pulse>();
   pulse_->as_child(pulse_lobby.get())
       .with_strand(get_owner().get_id())
@@ -16,8 +17,10 @@ bool act_auth_login::on_activate()
                  [this](ensure::pulse::session_ptr se, ensure::pulse::frame_ptr frame)
                  {
 
-                 });
-  pulse_->start();
+                 })
+      .start();
+
+  // pulse_lobby에 구독하고 해지하는 방식으로도 가능
 
   return true;
 }

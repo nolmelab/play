@@ -72,6 +72,18 @@ public:
   template <typename TopicInput>
   pulse& subscribe(TopicInput topic, receiver cb);
 
+  // 특정 오브젝트에서 특정 토픽을 구독
+  template <typename Subscriber, typename TopicInput>
+  pulse& subscribe(Subscriber* subscriber, TopicInput topic, receiver cb);
+
+  // 특정 오브젝트의 특정 토픽의 구독 해제
+  template <typename Subscriber, typename TopicInput>
+  pulse& unsubscribe(Subscriber* subscriber, TopicInput topic);
+
+  // 특정 오브젝트의 구독 해제
+  template <typename Subscriber>
+  pulse& unsubscribe(Subscriber* subscriber);
+
   // runner를 통한 post(). strand가 있으면 strand로 post()
   template <typename CompletionToken>
   void post(CompletionToken&& handler);
@@ -111,6 +123,7 @@ private:
 
   struct subscription
   {
+    uintptr_t subscriber;
     receiver cb;
   };
 

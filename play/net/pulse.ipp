@@ -182,8 +182,67 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
     PLAY_CHECK(result.second);
     iter = result.first;
   }
-  iter->second.push_back({cb});
+  iter->second.push_back({0, cb});
   return *this;
+}
+
+template <typename Protocol, typename Frame>
+template <typename Subscriber, typename TopicInput>
+inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(Subscriber* subscriber,
+                                                                 TopicInput topic_in, receiver cb)
+{
+  auto pic = static_cast<topic>(topic_in);
+  auto key = reinterpret_cast<uintptr_t>(subscriber);
+
+  std::unique_lock guard(mutex_);
+  auto iter = subscriptions_.find(pic);
+  if (iter == subscriptions_.end())
+  {
+    std::vector<subscription> subs{};
+    auto result = subscriptions_.insert(std::pair{pic, subs});
+    PLAY_CHECK(result.second);
+    iter = result.first;
+  }
+  iter->second.push_back({key, cb});
+  return *this;
+}
+
+template <typename Protocol, typename Frame>
+template <typename Subscriber, typename TopicInput>
+inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::unsubscribe(Subscriber* subscriber,
+                                                                   TopicInput topic_in)
+{
+  auto pic = static_cast<topic>(topic_in);
+  auto key = reinterpret_cast<uintptr_t>(subscriber);
+
+  std::unique_lock guard(mutex_);
+  auto iter = subscriptions_.find(pic);
+  auto& vec = iter->second;
+  vec.erase(std::remove_if(vec.begin(), vec.end(),
+                           [](auto sub)
+                           {
+                             return sub.subscriber == key;
+                           }),
+            vec.end());
+}
+
+template <typename Protocol, typename Frame>
+template <typename Subscriber>
+inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::unsubscribe(Subscriber* subscriber)
+{
+  auto key = reinterpret_cast<uintptr_t>(subscriber);
+
+  std::unique_lock guard(mutex_);
+  for (auto& kv = subscriptions_)
+  {
+    auto& vec = kv.second;
+    vec.erase(std::remove_if(vec.begin(), vec.end(),
+                             [](auto sub)
+                             {
+                               return sub.subscriber == key;
+                             }),
+              vec.end());
+  }
 }
 
 template <typename Protocol, typename Frame>
@@ -238,36 +297,48 @@ void pulse<Protocol, Frame>::unbind_child(pulse* child)
 template <typename Protocol, typename Frame>
 void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame)
 {
-  std::shared_lock guard(mutex_);
-  auto siter = subscriptions_.find(pic);
-  if (siter != subscriptions_.end())
+  // 구독자들에게 전달
   {
-    for (auto& sub : siter->second)
+    std::shared_lock guard(mutex_);
+    auto siter = subscriptions_.find(pic);
+    if (siter != subscriptions_.end())
     {
-      if (strand_key_ == 0)
+      for (auto& sub : siter->second)
       {
-        sub.cb(se, frame);
-      }
-      else
-      {
-        auto cb = sub.cb;
-        this->get_runner()->post(strand_key_,
-                                 [cb, se, frame]()
-                                 {
-                                   cb(se, frame);
-                                 });
+        if (strand_key_ == 0)
+        {
+          sub.cb(se, frame);
+        }
+        else
+        {
+          auto cb = sub.cb;
+          this->get_runner()->post(strand_key_,
+                                   [cb, se, frame]()
+                                   {
+                                     cb(se, frame);
+                                   });
+        }
       }
     }
+    else
+    {
+      if (childs_.empty())
+      {
+        LOG()->debug("sub for topic: {} not found", pic);
+      }
+    }
+  }
 
-    // 구독한 토픽들을 자식들에게 전달
-    for (auto& child : childs_)
+  // 자식들에게 전달
+  {
+    std::shared_lock guard(mutex_);
+    child_map childs = childs_;  // 복사. 프레임 처리 중 자식이 추가될 가능성이 있음.
+
+    // 토픽들을 자식들에게 전달. 자식들도 dispatch에서 맵 검색이므로 O(1)으로 처리
+    for (auto& child : childs)
     {
       child.second->dispatch(se, pic, frame);
     }
-  }
-  else
-  {
-    LOG()->debug("sub for topic: {} not found", pic);
   }
 }
 

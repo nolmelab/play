@@ -25,8 +25,8 @@ public:
   /**
    * send()는 flatbuffers 전용의 전송 편의 함수
    */
-  template <typename FlatBufferObj, typename Obj>
-  static bool send(session_ptr se, topic pic, Obj& obj, bool encrypt = false);
+  template <typename TopicInput, typename FlatBufferObj, typename Obj>
+  static bool send(session_ptr se, TopicInput topic_in, Obj& obj, bool encrypt = false);
 
   // 정적으로 한번 등록. 락 사용하지 않음. 한번만 등록. 중복되면 경고 로그
   static void add_unpacker(topic pic, unpacker fn);

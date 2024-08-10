@@ -3,10 +3,12 @@
 namespace play {
 
 template <typename Protocol>
-template <typename FlatBufferObj, typename Obj>
-inline bool pulse_fb<Protocol>::send(session_ptr se, topic pic, Obj& obj, bool encrypt)
+template <typename TopicInput, typename FlatBufferObj, typename Obj>
+inline bool pulse_fb<Protocol>::send(session_ptr se, TopicInput topic_in, Obj& obj, bool encrypt)
 {
-  static thread_local flatbuffers::FlatBufferBuilder fbb(4096);
+  auto pic = static_cast<topic>(topic_in);
+
+  static thread_local flatbuffers::FlatBufferBuilder fbb(64 * 1024);
   fbb.Reset();
   fbb.Finish(FlatBufferObj::Pack(fbb, &obj));
 
