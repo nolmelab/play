@@ -193,7 +193,7 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
 
   // add
   {
-    std::unique_lock guard(mutex_);
+    std::unique_lock guard(sub_mutex_);
     auto iter = subscriptions_.find(pic);
     if (iter == subscriptions_.end())
     {
@@ -247,12 +247,50 @@ template <typename Protocol, typename Frame>
 void pulse<Protocol, Frame>::on_closed(session_ptr se, error_code ec)
 {
   dispatch(se, topic_closed, frame_ptr{});
+
+  // TODO: process call
+  call_closed(se);
 }
 
 template <typename Protocol, typename Frame>
 template <typename TopicInput>
 void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput response,
                                   call_receiver cb)
+{
+  auto skey = reinterpret_cast<uintptr_t>(se.get());
+
+  // caller까지 추가
+  {
+    std::unique_lock guard(call_mutex_);
+
+    auto iter = calls_.find(skey);
+    if (iter == calls_.end())
+    {
+      // 없을 경우 추가
+      session_calls scalls;
+      iter = calls_.insert(std::pair{skey, scalls}).first;
+    }
+    auto& scalls = iter->second;
+
+    auto req = static_cast<topic>(request);
+    auto res = static_cast<topic>(response);
+    auto topic_iter = scalls.find(req);
+    if (topic_iter == scalls.end())
+    {
+      // 없을 경우 추가. 0으로 인덱스 시작
+      topic_iter = scalls.insert(std::pair{req, res, 0, 0, {}}).first;
+    }
+    auto& tcalls = topic_iter->second;
+    tcalls.call_index++;
+    tcalls.insert(std::pair{tcalls.call_index, {tcalls.call_index, 0, cb}});
+
+    // 페어 등록
+    call_pairs_[req] = res;
+  }
+}
+
+template <typename Protocol, typename Frame>
+void pulse<Protocol, Frame>::call_closed(session_ptr se)
 {
 }
 
@@ -262,7 +300,7 @@ void pulse<Protocol, Frame>::bind_child(pulse* child)
   PLAY_CHECK(child != nullptr);
   auto key = reinterpret_cast<uintptr_t>(child);
 
-  std::unique_lock guard(mutex_);
+  std::unique_lock guard(sub_mutex_);
   childs_.insert(std::pair{key, child});
 }
 
@@ -274,7 +312,7 @@ void pulse<Protocol, Frame>::unbind_child(pulse* child)
 
   // lose interests
   {
-    std::unique_lock guard(mutex_);
+    std::unique_lock guard(sub_mutex_);
     for (auto& kv : interests_)
     {
       auto& cmap = kv.second;
@@ -284,7 +322,7 @@ void pulse<Protocol, Frame>::unbind_child(pulse* child)
 
   // unbind
   {
-    std::unique_lock guard(mutex_);
+    std::unique_lock guard(sub_mutex_);
     childs_.erase(key);
   }
 }
@@ -297,7 +335,7 @@ void pulse<Protocol, Frame>::show_interest(pulse* child, uintptr_t skey, topic p
   // assert: chld는 자식 중에 포함되어야 함
   auto key = interest_key{skey, pic};
 
-  std::unique_lock guard(mutex_);
+  std::unique_lock guard(sub_mutex_);
   auto iter = interests_.find(key);
   if (iter == interests_.end())
   {
@@ -316,7 +354,7 @@ void pulse<Protocol, Frame>::lose_interest(pulse* child, uintptr_t skey, topic p
   auto key = interest_key{skey, pic};
   auto ckey = reinterpret_cast<uintptr_t>(child);
 
-  std::unique_lock guard(mutex_);
+  std::unique_lock guard(sub_mutex_);
   auto iter = interests_.find(key);
   if (iter != interests_.end())
   {
@@ -333,7 +371,7 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
 
   // 구독자들에게 전달
   {
-    std::shared_lock guard(mutex_);
+    std::shared_lock guard(sub_mutex_);
     auto siter = subscriptions_.find(pic);
     if (siter != subscriptions_.end())
     {
@@ -368,7 +406,7 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
   {
     std::shared_ptr<session> null_session;
 
-    std::shared_lock guard(mutex_);
+    std::shared_lock guard(sub_mutex_);
     // topic only interest group
     {
       auto key = interest_key{0, pic};

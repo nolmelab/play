@@ -109,6 +109,8 @@ protected:
   template <typename TopicInput>
   void call(session_ptr se, TopicInput request, TopicInput response, call_receiver cb);
 
+  void call_closed(session_ptr se);
+
 private:
   enum class mode : uint8_t
   {
@@ -138,7 +140,7 @@ private:
     topic res;
     size_t call_index{0};
     size_t recv_index{0};
-    std::map<size_t, caller> calls;
+    std::map<size_t, caller> calls;  // call_id가 키
   };
 
   struct session_calls
@@ -153,6 +155,7 @@ private:
   using interest_key = std::pair<uintptr_t, topic>;
   using interest_map = std::map<interest_key, child_map>;
   using call_map = std::map<uintptr_t, session_calls>;
+  using call_pair_map = std::map<topic, topic>;
 
 private:
   // 자식 펄스를 연결
@@ -184,7 +187,7 @@ private:
 
 private:
   mode mode_{mode::none};
-  mutable shared_mutex mutex_;
+  mutable shared_mutex sub_mutex_;
   subscriber_map subscriptions_;
   interest_map interests_;
   runner* runner_{nullptr};
@@ -200,7 +203,9 @@ private:
   session_ptr session_;
   size_t strand_key_{0};
 
+  mutable shared_mutex call_mutex_;
   call_map calls_;
+  call_pair_map call_pairs_;
 };
 
 }  // namespace play
