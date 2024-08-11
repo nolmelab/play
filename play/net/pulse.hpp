@@ -29,6 +29,7 @@ public:
   using frame_ptr = std::shared_ptr<frame>;
   using topic = typename Protocol::topic;
   using receiver = std::function<void(session_ptr, frame_ptr)>;
+  using call_receiver = std::function<void(session_ptr, topic)>;
 
   using server = server<Protocol>;
   using client = client<Protocol>;
@@ -91,9 +92,6 @@ public:
   template <typename CompletionToken>
   timer::ref repeat(asio::chrono::milliseconds ms, CompletionToken&& handler);
 
-  // TODO:
-  // call(), reply()
-
   // pulse_listener::on_receive
   void on_receive(session_ptr se, topic pic, const void* data, size_t len) final;
 
@@ -106,6 +104,10 @@ public:
 protected:
   // 프레임을 구체적인 하위 클래스에서 생성
   virtual frame_ptr unpack(topic pic, const uint8_t* data, size_t len) = 0;
+
+  // 하위 클래스에서 call 구현에 활용
+  template <typename TopicInput>
+  void call(session_ptr se, TopicInput request, TopicInput response, call_receiver cb);
 
 private:
   enum class mode : uint8_t
@@ -123,11 +125,34 @@ private:
     receiver cb;
   };
 
+  struct caller
+  {
+    size_t call_id{0};
+    size_t recv_id{0};
+    call_receiver cb;
+  };
+
+  struct topic_calls
+  {
+    topic req;
+    topic res;
+    size_t call_index{0};
+    size_t recv_index{0};
+    std::map<size_t, caller> calls;
+  };
+
+  struct session_calls
+  {
+    uintptr_t session_key;
+    std::map<topic, topic_calls> calls;
+  };
+
   using subscriber_map = std::map<topic, std::vector<subscription>>;
   using child_map = std::map<uintptr_t, pulse*>;
   using shared_mutex = std::shared_timed_mutex;
   using interest_key = std::pair<uintptr_t, topic>;
   using interest_map = std::map<interest_key, child_map>;
+  using call_map = std::map<uintptr_t, session_calls>;
 
 private:
   // 자식 펄스를 연결
@@ -145,6 +170,7 @@ private:
   // 구독한 함수들에 전달. 스트랜드 여부 반영. 자식들 dispatch() 호출
   void dispatch(session_ptr se, topic pic, frame_ptr frame, bool from_root = false);
 
+  // 루트에 등록한 관심 그룹 처리를 분리하여 배포 여부를 결정
   bool is_target(uintptr_t sub_key, uintptr_t key, bool from_root) const;
 
   // 나로 부터 시작하여 부모에서 runner를 얻음
@@ -173,6 +199,8 @@ private:
   std::string addr_;
   session_ptr session_;
   size_t strand_key_{0};
+
+  call_map calls_;
 };
 
 }  // namespace play

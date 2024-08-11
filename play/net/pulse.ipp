@@ -250,6 +250,13 @@ void pulse<Protocol, Frame>::on_closed(session_ptr se, error_code ec)
 }
 
 template <typename Protocol, typename Frame>
+template <typename TopicInput>
+void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput response,
+                                  call_receiver cb)
+{
+}
+
+template <typename Protocol, typename Frame>
 void pulse<Protocol, Frame>::bind_child(pulse* child)
 {
   PLAY_CHECK(child != nullptr);

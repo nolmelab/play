@@ -50,6 +50,19 @@ inline typename pulse_fb<Protocol>::frame_ptr pulse_fb<Protocol>::unpack_fn(cons
 }
 
 template <typename Protocol>
+template <typename FlatBufferObj, typename TopicInput, typename Obj>
+bool pulse_fb<Protocol>::call(session_ptr se, TopicInput req, TopicInput res, Obj& obj,
+                              call_receiver cb, bool encrypt = false)
+{
+  if (this->send(se, req, obj, encrypt))
+  {
+    call(se, req, res, cb);
+    return true;
+  }
+  return false;
+}
+
+template <typename Protocol>
 typename pulse_fb<Protocol>::frame_ptr pulse_fb<Protocol>::unpack(topic pic, const uint8_t* data,
                                                                   size_t len)
 {

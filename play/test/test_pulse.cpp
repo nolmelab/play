@@ -313,3 +313,49 @@ TEST_CASE("with_session")
     CHECK(call_count == 4);
   }
 }
+
+TEST_CASE("pulse remote")
+{
+  using pulse = pulse_fb<secure_protocol<uint16_t>>;
+
+  size_t recv_count = 0;
+
+  poll_runner runner{"pulse runner"};
+  pulse pulse_server;
+  pulse pulse_client;
+
+  pulse::add_unpacker(topic_message, &pulse::unpack_fn<fb::req_move, fb::req_moveT>);
+
+  auto result_1 = pulse_server.as_server(7000).with_runner(&runner).start();
+
+  auto result_2 = pulse_client.as_client("127.0.0.1:7000")
+                      .with_runner(&runner)
+                      .subscribe(pulse::topic_estalished,
+                                 [](pulse::session_ptr se, pulse::frame_ptr fr)
+                                 {
+                                   fb::req_moveT move;
+                                   move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+                                   move.name = "hello";
+
+                                   pulse::call<fb::req_move>(se, topic_message, move);
+                                 })
+                      .start();
+
+  CHECK(result_1);
+  CHECK(result_2);
+
+  runner.poll_one();
+
+  bool end = false;
+
+  while (recv_count < test_config::test_frame_count)
+  {
+    if (runner.poll_one() == 0)
+    {
+      runner.sleep(1);
+    }
+  }
+
+  pulse_server.stop();
+  pulse_client.stop();
+}

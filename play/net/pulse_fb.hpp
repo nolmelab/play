@@ -16,11 +16,10 @@ public:
   using frame_ptr = std::shared_ptr<frame>;
   using topic = typename Protocol::topic;
   using receiver = std::function<void(session_ptr, frame_ptr)>;
+  using call_receiver = std::function<void(session_ptr, topic)>;
   using unpacker = std::function<frame_ptr(const uint8_t*, size_t)>;
 
 public:
-  pulse_fb() = default;
-
   // flatbuffer_handler를 알고 있는 곳에서만 사용 가능한 함수
   /**
    * send()는 flatbuffers 전용의 전송 편의 함수
@@ -31,13 +30,20 @@ public:
   // 정적으로 한번 등록. 락 사용하지 않음. 한번만 등록. 중복되면 경고 로그
   static void add_unpacker(topic pic, unpacker fn);
 
-public:
   // add_unpacker()에 flatbuffers object로 unpack할 함수로 사용하는 템플릿 함수
   /**
    * add_unpacker(1, &flatbuffer_handler<server::session_ptr>::unpack<req_move, req_moveT>)와 같이 등록
    */
   template <typename FbObjType, typename ObjType>
   static frame_ptr unpack_fn(const uint8_t* data, size_t len);
+
+public:
+  pulse_fb() = default;
+
+  // 세션에 대해 call() 요청을 보내고, 세션 단선시 call_receiver를 호출
+  template <typename FlatBufferObj, typename TopicInput, typename Obj>
+  bool call(session_ptr se, TopicInput req, TopicInput res, Obj& obj, call_receiver cb,
+            bool encrypt = false);
 
 private:
   // 플랫버퍼 프레임인 NatvieTable을 등록된 unpacker들에서 생성
