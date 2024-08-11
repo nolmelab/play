@@ -99,6 +99,10 @@ TEST_CASE("pulse")
 
 TEST_CASE("pulse interests")
 {
+  using pulse = pulse_fb<secure_protocol<uint16_t>>;
+
+  poll_runner runner{"pulse runner"};
+
   SUBCASE("uintptr_t")
   {
     auto sp_1 = std::make_shared<int>(3);
@@ -106,6 +110,206 @@ TEST_CASE("pulse interests")
     auto key_1 = reinterpret_cast<uintptr_t>(sp_1.get());
     auto key_2 = reinterpret_cast<uintptr_t>(sp_2.get());
 
-    LOG()->info("key_1: {}, key_2: {}", key_1, key_2);
+    LOG()->info("key_1: {}, key_2: {}, size: {}", key_1, key_2, sizeof(uintptr_t));
+  }
+
+  SUBCASE("pulse chain")
+  {
+
+    SUBCASE("a root and a child")
+    {
+      pulse root;
+      root.as_independent().with_runner(&runner).start();
+
+      size_t call_count = 0;
+
+      pulse p1;
+      p1.as_child(&root)
+          .subscribe(11,
+                     [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+                     {
+                       call_count++;
+                     })
+          .start();
+
+      auto move = std::make_shared<fb::req_moveT>();
+      move->pos = std::make_unique<fb::vec3>(1, 1, 1);
+      move->name = "hello";
+
+      std::shared_ptr<pulse::session> se;
+      root.publish(se, 11, move);
+      CHECK(call_count == 1);
+
+      p1.stop();
+      root.publish(se, 11, move);
+      CHECK(call_count == 1);
+    }
+
+    SUBCASE("a root and children")
+    {
+      pulse root;
+      root.as_independent().with_runner(&runner).start();
+
+      size_t call_count = 0;
+
+      pulse p1;
+      p1.as_child(&root)
+          .subscribe(11,
+                     [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+                     {
+                       call_count++;
+                     })
+          .start();
+
+      pulse p2;
+      p2.as_child(&root)
+          .subscribe(11,
+                     [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+                     {
+                       call_count++;
+                     })
+          .start();
+
+      auto move = std::make_shared<fb::req_moveT>();
+      move->pos = std::make_unique<fb::vec3>(1, 1, 1);
+      move->name = "hello";
+
+      std::shared_ptr<pulse::session> se;
+      root.publish(se, 11, move);
+      CHECK(call_count == 2);
+
+      p1.stop();
+      root.publish(se, 11, move);
+      CHECK(call_count == 3);
+
+      p2.stop();
+      root.publish(se, 11, move);
+      CHECK(call_count == 3);
+    }
+  }
+}
+
+namespace {
+class mockup_session_handler : public session_handler<session<secure_protocol<uint16_t>>>
+{
+public:
+  void on_established(session_ptr se) final {}
+
+  void on_closed(session_ptr se, error_code ec) final {}
+
+  void on_receive(session_ptr se, topic topic, const void* data, size_t len) final {}
+};
+}  // namespace
+
+TEST_CASE("with_session")
+{
+  using pulse = pulse_fb<secure_protocol<uint16_t>>;
+  poll_runner runner{"pulse runner"};
+
+  SUBCASE("session filtering")
+  {
+    //
+    pulse root;
+    root.as_independent().with_runner(&runner).start();
+
+    size_t call_count = 0;
+
+    mockup_session_handler handler;
+    boost::asio::io_context ioc;
+
+    auto se_1 = std::make_shared<pulse::session>(handler, ioc, false);
+    auto se_2 = std::make_shared<pulse::session>(handler, ioc, false);
+
+    pulse p1;
+    p1.as_child(&root)
+        .with_session(se_1)
+        .subscribe(11,
+                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+                   {
+                     call_count++;
+                   })
+        .start();
+
+    pulse p2;
+    p2.as_child(&root)
+        .with_session(se_2)
+        .subscribe(11,
+                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+                   {
+                     call_count++;
+                   })
+        .start();
+
+    auto move = std::make_shared<fb::req_moveT>();
+    move->pos = std::make_unique<fb::vec3>(1, 1, 1);
+    move->name = "hello";
+
+    root.publish(se_1, 11, move);
+    CHECK(call_count == 1);
+
+    root.publish(se_2, 11, move);
+    CHECK(call_count == 2);
+
+    p1.stop();
+    p2.stop();
+
+    root.publish(se_1, 11, move);
+    CHECK(call_count == 2);
+  }
+
+  SUBCASE("session blind subscription")
+  {
+    //
+    pulse root;
+    root.as_independent().with_runner(&runner).start();
+
+    size_t call_count = 0;
+
+    mockup_session_handler handler;
+    boost::asio::io_context ioc;
+
+    auto se_1 = std::make_shared<pulse::session>(handler, ioc, false);
+    auto se_2 = std::make_shared<pulse::session>(handler, ioc, false);
+
+    pulse p1;
+    p1.as_child(&root)
+        .subscribe(11,
+                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+                   {
+                     call_count++;
+                   })
+        .with_session(se_1)
+        .subscribe(11,
+                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+                   {
+                     call_count++;
+                   })
+        .start();
+
+    pulse p2;
+    p2.as_child(&root)
+        .with_session(se_2)
+        .subscribe(11,
+                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+                   {
+                     call_count++;
+                   })
+        .start();
+
+    auto move = std::make_shared<fb::req_moveT>();
+    move->pos = std::make_unique<fb::vec3>(1, 1, 1);
+    move->name = "hello";
+
+    root.publish(se_1, 11, move);
+    CHECK(call_count == 2);
+
+    root.publish(se_2, 11, move);
+    CHECK(call_count == 4);
+
+    p1.stop();
+    p2.stop();
+
+    root.publish(se_1, 11, move);
+    CHECK(call_count == 4);
   }
 }

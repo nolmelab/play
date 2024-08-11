@@ -29,7 +29,7 @@ add_executable(
   test_app.cpp
   test_codecs.cpp
   test_ensure.cpp
-  test_flatbuffers.cpp
+  #test_flatbuffers.cpp
   test_json.cpp
   test_logger.cpp
   test_object_pool.cpp

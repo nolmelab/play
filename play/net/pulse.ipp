@@ -67,6 +67,8 @@ pulse<Protocol, Frame>& pulse<Protocol, Frame>::with_session(session_ptr ss)
 template <typename Protocol, typename Frame>
 bool pulse<Protocol, Frame>::start()
 {
+  PLAY_CHECK(mode_ != mode::none);
+
   switch (mode_)
   {
     case mode::server:
@@ -102,6 +104,11 @@ bool pulse<Protocol, Frame>::start()
       return true;
     }
     break;
+    case mode::none:
+    {
+      return false;
+    }
+    break;
   }
 }
 
@@ -128,6 +135,9 @@ void pulse<Protocol, Frame>::stop()
       break;
     case mode::independent:
       break;
+    case mode::none:
+      LOG()->error("invalid mode while stopping pulse");
+      break;
   }
 }
 
@@ -136,6 +146,8 @@ template <typename CompletionToken>
 void pulse<Protocol, Frame>::post(CompletionToken&& handler)
 {
   auto runner = get_runner();
+  PLAY_CHECK(runner);
+
   if (strand_key_ > 0)
   {
     return runner->post(strand_key_, std::forward<CompletionToken>(handler));
@@ -148,6 +160,8 @@ template <typename CompletionToken>
 timer::ref pulse<Protocol, Frame>::once(asio::chrono::milliseconds ms, CompletionToken&& handler)
 {
   auto runner = get_runner();
+  PLAY_CHECK(runner);
+
   if (strand_key_ > 0)
   {
     return runner->once(strand_key_, ms, std::forward<CompletionToken>(handler));
@@ -160,6 +174,8 @@ template <typename CompletionToken>
 timer::ref pulse<Protocol, Frame>::repeat(asio::chrono::milliseconds ms, CompletionToken&& handler)
 {
   auto runner = get_runner();
+  PLAY_CHECK(runner);
+
   if (strand_key_ > 0)
   {
     return runner->repeat(strand_key_, ms, std::forward<CompletionToken>(handler));
@@ -171,7 +187,9 @@ template <typename Protocol, typename Frame>
 template <typename TopicInput>
 inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topic_in, receiver cb)
 {
+  PLAY_CHECK(mode_ != mode::none);
   auto pic = static_cast<topic>(topic_in);
+  auto session_key = reinterpret_cast<uintptr_t>(session_.get());
 
   // add
   {
@@ -184,7 +202,7 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
       PLAY_CHECK(result.second);
       iter = result.first;
     }
-    iter->second.push_back({0, cb});
+    iter->second.push_back({session_key, cb});
   }
 
   if (!is_root())
@@ -194,6 +212,12 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
   }
 
   return *this;
+}
+
+template <typename Protocol, typename Frame>
+void pulse<Protocol, Frame>::publish(session_ptr se, topic pic, frame_ptr frame)
+{
+  dispatch(se, pic, frame);
 }
 
 template <typename Protocol, typename Frame>
@@ -246,13 +270,8 @@ void pulse<Protocol, Frame>::unbind_child(pulse* child)
     std::unique_lock guard(mutex_);
     for (auto& kv : interests_)
     {
-      auto& vec = kv.second;
-      vec.erase(std::remove_if(vec.begin(), vec.end(),
-                               [child](pulse* p)
-                               {
-                                 return p == child;
-                               }),
-                vec.end());
+      auto& cmap = kv.second;
+      cmap.erase(key);
     }
   }
 
@@ -275,11 +294,11 @@ void pulse<Protocol, Frame>::show_interest(pulse* child, uintptr_t skey, topic p
   auto iter = interests_.find(key);
   if (iter == interests_.end())
   {
-    std::vector<pulse*> vec;
-    iter = interests_.insert(std::pair{key, vec}).first;
+    child_map cmap;
+    iter = interests_.insert(std::pair{key, cmap}).first;
   }
-  // assert: iter->second에 동일한 child가 없어야 함
-  iter->second.push_back(child);
+  auto ckey = reinterpret_cast<uintptr_t>(child);
+  iter->second.insert(std::pair{ckey, child});
 }
 
 template <typename Protocol, typename Frame>
@@ -288,52 +307,51 @@ void pulse<Protocol, Frame>::lose_interest(pulse* child, uintptr_t skey, topic p
   PLAY_CHECK(is_root());
 
   auto key = interest_key{skey, pic};
+  auto ckey = reinterpret_cast<uintptr_t>(child);
 
   std::unique_lock guard(mutex_);
   auto iter = interests_.find(key);
   if (iter != interests_.end())
   {
-    auto& vec = iter->second;
-    vec.erase(std::remove_if(vec.begin(), vec.end(),
-                             [child](pulse* p)
-                             {
-                               return p == child;
-                             }),
-              vec.end());
+    auto& cmap = iter->second;
+    cmap.erase(ckey);
   }
 }
 
 template <typename Protocol, typename Frame>
-void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame)
+void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame, bool from_root)
 {
+  bool handled = false;
+  auto session_key = reinterpret_cast<uintptr_t>(se.get());
+
   // 구독자들에게 전달
   {
     std::shared_lock guard(mutex_);
     auto siter = subscriptions_.find(pic);
     if (siter != subscriptions_.end())
     {
+      handled = true;
       for (auto& sub : siter->second)
       {
         if (strand_key_ == 0)
         {
-          sub.cb(se, frame);
+          if (is_target(sub.session_key, session_key, from_root))
+          {
+            sub.cb(se, frame);
+          }
         }
         else
         {
-          auto cb = sub.cb;
-          this->get_runner()->post(strand_key_,
-                                   [cb, se, frame]()
-                                   {
-                                     cb(se, frame);
-                                   });
+          if (is_target(sub.session_key, session_key, from_root))
+          {
+            auto cb = sub.cb;
+            this->get_runner()->post(strand_key_,
+                                     [cb, se, frame]()
+                                     {
+                                       cb(se, frame);
+                                     });
+          }
         }
-      }
-    }
-    else
-    {
-      if (childs_.empty())
-      {
-        LOG()->debug("sub for topic: {} not found", pic);
       }
     }
   }
@@ -341,6 +359,8 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
   // 루트일 경우만 자식들에게 전달
   if (is_root())
   {
+    std::shared_ptr<session> null_session;
+
     std::shared_lock guard(mutex_);
     // topic only interest group
     {
@@ -348,28 +368,53 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
       auto iter = interests_.find(key);
       if (iter != interests_.end())
       {
-        auto& vec = iter->second;
-        for (auto& child : vec)
+        handled = true;
+        auto& cmap = iter->second;
+        for (auto& kv : cmap)
         {
-          child->dispatch(se, pic, frame);
+          kv.second->dispatch(null_session, pic, frame, true);
         }
       }
     }
 
     // <session, topic> interest group
     {
-      auto skey = reinterpret_cast<uintptr_t>(se.get());
-      auto key = interest_key{skey, pic};
-      auto iter = interests_.find(key);
-      if (iter != interests_.end())
+      if (se)  // se가 유효한 포인터일 경우. 0인 경우는 위에서 처리됨
       {
-        auto& vec = iter->second;
-        for (auto& child : vec)
+        auto skey = reinterpret_cast<uintptr_t>(se.get());
+        auto key = interest_key{skey, pic};
+        auto iter = interests_.find(key);
+        if (iter != interests_.end())
         {
-          child->dispatch(se, pic, frame);
+          handled = true;
+          auto& cmap = iter->second;
+          for (auto& kv : cmap)
+          {
+            kv.second->dispatch(se, pic, frame, true);
+          }
         }
       }
     }
+  }
+
+  if (!handled)
+  {
+    LOG()->debug("topic: {} not handled", pic);
+  }
+}
+
+template <typename Protocol, typename Frame>
+bool pulse<Protocol, Frame>::is_target(uintptr_t sub_key, uintptr_t key, bool from_root) const
+{
+  if (from_root)
+  {
+    // 루트에서 호출할 경우 키가 같은 경우만 타겟
+    return sub_key == key;
+  }
+  else
+  {
+    // 직접 호출할 경우 키가 0이거나 같은 경우에 타겟
+    return sub_key == 0 || (sub_key == key);
   }
 }
 

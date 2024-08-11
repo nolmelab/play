@@ -76,6 +76,9 @@ public:
   template <typename TopicInput>
   pulse& subscribe(TopicInput topic, receiver cb);
 
+  // 구독 테스트용.
+  void publish(session_ptr se, topic pic, frame_ptr frame);
+
   // runner를 통한 post(). strand가 있으면 strand로 post()
   template <typename CompletionToken>
   void post(CompletionToken&& handler);
@@ -107,6 +110,7 @@ protected:
 private:
   enum class mode : uint8_t
   {
+    none,
     server,
     client,
     child,
@@ -115,7 +119,7 @@ private:
 
   struct subscription
   {
-    uintptr_t subscriber;
+    uintptr_t session_key;
     receiver cb;
   };
 
@@ -123,7 +127,7 @@ private:
   using child_map = std::map<uintptr_t, pulse*>;
   using shared_mutex = std::shared_timed_mutex;
   using interest_key = std::pair<uintptr_t, topic>;
-  using interest_map = std::map<interest_key, std::vector<pulse*>>;
+  using interest_map = std::map<interest_key, child_map>;
 
 private:
   // 자식 펄스를 연결
@@ -139,7 +143,9 @@ private:
   void lose_interest(pulse* child, uintptr_t skey, topic pic);
 
   // 구독한 함수들에 전달. 스트랜드 여부 반영. 자식들 dispatch() 호출
-  void dispatch(session_ptr se, topic pic, frame_ptr frame);
+  void dispatch(session_ptr se, topic pic, frame_ptr frame, bool from_root = false);
+
+  bool is_target(uintptr_t sub_key, uintptr_t key, bool from_root) const;
 
   // 나로 부터 시작하여 부모에서 runner를 얻음
   runner* get_runner();
@@ -151,7 +157,7 @@ private:
   pulse* get_root();
 
 private:
-  mode mode_;
+  mode mode_{mode::none};
   mutable shared_mutex mutex_;
   subscriber_map subscriptions_;
   interest_map interests_;
