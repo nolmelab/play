@@ -96,3 +96,16 @@ TEST_CASE("pulse")
 
   LOG()->info("pulse elapsed: {}, frames; {}", elapsed, test_config::test_frame_count);
 }
+
+TEST_CASE("pulse interests")
+{
+  SUBCASE("uintptr_t")
+  {
+    auto sp_1 = std::make_shared<int>(3);
+    auto sp_2 = std::shared_ptr<int>{};
+    auto key_1 = reinterpret_cast<uintptr_t>(sp_1.get());
+    auto key_2 = reinterpret_cast<uintptr_t>(sp_2.get());
+
+    LOG()->info("key_1: {}, key_2: {}", key_1, key_2);
+  }
+}

@@ -57,6 +57,10 @@ public:
   pulse& with_runner(runner* runner);
 
   // 세션 필터링 지정
+  /**
+   * subscribe 호출 전에 지정하면 해당 세션에 대해서만 관심을 등록. 
+   * 모든 세션에 대해 구독하는 경우 with_session() 호출 전에 구독해야 함.
+   */
   pulse& with_session(session_ptr ss);
 
   // asio strand 키 지정
@@ -71,18 +75,6 @@ public:
   // topic 구독
   template <typename TopicInput>
   pulse& subscribe(TopicInput topic, receiver cb);
-
-  // 특정 오브젝트에서 특정 토픽을 구독
-  template <typename Subscriber, typename TopicInput>
-  pulse& subscribe(Subscriber* subscriber, TopicInput topic, receiver cb);
-
-  // 특정 오브젝트의 특정 토픽의 구독 해제
-  template <typename Subscriber, typename TopicInput>
-  pulse& unsubscribe(Subscriber* subscriber, TopicInput topic);
-
-  // 특정 오브젝트의 구독 해제
-  template <typename Subscriber>
-  pulse& unsubscribe(Subscriber* subscriber);
 
   // runner를 통한 post(). strand가 있으면 strand로 post()
   template <typename CompletionToken>
@@ -130,6 +122,8 @@ private:
   using subscriber_map = std::map<topic, std::vector<subscription>>;
   using child_map = std::map<uintptr_t, pulse*>;
   using shared_mutex = std::shared_timed_mutex;
+  using interest_key = std::pair<uintptr_t, topic>;
+  using interest_map = std::map<interest_key, std::vector<pulse*>>;
 
 private:
   // 자식 펄스를 연결
@@ -138,20 +132,29 @@ private:
   // 자식 펄스 연결 해제
   void unbind_child(pulse* child);
 
+  // 루트에 관심을 알림
+  void show_interest(pulse* child, uintptr_t skey, topic pic);
+
+  // 루트에 관심이 없음을 알림
+  void lose_interest(pulse* child, uintptr_t skey, topic pic);
+
   // 구독한 함수들에 전달. 스트랜드 여부 반영. 자식들 dispatch() 호출
   void dispatch(session_ptr se, topic pic, frame_ptr frame);
 
   // 나로 부터 시작하여 부모에서 runner를 얻음
   runner* get_runner();
 
+  // 부모가 없는지 확인
   bool is_root() const;
 
+  // 루트 부모를 얻음
   pulse* get_root();
 
 private:
   mode mode_;
   mutable shared_mutex mutex_;
   subscriber_map subscriptions_;
+  interest_map interests_;
   runner* runner_{nullptr};
   bool stop_{false};
 

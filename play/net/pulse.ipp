@@ -173,92 +173,24 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
 {
   auto pic = static_cast<topic>(topic_in);
 
-  std::unique_lock guard(mutex_);
-  auto iter = subscriptions_.find(pic);
-  if (iter == subscriptions_.end())
+  // add
   {
-    std::vector<subscription> subs{};
-    auto result = subscriptions_.insert(std::pair{pic, subs});
-    PLAY_CHECK(result.second);
-    iter = result.first;
-  }
-  iter->second.push_back({0, cb});
-
-  return *this;
-}
-
-template <typename Protocol, typename Frame>
-template <typename Subscriber, typename TopicInput>
-inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(Subscriber* subscriber,
-                                                                 TopicInput topic_in, receiver cb)
-{
-  auto pic = static_cast<topic>(topic_in);
-  auto key = reinterpret_cast<uintptr_t>(subscriber);
-
-  std::unique_lock guard(mutex_);
-  auto iter = subscriptions_.find(pic);
-  if (iter == subscriptions_.end())
-  {
-    std::vector<subscription> subs{};
-    auto result = subscriptions_.insert(std::pair{pic, subs});
-    PLAY_CHECK(result.second);
-    iter = result.first;
-  }
-  iter->second.push_back({key, cb});
-
-  return *this;
-}
-
-template <typename Protocol, typename Frame>
-template <typename Subscriber, typename TopicInput>
-inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::unsubscribe(Subscriber* subscriber,
-                                                                   TopicInput topic_in)
-{
-  if (is_root())
-  {
-    auto pic = static_cast<topic>(topic_in);
-    auto key = reinterpret_cast<uintptr_t>(subscriber);
-
     std::unique_lock guard(mutex_);
     auto iter = subscriptions_.find(pic);
-    auto& vec = iter->second;
-    vec.erase(std::remove_if(vec.begin(), vec.end(),
-                             [](auto sub)
-                             {
-                               return sub.subscriber == key;
-                             }),
-              vec.end());
-  }
-  else
-  {
-    get_root()->unsubscribe(subscriber, topic_in);
-  }
-  return *this;
-}
-
-template <typename Protocol, typename Frame>
-template <typename Subscriber>
-inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::unsubscribe(Subscriber* subscriber)
-{
-  auto key = reinterpret_cast<uintptr_t>(subscriber);
-
-  if (is_root())
-  {
-    std::unique_lock guard(mutex_);
-    for (auto& kv : subscriptions_)
+    if (iter == subscriptions_.end())
     {
-      auto& vec = kv.second;
-      vec.erase(std::remove_if(vec.begin(), vec.end(),
-                               [](auto sub)
-                               {
-                                 return sub.subscriber == key;
-                               }),
-                vec.end());
+      std::vector<subscription> subs{};
+      auto result = subscriptions_.insert(std::pair{pic, subs});
+      PLAY_CHECK(result.second);
+      iter = result.first;
     }
+    iter->second.push_back({0, cb});
   }
-  else
+
+  if (!is_root())
   {
-    get_root()->unsubscribe(subscriber);
+    auto skey = reinterpret_cast<uintptr_t>(session_.get());
+    get_root()->show_interest(this, skey, pic);
   }
 
   return *this;
@@ -309,8 +241,66 @@ void pulse<Protocol, Frame>::unbind_child(pulse* child)
   PLAY_CHECK(child != nullptr);
   auto key = reinterpret_cast<uintptr_t>(child);
 
+  // lose interests
+  {
+    std::unique_lock guard(mutex_);
+    for (auto& kv : interests_)
+    {
+      auto& vec = kv.second;
+      vec.erase(std::remove_if(vec.begin(), vec.end(),
+                               [child](pulse* p)
+                               {
+                                 return p == child;
+                               }),
+                vec.end());
+    }
+  }
+
+  // unbind
+  {
+    std::unique_lock guard(mutex_);
+    childs_.erase(key);
+  }
+}
+
+template <typename Protocol, typename Frame>
+void pulse<Protocol, Frame>::show_interest(pulse* child, uintptr_t skey, topic pic)
+{
+  PLAY_CHECK(is_root());
+
+  // assert: chld는 자식 중에 포함되어야 함
+  auto key = interest_key{skey, pic};
+
   std::unique_lock guard(mutex_);
-  childs_.erase(key);
+  auto iter = interests_.find(key);
+  if (iter == interests_.end())
+  {
+    std::vector<pulse*> vec;
+    iter = interests_.insert(std::pair{key, vec}).first;
+  }
+  // assert: iter->second에 동일한 child가 없어야 함
+  iter->second.push_back(child);
+}
+
+template <typename Protocol, typename Frame>
+void pulse<Protocol, Frame>::lose_interest(pulse* child, uintptr_t skey, topic pic)
+{
+  PLAY_CHECK(is_root());
+
+  auto key = interest_key{skey, pic};
+
+  std::unique_lock guard(mutex_);
+  auto iter = interests_.find(key);
+  if (iter != interests_.end())
+  {
+    auto& vec = iter->second;
+    vec.erase(std::remove_if(vec.begin(), vec.end(),
+                             [child](pulse* p)
+                             {
+                               return p == child;
+                             }),
+              vec.end());
+  }
 }
 
 template <typename Protocol, typename Frame>
@@ -344,6 +334,40 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
       if (childs_.empty())
       {
         LOG()->debug("sub for topic: {} not found", pic);
+      }
+    }
+  }
+
+  // 루트일 경우만 자식들에게 전달
+  if (is_root())
+  {
+    std::shared_lock guard(mutex_);
+    // topic only interest group
+    {
+      auto key = interest_key{0, pic};
+      auto iter = interests_.find(key);
+      if (iter != interests_.end())
+      {
+        auto& vec = iter->second;
+        for (auto& child : vec)
+        {
+          child->dispatch(se, pic, frame);
+        }
+      }
+    }
+
+    // <session, topic> interest group
+    {
+      auto skey = reinterpret_cast<uintptr_t>(se.get());
+      auto key = interest_key{skey, pic};
+      auto iter = interests_.find(key);
+      if (iter != interests_.end())
+      {
+        auto& vec = iter->second;
+        for (auto& child : vec)
+        {
+          child->dispatch(se, pic, frame);
+        }
       }
     }
   }
