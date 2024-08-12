@@ -361,13 +361,19 @@ TEST_CASE("pulse call")
                      [&pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
                      {
                        pulse_child.with_session(se).start();
-                       pulse_child.subscribe(topic_res,
-                                             [](pulse::session_ptr se, pulse::frame_ptr fr)
-                                             {
-                                               auto res_move =
-                                                   std::static_pointer_cast<fb::res_moveT>(fr);
-                                             });
-
+                       fb::req_moveT req_move;
+                       req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+                       req_move.name = "hello call";
+                       pulse_child.call<fb::req_move>(se, topic_req, topic_res, req_move,
+                                                      []()
+                                                      {
+                                                        LOG()->error("call failed");
+                                                      });
+                     })
+          .subscribe(topic_res,
+                     [&recv_count, &pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
+                     {
+                       ++recv_count;
                        fb::req_moveT req_move;
                        req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
                        req_move.name = "hello call";
