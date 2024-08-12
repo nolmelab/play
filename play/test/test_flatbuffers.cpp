@@ -66,8 +66,8 @@ TEST_CASE("flatbuffers")
   pulse_t pulse_server;
   pulse_t pulse_client;
 
-  pulse_server.as_independent();
-  pulse_client.as_independent();
+  pulse_server.as_independent(&runner);
+  pulse_client.as_independent(&runner);
 
   pulse_t::add_unpacker(topic_message, &pulse_t::unpack_fn<fb::req_move, fb::req_moveT>);
 

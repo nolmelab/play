@@ -42,7 +42,7 @@ bool app::start(const nlohmann::json& jconf)
     LOG()->info("starting app with role: {}", role_);
 
     runner_ = std::make_unique<play::thread_runner>(concurrency, "app");
-    auto rc_1 = pulse_.as_server(port).with_runner(runner_.get()).start();
+    auto rc_1 = pulse_.as_server(runner_.get(), port).start();
     if (!rc_1)
     {
       return false;

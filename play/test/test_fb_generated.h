@@ -21,6 +21,10 @@ struct req_move;
 struct req_moveBuilder;
 struct req_moveT;
 
+struct res_move;
+struct res_moveBuilder;
+struct res_moveT;
+
 namespace cluster {
 namespace room {
 
@@ -139,6 +143,62 @@ inline ::flatbuffers::Offset<req_move> Createreq_moveDirect(
 
 ::flatbuffers::Offset<req_move> Createreq_move(::flatbuffers::FlatBufferBuilder &_fbb, const req_moveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct res_moveT : public ::flatbuffers::NativeTable {
+  typedef res_move TableType;
+  std::unique_ptr<fb::vec3> pos{};
+  res_moveT() = default;
+  res_moveT(const res_moveT &o);
+  res_moveT(res_moveT&&) FLATBUFFERS_NOEXCEPT = default;
+  res_moveT &operator=(res_moveT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct res_move FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_moveT NativeTableType;
+  typedef res_moveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_POS = 4
+  };
+  const fb::vec3 *pos() const {
+    return GetStruct<const fb::vec3 *>(VT_POS);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<fb::vec3>(verifier, VT_POS, 4) &&
+           verifier.EndTable();
+  }
+  res_moveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_moveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_move> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_moveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_moveBuilder {
+  typedef res_move Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_pos(const fb::vec3 *pos) {
+    fbb_.AddStruct(res_move::VT_POS, pos);
+  }
+  explicit res_moveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_move> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_move>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_move> Createres_move(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const fb::vec3 *pos = nullptr) {
+  res_moveBuilder builder_(_fbb);
+  builder_.add_pos(pos);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<res_move> Createres_move(::flatbuffers::FlatBufferBuilder &_fbb, const res_moveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 namespace cluster {
 namespace room {
 
@@ -245,6 +305,41 @@ inline ::flatbuffers::Offset<req_move> Createreq_move(::flatbuffers::FlatBufferB
       _fbb,
       _pos,
       _name);
+}
+
+inline res_moveT::res_moveT(const res_moveT &o)
+      : pos((o.pos) ? new fb::vec3(*o.pos) : nullptr) {
+}
+
+inline res_moveT &res_moveT::operator=(res_moveT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(pos, o.pos);
+  return *this;
+}
+
+inline res_moveT *res_move::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_moveT>(new res_moveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_move::UnPackTo(res_moveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = pos(); if (_e) _o->pos = std::unique_ptr<fb::vec3>(new fb::vec3(*_e)); }
+}
+
+inline ::flatbuffers::Offset<res_move> res_move::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_moveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_move(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_move> Createres_move(::flatbuffers::FlatBufferBuilder &_fbb, const res_moveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_moveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _pos = _o->pos ? _o->pos.get() : nullptr;
+  return fb::Createres_move(
+      _fbb,
+      _pos);
 }
 
 namespace cluster {

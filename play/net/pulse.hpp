@@ -29,7 +29,7 @@ public:
   using frame_ptr = std::shared_ptr<frame>;
   using topic = typename Protocol::topic;
   using receiver = std::function<void(session_ptr, frame_ptr)>;
-  using call_receiver = std::function<void(session_ptr, topic)>;
+  using call_receiver = std::function<void()>;
 
   using server = server<Protocol>;
   using client = client<Protocol>;
@@ -43,19 +43,16 @@ public:
   ~pulse();
 
   // 서버를 내장한 모드 설정
-  pulse& as_server(uint16_t port);
+  pulse& as_server(runner* runner, uint16_t port);
 
   // 클라이언트를 내장한 모드 설정
-  pulse& as_client(const std::string& addr);
+  pulse& as_client(runner* runner, const std::string& addr);
+
+  // 독립적인 펄스로 설정. 펄스 테스트용
+  pulse& as_independent(runner* runner);
 
   // 다른 펄스의 자식으로 설정
   pulse& as_child(pulse* parent);
-
-  // 독립적인 펄스로 설정
-  pulse& as_independent();
-
-  // runner 지정
-  pulse& with_runner(runner* runner);
 
   // 세션 필터링 지정
   /**
@@ -144,7 +141,7 @@ private:
   {
     size_t call_index{0};
     size_t reply_index{0};
-    std::deuque<caller> callers;  // 큐로 동작
+    std::deque<caller> callers;  // 큐로 동작
   };
 
   using subscriber_map = std::map<topic, std::vector<subscription>>;
@@ -169,12 +166,16 @@ private:
   void lose_interest(pulse* child, uintptr_t skey, topic pic);
 
   // 구독한 함수들에 전달. 스트랜드 여부 반영. 자식들 dispatch() 호출
+  /**
+   * 핸들러 코드에서 구독이나 call 실행 중 다시 구독이나 call 하는 경우가 많아 
+   * post()로 다음 실행 시 처리함.  
+   */
   void dispatch(session_ptr se, topic pic, frame_ptr frame, bool from_root = false);
 
   // 특정 call에 대한 응답 구독 여부
-  bool call_subscribe_reply(topic pic);
+  void call_subscribe_reply(topic pic);
 
-  bool call_subscribe_closed();
+  void call_subscribe_closed();
 
   void call_closed(session_ptr se);
 

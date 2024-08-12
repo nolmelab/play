@@ -9,6 +9,7 @@ template <typename Protocol>
 class pulse_fb : public pulse<Protocol, flatbuffers::NativeTable>
 {
 public:
+  using base = pulse<Protocol, flatbuffers::NativeTable>;
   using protocol = Protocol;
   using session = session<Protocol>;
   using frame = flatbuffers::NativeTable;
@@ -16,7 +17,7 @@ public:
   using frame_ptr = std::shared_ptr<frame>;
   using topic = typename Protocol::topic;
   using receiver = std::function<void(session_ptr, frame_ptr)>;
-  using call_receiver = std::function<void(session_ptr, topic)>;
+  using call_receiver = std::function<void()>;
   using unpacker = std::function<frame_ptr(const uint8_t*, size_t)>;
 
 public:

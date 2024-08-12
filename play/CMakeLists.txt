@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(play)
 
-set (CMAKE_CXX_STANDARD 20)
+set (CMAKE_CXX_STANDARD 17)
 
 # disable warning on checked_iterator 
 add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING=1)

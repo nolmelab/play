@@ -10,18 +10,31 @@ pulse<Protocol, Frame>::~pulse()
 }
 
 template <typename Protocol, typename Frame>
-pulse<Protocol, Frame>& pulse<Protocol, Frame>::as_server(uint16_t port)
+pulse<Protocol, Frame>& pulse<Protocol, Frame>::as_server(runner* runner, uint16_t port)
 {
+  PLAY_CHECK(runner != nullptr);
+  runner_ = runner;
   mode_ = mode::server;
   port_ = port;
   return *this;
 }
 
 template <typename Protocol, typename Frame>
-pulse<Protocol, Frame>& pulse<Protocol, Frame>::as_client(const std::string& addr)
+pulse<Protocol, Frame>& pulse<Protocol, Frame>::as_client(runner* runner, const std::string& addr)
 {
+  PLAY_CHECK(runner != nullptr);
+  runner_ = runner;
   mode_ = mode::client;
   addr_ = addr;
+  return *this;
+}
+
+template <typename Protocol, typename Frame>
+pulse<Protocol, Frame>& pulse<Protocol, Frame>::as_independent(runner* runner)
+{
+  PLAY_CHECK(runner != nullptr);
+  runner_ = runner;
+  mode_ = mode::independent;
   return *this;
 }
 
@@ -32,21 +45,6 @@ pulse<Protocol, Frame>& pulse<Protocol, Frame>::as_child(pulse* parent)
   mode_ = mode::child;
   parent_ = parent;
   parent_->bind_child(this);
-  return *this;
-}
-
-template <typename Protocol, typename Frame>
-pulse<Protocol, Frame>& pulse<Protocol, Frame>::as_independent()
-{
-  mode_ = mode::independent;
-  return *this;
-}
-
-template <typename Protocol, typename Frame>
-pulse<Protocol, Frame>& pulse<Protocol, Frame>::with_runner(runner* runner)
-{
-  PLAY_CHECK(runner != nullptr);
-  runner_ = runner;
   return *this;
 }
 
@@ -68,6 +66,7 @@ template <typename Protocol, typename Frame>
 bool pulse<Protocol, Frame>::start()
 {
   PLAY_CHECK(mode_ != mode::none);
+  PLAY_CHECK(get_runner() != nullptr);
 
   switch (mode_)
   {
@@ -216,7 +215,7 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
 
 template <typename Protocol, typename Frame>
 template <typename TopicInput>
-bool pulse<Protocol, Frame>::has_subscription(TopicInput topic) const
+bool pulse<Protocol, Frame>::has_subscription(TopicInput topic_in) const
 {
   auto pic = static_cast<topic>(topic_in);
 
@@ -283,8 +282,9 @@ void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput
     auto topic_call_iter = calls_.find(req);
     if (topic_call_iter == calls_.end())
     {
+      topic_calls tcall;
       // 없을 경우 추가. 0으로 인덱스 시작
-      topic_call_iter = calls_.insert(std::pair{0, 0, {}}).first;
+      topic_call_iter = calls_.insert(std::pair{req, tcall}).first;
     }
     auto& tcalls = topic_call_iter->second;
     tcalls.call_index++;
@@ -370,7 +370,7 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
   bool handled = false;
   auto session_key = reinterpret_cast<uintptr_t>(se.get());
 
-  // 구독자들에게 전달
+  // 구독자들에게 전달. 모으고 보내는 게 가장 단순
   {
     std::shared_lock guard(sub_mutex_);
     auto siter = subscriptions_.find(pic);
@@ -383,7 +383,12 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
         {
           if (is_target(sub.session_key, session_key, from_root))
           {
-            sub.cb(se, frame);
+            auto cb = sub.cb;
+            this->get_runner()->post(
+                [cb, se, frame]()
+                {
+                  cb(se, frame);
+                });
           }
         }
         else
@@ -450,7 +455,7 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
 }
 
 template <typename Protocol, typename Frame>
-bool pulse<Protocol, Frame>::call_subscribe_reply(topic pic)
+inline void pulse<Protocol, Frame>::call_subscribe_reply(topic pic)
 {
   PLAY_CHECK(!is_root());
   PLAY_CHECK(!!session_);
@@ -460,13 +465,13 @@ bool pulse<Protocol, Frame>::call_subscribe_reply(topic pic)
     subscribe(pic,
               [this, pic](session_ptr se, frame_ptr)
               {
-                call_receive(se, pic)
+                call_receive(se, pic);
               });
   }
 }
 
 template <typename Protocol, typename Frame>
-bool pulse<Protocol, Frame>::call_subscribe_closed()
+inline void pulse<Protocol, Frame>::call_subscribe_closed()
 {
   PLAY_CHECK(!is_root());
   PLAY_CHECK(!!session_);
@@ -506,7 +511,7 @@ void pulse<Protocol, Frame>::call_closed(session_ptr se)
 
     for (auto& kv : calls_)
     {
-      auto& callers = kv.second;
+      auto& callers = kv.second.callers;
       for (auto& caller : callers)
       {
         if (strand_key_ == 0)
@@ -522,15 +527,20 @@ void pulse<Protocol, Frame>::call_closed(session_ptr se)
     calls_.clear();
   }
 
-  for (auto& cb : callbacks)
+  for (auto& callback : callbacks)
   {
-    if (cb.first == 0)
+    if (callback.first == 0)
     {
-      cb.second();
+      auto cb = callback.second;
+      this->get_runner()->post(
+          [cb]()
+          {
+            cb();
+          });
     }
     else
     {
-      auto cb = cb.second;
+      auto cb = callback.second;
       this->get_runner()->post(strand_key_,
                                [cb]()
                                {
@@ -549,7 +559,7 @@ void pulse<Protocol, Frame>::call_receive(session_ptr se, topic pic)
 
   auto skey = reinterpret_cast<uintptr_t>(se.get());
 
-  std::shared_lock guard(call_mutex_);
+  std::unique_lock guard(call_mutex_);
 
   auto cp_iter = call_pairs_.find(pic);
   if (cp_iter != call_pairs_.end())
@@ -559,10 +569,11 @@ void pulse<Protocol, Frame>::call_receive(session_ptr se, topic pic)
     if (topic_call_iter != calls_.end())
     {
       auto& tcalls = topic_call_iter->second;
-      tcalls.recv_index++;
+      tcalls.reply_index++;
 
+      PLAY_CHECK(!tcalls.callers.empty());
       auto& matching_call = tcalls.callers.front();
-      PLAY_CHECK(matching_call.call_id == tcalls.recv_index);
+      PLAY_CHECK(matching_call.call_id == tcalls.reply_index);
       tcalls.callers.pop_front();
     }
   }
@@ -588,10 +599,8 @@ runner* pulse<Protocol, Frame>::get_runner()
 {
   if (runner_ == nullptr)
   {
-    if (parent_ != nullptr)
-    {
-      return parent_->get_runner();
-    }
+    PLAY_CHECK(parent_ != nullptr);
+    return parent_->get_runner();
   }
 
   return runner_;

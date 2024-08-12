@@ -45,17 +45,16 @@ TEST_CASE("pulse")
 
   pulse_t::add_unpacker(topic_message, &pulse_t::unpack_fn<fb::req_move, fb::req_moveT>);
 
-  pulse_server.as_server(7000).with_runner(&runner).subscribe(
-      topic_message,
-      [](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
-      {
-        auto req_move = std::static_pointer_cast<fb::req_moveT>(fr);
-        auto v = req_move->pos->x();
-        pulse_t::send<fb::req_move>(se, topic_message, *req_move.get(), false);
-      });
+  pulse_server.as_server(&runner, 7000)
+      .subscribe(topic_message,
+                 [](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
+                 {
+                   auto req_move = std::static_pointer_cast<fb::req_moveT>(fr);
+                   auto v = req_move->pos->x();
+                   pulse_t::send<fb::req_move>(se, topic_message, *req_move.get(), false);
+                 });
 
-  pulse_client.as_client("127.0.0.1:7000")
-      .with_runner(&runner)
+  pulse_client.as_client(&runner, "127.0.0.1:7000")
       .subscribe(pulse_t::topic_estalished,
                  [](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
                  {
@@ -119,7 +118,7 @@ TEST_CASE("pulse interests")
     SUBCASE("a root and a child")
     {
       pulse root;
-      root.as_independent().with_runner(&runner).start();
+      root.as_independent(&runner).start();
 
       size_t call_count = 0;
 
@@ -138,6 +137,7 @@ TEST_CASE("pulse interests")
 
       std::shared_ptr<pulse::session> se;
       root.publish(se, 11, move);
+      runner.poll_one();
       CHECK(call_count == 1);
 
       p1.stop();
@@ -148,7 +148,7 @@ TEST_CASE("pulse interests")
     SUBCASE("a root and children")
     {
       pulse root;
-      root.as_independent().with_runner(&runner).start();
+      root.as_independent(&runner).start();
 
       size_t call_count = 0;
 
@@ -176,14 +176,18 @@ TEST_CASE("pulse interests")
 
       std::shared_ptr<pulse::session> se;
       root.publish(se, 11, move);
+      runner.poll_one();
+      runner.poll_one();
       CHECK(call_count == 2);
 
       p1.stop();
       root.publish(se, 11, move);
+      runner.poll_one();
       CHECK(call_count == 3);
 
       p2.stop();
       root.publish(se, 11, move);
+      runner.poll_one();
       CHECK(call_count == 3);
     }
   }
@@ -210,7 +214,7 @@ TEST_CASE("with_session")
   {
     //
     pulse root;
-    root.as_independent().with_runner(&runner).start();
+    root.as_independent(&runner).start();
 
     size_t call_count = 0;
 
@@ -245,15 +249,18 @@ TEST_CASE("with_session")
     move->name = "hello";
 
     root.publish(se_1, 11, move);
+    runner.poll_one();
     CHECK(call_count == 1);
 
     root.publish(se_2, 11, move);
+    runner.poll_one();
     CHECK(call_count == 2);
 
     p1.stop();
     p2.stop();
 
     root.publish(se_1, 11, move);
+    runner.poll_one();
     CHECK(call_count == 2);
   }
 
@@ -261,7 +268,7 @@ TEST_CASE("with_session")
   {
     //
     pulse root;
-    root.as_independent().with_runner(&runner).start();
+    root.as_independent(&runner).start();
 
     size_t call_count = 0;
 
@@ -301,15 +308,21 @@ TEST_CASE("with_session")
     move->name = "hello";
 
     root.publish(se_1, 11, move);
+    runner.poll_one();
+    runner.poll_one();
     CHECK(call_count == 2);
 
     root.publish(se_2, 11, move);
+    runner.poll_one();
+    runner.poll_one();
     CHECK(call_count == 4);
 
     p1.stop();
     p2.stop();
 
     root.publish(se_1, 11, move);
+    runner.poll_one();
+    runner.poll_one();
     CHECK(call_count == 4);
   }
 }
@@ -317,7 +330,11 @@ TEST_CASE("with_session")
 TEST_CASE("pulse call")
 {
   using pulse = pulse_fb<secure_protocol<uint16_t>>;
-  pulse::add_unpacker(topic_message, &pulse::unpack_fn<fb::req_move, fb::req_moveT>);
+  const size_t topic_req = 11;
+  const size_t topic_res = 12;
+
+  pulse::add_unpacker(topic_req, &pulse::unpack_fn<fb::req_move, fb::req_moveT>);
+  pulse::add_unpacker(topic_res, &pulse::unpack_fn<fb::res_move, fb::res_moveT>);
 
   size_t recv_count = 0;
 
@@ -328,18 +345,39 @@ TEST_CASE("pulse call")
   pulse pulse_child;
   pulse_child.as_child(&pulse_client);
 
-  auto result_1 = pulse_server.as_server(7000).with_runner(&runner).start();
+  auto result_1 = pulse_server.as_server(&runner, 8000)
+                      .subscribe(topic_req,
+                                 [](pulse::session_ptr se, pulse::frame_ptr fr)
+                                 {
+                                   fb::res_moveT res_move;
+                                   res_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+                                   pulse::send<fb::res_move>(se, topic_res, res_move);
+                                 })
+                      .start();
 
-  auto result_2 = pulse_client.as_client("127.0.0.1:7000")
-      .with_runner(&runner)
-      .subscribe(pulse::topic_estalished,
-                 [&pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
-                 {
-                   pulse_child.with_session(se).start();
-                   pulse_child.subscribe();
-                   pulse_child.call();
-                 })
-      .start();
+  auto result_2 =
+      pulse_client.as_client(&runner, "127.0.0.1:8000")
+          .subscribe(pulse::topic_estalished,
+                     [&pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
+                     {
+                       pulse_child.with_session(se).start();
+                       pulse_child.subscribe(topic_res,
+                                             [](pulse::session_ptr se, pulse::frame_ptr fr)
+                                             {
+                                               auto res_move =
+                                                   std::static_pointer_cast<fb::res_moveT>(fr);
+                                             });
+
+                       fb::req_moveT req_move;
+                       req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+                       req_move.name = "hello call";
+                       pulse_child.call<fb::req_move>(se, topic_req, topic_res, req_move,
+                                                      []()
+                                                      {
+                                                        LOG()->error("call failed");
+                                                      });
+                     })
+          .start();
 
   CHECK(result_1);
   CHECK(result_2);
