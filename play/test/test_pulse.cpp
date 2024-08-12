@@ -142,6 +142,7 @@ TEST_CASE("pulse interests")
 
       p1.stop();
       root.publish(se, 11, move);
+      runner.poll_one();
       CHECK(call_count == 1);
     }
 
@@ -178,10 +179,12 @@ TEST_CASE("pulse interests")
       root.publish(se, 11, move);
       runner.poll_one();
       runner.poll_one();
+      runner.poll_one();
       CHECK(call_count == 2);
 
       p1.stop();
       root.publish(se, 11, move);
+      runner.poll_one();
       runner.poll_one();
       CHECK(call_count == 3);
 
@@ -250,9 +253,11 @@ TEST_CASE("with_session")
 
     root.publish(se_1, 11, move);
     runner.poll_one();
+    runner.poll_one();
     CHECK(call_count == 1);
 
     root.publish(se_2, 11, move);
+    runner.poll_one();
     runner.poll_one();
     CHECK(call_count == 2);
 
@@ -260,6 +265,7 @@ TEST_CASE("with_session")
     p2.stop();
 
     root.publish(se_1, 11, move);
+    runner.poll_one();
     runner.poll_one();
     CHECK(call_count == 2);
   }
@@ -387,8 +393,6 @@ TEST_CASE("pulse call")
 
   CHECK(result_1);
   CHECK(result_2);
-
-  // 연결되면 자식을 만들고 call 호출. 어떻게 알 수 있는가?
 
   runner.poll_one();
 

@@ -29,3 +29,9 @@ private:
 };
 
 }  // namespace alpha
+
+#define ALPHA_PULSE_CB(pic)                                                          \
+  alpha::topic::##pic, [this](app::pulse::session_ptr se, app::pulse::frame_ptr req) \
+  {                                                                                  \
+    on_##pic(se, req);                                                               \
+  }

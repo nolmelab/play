@@ -17,6 +17,11 @@ public:
 
   void stop() final;
 
+private:
+  void on_auth_req_login(app::pulse::session_ptr se, app::pulse::frame_ptr req);
+
+private:
+  std::unique_ptr<app::pulse> pulse_;
 };
 
 }  // namespace alpha
