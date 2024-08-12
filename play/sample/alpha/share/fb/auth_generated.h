@@ -22,6 +22,14 @@ struct req_login;
 struct req_loginBuilder;
 struct req_loginT;
 
+struct req_login_f2b;
+struct req_login_f2bBuilder;
+struct req_login_f2bT;
+
+struct syn_login_b2f;
+struct syn_login_b2fBuilder;
+struct syn_login_b2fT;
+
 struct res_login;
 struct res_loginBuilder;
 struct res_loginT;
@@ -29,6 +37,18 @@ struct res_loginT;
 struct req_logout;
 struct req_logoutBuilder;
 struct req_logoutT;
+
+struct req_logout_f2b;
+struct req_logout_f2bBuilder;
+struct req_logout_f2bT;
+
+struct syn_logout_b2f;
+struct syn_logout_b2fBuilder;
+struct syn_logout_b2fT;
+
+struct res_logout_b2f;
+struct res_logout_b2fBuilder;
+struct res_logout_b2fT;
 
 struct req_loginT : public ::flatbuffers::NativeTable {
   typedef req_login TableType;
@@ -106,6 +126,158 @@ inline ::flatbuffers::Offset<req_login> Createreq_loginDirect(
 }
 
 ::flatbuffers::Offset<req_login> Createreq_login(::flatbuffers::FlatBufferBuilder &_fbb, const req_loginT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct req_login_f2bT : public ::flatbuffers::NativeTable {
+  typedef req_login_f2b TableType;
+  std::string user_id{};
+  std::string password{};
+};
+
+struct req_login_f2b FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef req_login_f2bT NativeTableType;
+  typedef req_login_f2bBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_USER_ID = 4,
+    VT_PASSWORD = 6
+  };
+  const ::flatbuffers::String *user_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_ID);
+  }
+  const ::flatbuffers::String *password() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_PASSWORD);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_USER_ID) &&
+           verifier.VerifyString(user_id()) &&
+           VerifyOffset(verifier, VT_PASSWORD) &&
+           verifier.VerifyString(password()) &&
+           verifier.EndTable();
+  }
+  req_login_f2bT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(req_login_f2bT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<req_login_f2b> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_login_f2bT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct req_login_f2bBuilder {
+  typedef req_login_f2b Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_user_id(::flatbuffers::Offset<::flatbuffers::String> user_id) {
+    fbb_.AddOffset(req_login_f2b::VT_USER_ID, user_id);
+  }
+  void add_password(::flatbuffers::Offset<::flatbuffers::String> password) {
+    fbb_.AddOffset(req_login_f2b::VT_PASSWORD, password);
+  }
+  explicit req_login_f2bBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<req_login_f2b> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<req_login_f2b>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<req_login_f2b> Createreq_login_f2b(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> user_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> password = 0) {
+  req_login_f2bBuilder builder_(_fbb);
+  builder_.add_password(password);
+  builder_.add_user_id(user_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<req_login_f2b> Createreq_login_f2bDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *user_id = nullptr,
+    const char *password = nullptr) {
+  auto user_id__ = user_id ? _fbb.CreateString(user_id) : 0;
+  auto password__ = password ? _fbb.CreateString(password) : 0;
+  return alpha::auth::Createreq_login_f2b(
+      _fbb,
+      user_id__,
+      password__);
+}
+
+::flatbuffers::Offset<req_login_f2b> Createreq_login_f2b(::flatbuffers::FlatBufferBuilder &_fbb, const req_login_f2bT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct syn_login_b2fT : public ::flatbuffers::NativeTable {
+  typedef syn_login_b2f TableType;
+  alpha::error_code ec = alpha::error_code::success;
+  std::string reason{};
+};
+
+struct syn_login_b2f FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef syn_login_b2fT NativeTableType;
+  typedef syn_login_b2fBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EC = 4,
+    VT_REASON = 6
+  };
+  alpha::error_code ec() const {
+    return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
+  const ::flatbuffers::String *reason() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_REASON);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_EC, 2) &&
+           VerifyOffset(verifier, VT_REASON) &&
+           verifier.VerifyString(reason()) &&
+           verifier.EndTable();
+  }
+  syn_login_b2fT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(syn_login_b2fT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<syn_login_b2f> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const syn_login_b2fT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct syn_login_b2fBuilder {
+  typedef syn_login_b2f Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_ec(alpha::error_code ec) {
+    fbb_.AddElement<uint16_t>(syn_login_b2f::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
+  void add_reason(::flatbuffers::Offset<::flatbuffers::String> reason) {
+    fbb_.AddOffset(syn_login_b2f::VT_REASON, reason);
+  }
+  explicit syn_login_b2fBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<syn_login_b2f> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<syn_login_b2f>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<syn_login_b2f> Createsyn_login_b2f(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
+    ::flatbuffers::Offset<::flatbuffers::String> reason = 0) {
+  syn_login_b2fBuilder builder_(_fbb);
+  builder_.add_reason(reason);
+  builder_.add_ec(ec);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<syn_login_b2f> Createsyn_login_b2fDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
+    const char *reason = nullptr) {
+  auto reason__ = reason ? _fbb.CreateString(reason) : 0;
+  return alpha::auth::Createsyn_login_b2f(
+      _fbb,
+      ec,
+      reason__);
+}
+
+::flatbuffers::Offset<syn_login_b2f> Createsyn_login_b2f(::flatbuffers::FlatBufferBuilder &_fbb, const syn_login_b2fT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct res_loginT : public ::flatbuffers::NativeTable {
   typedef res_login TableType;
@@ -198,6 +370,169 @@ inline ::flatbuffers::Offset<req_logout> Createreq_logout(
 
 ::flatbuffers::Offset<req_logout> Createreq_logout(::flatbuffers::FlatBufferBuilder &_fbb, const req_logoutT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct req_logout_f2bT : public ::flatbuffers::NativeTable {
+  typedef req_logout_f2b TableType;
+  std::string user_id{};
+};
+
+struct req_logout_f2b FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef req_logout_f2bT NativeTableType;
+  typedef req_logout_f2bBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_USER_ID = 4
+  };
+  const ::flatbuffers::String *user_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_ID);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_USER_ID) &&
+           verifier.VerifyString(user_id()) &&
+           verifier.EndTable();
+  }
+  req_logout_f2bT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(req_logout_f2bT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<req_logout_f2b> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_logout_f2bT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct req_logout_f2bBuilder {
+  typedef req_logout_f2b Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_user_id(::flatbuffers::Offset<::flatbuffers::String> user_id) {
+    fbb_.AddOffset(req_logout_f2b::VT_USER_ID, user_id);
+  }
+  explicit req_logout_f2bBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<req_logout_f2b> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<req_logout_f2b>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<req_logout_f2b> Createreq_logout_f2b(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> user_id = 0) {
+  req_logout_f2bBuilder builder_(_fbb);
+  builder_.add_user_id(user_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<req_logout_f2b> Createreq_logout_f2bDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *user_id = nullptr) {
+  auto user_id__ = user_id ? _fbb.CreateString(user_id) : 0;
+  return alpha::auth::Createreq_logout_f2b(
+      _fbb,
+      user_id__);
+}
+
+::flatbuffers::Offset<req_logout_f2b> Createreq_logout_f2b(::flatbuffers::FlatBufferBuilder &_fbb, const req_logout_f2bT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct syn_logout_b2fT : public ::flatbuffers::NativeTable {
+  typedef syn_logout_b2f TableType;
+  std::string user_id{};
+};
+
+struct syn_logout_b2f FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef syn_logout_b2fT NativeTableType;
+  typedef syn_logout_b2fBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_USER_ID = 4
+  };
+  const ::flatbuffers::String *user_id() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_ID);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_USER_ID) &&
+           verifier.VerifyString(user_id()) &&
+           verifier.EndTable();
+  }
+  syn_logout_b2fT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(syn_logout_b2fT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<syn_logout_b2f> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const syn_logout_b2fT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct syn_logout_b2fBuilder {
+  typedef syn_logout_b2f Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_user_id(::flatbuffers::Offset<::flatbuffers::String> user_id) {
+    fbb_.AddOffset(syn_logout_b2f::VT_USER_ID, user_id);
+  }
+  explicit syn_logout_b2fBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<syn_logout_b2f> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<syn_logout_b2f>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<syn_logout_b2f> Createsyn_logout_b2f(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> user_id = 0) {
+  syn_logout_b2fBuilder builder_(_fbb);
+  builder_.add_user_id(user_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<syn_logout_b2f> Createsyn_logout_b2fDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *user_id = nullptr) {
+  auto user_id__ = user_id ? _fbb.CreateString(user_id) : 0;
+  return alpha::auth::Createsyn_logout_b2f(
+      _fbb,
+      user_id__);
+}
+
+::flatbuffers::Offset<syn_logout_b2f> Createsyn_logout_b2f(::flatbuffers::FlatBufferBuilder &_fbb, const syn_logout_b2fT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct res_logout_b2fT : public ::flatbuffers::NativeTable {
+  typedef res_logout_b2f TableType;
+};
+
+struct res_logout_b2f FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_logout_b2fT NativeTableType;
+  typedef res_logout_b2fBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+  res_logout_b2fT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_logout_b2fT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_logout_b2f> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_logout_b2fT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_logout_b2fBuilder {
+  typedef res_logout_b2f Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit res_logout_b2fBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_logout_b2f> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_logout_b2f>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_logout_b2f> Createres_logout_b2f(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  res_logout_b2fBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<res_logout_b2f> Createres_logout_b2f(::flatbuffers::FlatBufferBuilder &_fbb, const res_logout_b2fT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline req_loginT *req_login::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<req_loginT>(new req_loginT());
   UnPackTo(_o.get(), _resolver);
@@ -225,6 +560,64 @@ inline ::flatbuffers::Offset<req_login> Createreq_login(::flatbuffers::FlatBuffe
       _fbb,
       _user_id,
       _password);
+}
+
+inline req_login_f2bT *req_login_f2b::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<req_login_f2bT>(new req_login_f2bT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void req_login_f2b::UnPackTo(req_login_f2bT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = user_id(); if (_e) _o->user_id = _e->str(); }
+  { auto _e = password(); if (_e) _o->password = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<req_login_f2b> req_login_f2b::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_login_f2bT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createreq_login_f2b(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<req_login_f2b> Createreq_login_f2b(::flatbuffers::FlatBufferBuilder &_fbb, const req_login_f2bT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_login_f2bT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _user_id = _o->user_id.empty() ? 0 : _fbb.CreateString(_o->user_id);
+  auto _password = _o->password.empty() ? 0 : _fbb.CreateString(_o->password);
+  return alpha::auth::Createreq_login_f2b(
+      _fbb,
+      _user_id,
+      _password);
+}
+
+inline syn_login_b2fT *syn_login_b2f::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<syn_login_b2fT>(new syn_login_b2fT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void syn_login_b2f::UnPackTo(syn_login_b2fT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = ec(); _o->ec = _e; }
+  { auto _e = reason(); if (_e) _o->reason = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<syn_login_b2f> syn_login_b2f::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const syn_login_b2fT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createsyn_login_b2f(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<syn_login_b2f> Createsyn_login_b2f(::flatbuffers::FlatBufferBuilder &_fbb, const syn_login_b2fT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const syn_login_b2fT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _ec = _o->ec;
+  auto _reason = _o->reason.empty() ? 0 : _fbb.CreateString(_o->reason);
+  return alpha::auth::Createsyn_login_b2f(
+      _fbb,
+      _ec,
+      _reason);
 }
 
 inline res_loginT *res_login::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -273,6 +666,81 @@ inline ::flatbuffers::Offset<req_logout> Createreq_logout(::flatbuffers::FlatBuf
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_logoutT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   return alpha::auth::Createreq_logout(
+      _fbb);
+}
+
+inline req_logout_f2bT *req_logout_f2b::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<req_logout_f2bT>(new req_logout_f2bT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void req_logout_f2b::UnPackTo(req_logout_f2bT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = user_id(); if (_e) _o->user_id = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<req_logout_f2b> req_logout_f2b::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_logout_f2bT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createreq_logout_f2b(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<req_logout_f2b> Createreq_logout_f2b(::flatbuffers::FlatBufferBuilder &_fbb, const req_logout_f2bT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_logout_f2bT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _user_id = _o->user_id.empty() ? 0 : _fbb.CreateString(_o->user_id);
+  return alpha::auth::Createreq_logout_f2b(
+      _fbb,
+      _user_id);
+}
+
+inline syn_logout_b2fT *syn_logout_b2f::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<syn_logout_b2fT>(new syn_logout_b2fT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void syn_logout_b2f::UnPackTo(syn_logout_b2fT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = user_id(); if (_e) _o->user_id = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<syn_logout_b2f> syn_logout_b2f::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const syn_logout_b2fT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createsyn_logout_b2f(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<syn_logout_b2f> Createsyn_logout_b2f(::flatbuffers::FlatBufferBuilder &_fbb, const syn_logout_b2fT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const syn_logout_b2fT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _user_id = _o->user_id.empty() ? 0 : _fbb.CreateString(_o->user_id);
+  return alpha::auth::Createsyn_logout_b2f(
+      _fbb,
+      _user_id);
+}
+
+inline res_logout_b2fT *res_logout_b2f::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_logout_b2fT>(new res_logout_b2fT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_logout_b2f::UnPackTo(res_logout_b2fT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+}
+
+inline ::flatbuffers::Offset<res_logout_b2f> res_logout_b2f::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_logout_b2fT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_logout_b2f(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_logout_b2f> Createres_logout_b2f(::flatbuffers::FlatBufferBuilder &_fbb, const res_logout_b2fT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_logout_b2fT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  return alpha::auth::Createres_logout_b2f(
       _fbb);
 }
 
