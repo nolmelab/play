@@ -215,7 +215,18 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
 }
 
 template <typename Protocol, typename Frame>
-void pulse<Protocol, Frame>::publish(session_ptr se, topic pic, frame_ptr frame)
+template <typename TopicInput>
+bool pulse<Protocol, Frame>::has_subscription(TopicInput topic) const
+{
+  auto pic = static_cast<topic>(topic_in);
+
+  std::shared_lock guard(sub_mutex_);
+  auto iter = subscriptions_.find(pic);
+  return iter != subscriptions_.end();
+}
+
+template <typename Protocol, typename Frame>
+inline void pulse<Protocol, Frame>::publish(session_ptr se, topic pic, frame_ptr frame)
 {
   dispatch(se, pic, frame);
 }
@@ -235,7 +246,6 @@ inline void pulse<Protocol, Frame>::on_receive(session_ptr se, topic pic, const 
   }
 
   dispatch(se, pic, frame_ptr);
-  call_receive(se, pic);
 }
 
 template <typename Protocol, typename Frame>
@@ -248,9 +258,6 @@ template <typename Protocol, typename Frame>
 void pulse<Protocol, Frame>::on_closed(session_ptr se, error_code ec)
 {
   dispatch(se, topic_closed, frame_ptr{});
-
-  // TODO: process call
-  call_closed(se);
 }
 
 template <typename Protocol, typename Frame>
@@ -258,115 +265,33 @@ template <typename TopicInput>
 void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput response,
                                   call_receiver cb)
 {
+  PLAY_CHECK(mode_ == mode::child);
+  PLAY_CHECK(!!session_);
+  PLAY_CHECK(!is_root());
+
+  call_subscribe_closed();
+  call_subscribe_reply(response);
+
   auto skey = reinterpret_cast<uintptr_t>(se.get());
 
   // caller까지 추가
   {
     std::unique_lock guard(call_mutex_);
 
-    auto iter = calls_.find(skey);
-    if (iter == calls_.end())
-    {
-      // 없을 경우 추가
-      session_calls scalls;
-      iter = calls_.insert(std::pair{skey, scalls}).first;
-    }
-    auto& scalls = iter->second;
-
     auto req = static_cast<topic>(request);
     auto res = static_cast<topic>(response);
-    auto topic_iter = scalls.find(req);
-    if (topic_iter == scalls.end())
+    auto topic_call_iter = calls_.find(req);
+    if (topic_call_iter == calls_.end())
     {
       // 없을 경우 추가. 0으로 인덱스 시작
-      topic_iter = scalls.insert(std::pair{req, res, 0, 0, {}}).first;
+      topic_call_iter = calls_.insert(std::pair{0, 0, {}}).first;
     }
-    auto& tcalls = topic_iter->second;
+    auto& tcalls = topic_call_iter->second;
     tcalls.call_index++;
-    tcalls.insert(std::pair{tcalls.call_index, {tcalls.call_index, 0, cb}});
+    tcalls.callers.push_back({tcalls.call_index, cb});
 
     // 페어 등록
     call_pairs_[res] = req;
-  }
-}
-
-template <typename Protocol, typename Frame>
-void pulse<Protocol, Frame>::call_closed(session_ptr se)
-{
-  auto skey = reinterpret_cast<uintptr_t>(se.get());
-
-  std::vector<std::pair<size_t, call_receiver>> callbacks;
-
-  // collect
-  {
-    std::unique_lock guard(call_mutex_);
-    auto iter == calls_.find(skey);
-    if (iter != calls_end())
-    {
-      auto& topic_calls = iter->second.calls;
-      for (auto& kv : topic_calls)
-      {
-        auto& callers = kv.second.calls;
-        for (auto& caller : callers)
-        {
-          if (strand_key_ == 0)
-          {
-            callbacks.push_back({0, caller.cb});
-          }
-          else
-          {
-            callbacks.push_back({strand_key_, caller.cb});
-          }
-        }
-      }
-    }
-  }
-
-  for (auto& cb : callbacks)
-  {
-    if (cb.first == 0)
-    {
-      cb.second();
-    }
-    else
-    {
-      auto cb = cb.second;
-      this->get_runner()->post(strand_key_,
-                               [cb]()
-                               {
-                                 cb();
-                               });
-    }
-  }
-}
-
-template <typename Protocol, typename Frame>
-void pulse<Protocol, Frame>::call_receive(session_ptr se, topic pic)
-{
-  auto skey = reinterpret_cast<uintptr_t>(se.get());
-
-  std::shared_lock guard(call_mutex_);
-  auto iter = calls_.find(skey);
-  if (iter != calls_.end())
-  {
-    auto cp_iter = call_pairs_.find(pic);
-    if (cp_iter != call_pairs_.end())
-    {
-      auto req = cp_iter->second;
-      auto& scalls = iter->second;
-      auto tcall_iter = scalls.calls.find(req);
-      if (tcall_iter != scalls.calls.end())
-      {
-        auto& tcalls = tcall_iter->second;
-        tcalls.recv_index++;
-
-        auto caller_iter = tcalls.calls.find(tcalls.recv_index);
-        PLAY_CHECK(caller_iter != tcalls.calls.end());
-        PLAY_CHECK(caller_iter->second.call_id == tcalls.recv_index);
-
-        tcalls.calls.erase(tcalls.recv_index);  // 여기서 지우면 됨
-      }
-    }
   }
 }
 
@@ -521,6 +446,125 @@ void pulse<Protocol, Frame>::dispatch(session_ptr se, topic pic, frame_ptr frame
   if (!handled)
   {
     LOG()->debug("topic: {} not handled", pic);
+  }
+}
+
+template <typename Protocol, typename Frame>
+bool pulse<Protocol, Frame>::call_subscribe_reply(topic pic)
+{
+  PLAY_CHECK(!is_root());
+  PLAY_CHECK(!!session_);
+
+  if (!has_subscription(pic))
+  {
+    subscribe(pic,
+              [this, pic](session_ptr se, frame_ptr)
+              {
+                call_receive(se, pic)
+              });
+  }
+}
+
+template <typename Protocol, typename Frame>
+bool pulse<Protocol, Frame>::call_subscribe_closed()
+{
+  PLAY_CHECK(!is_root());
+  PLAY_CHECK(!!session_);
+  if (!has_subscription(topic_closed))
+  {
+    // interest는 하나의 키(session, topic)에 대해 pulse 하나만 등록 가능
+    // 구독은 여러 함수를 등록 가능하므로 모든 topic_closed 구독자들이 호출됨
+    subscribe(topic_closed,
+              [this](session_ptr se, frame_ptr)
+              {
+                call_closed(se);
+              });
+  }
+}
+
+template <typename Protocol, typename Frame>
+void pulse<Protocol, Frame>::call_closed(session_ptr se)
+{
+  PLAY_CHECK(mode_ == mode::child);
+  PLAY_CHECK(!is_root());
+  PLAY_CHECK(!!session_);
+
+  if (se != session_)
+  {
+    return;
+  }
+
+  // 서버간 단선은 재앙에 해당하므로 약간 무겁지만 괜찮다.
+
+  auto skey = reinterpret_cast<uintptr_t>(se.get());
+
+  std::vector<std::pair<size_t, call_receiver>> callbacks;
+
+  // collect
+  {
+    std::unique_lock guard(call_mutex_);
+
+    for (auto& kv : calls_)
+    {
+      auto& callers = kv.second;
+      for (auto& caller : callers)
+      {
+        if (strand_key_ == 0)
+        {
+          callbacks.push_back({0, caller.cb});
+        }
+        else
+        {
+          callbacks.push_back({strand_key_, caller.cb});
+        }
+      }
+    }
+    calls_.clear();
+  }
+
+  for (auto& cb : callbacks)
+  {
+    if (cb.first == 0)
+    {
+      cb.second();
+    }
+    else
+    {
+      auto cb = cb.second;
+      this->get_runner()->post(strand_key_,
+                               [cb]()
+                               {
+                                 cb();
+                               });
+    }
+  }
+}
+
+template <typename Protocol, typename Frame>
+void pulse<Protocol, Frame>::call_receive(session_ptr se, topic pic)
+{
+  PLAY_CHECK(mode_ == mode::child);
+  PLAY_CHECK(!is_root());
+  PLAY_CHECK(!!session_);
+
+  auto skey = reinterpret_cast<uintptr_t>(se.get());
+
+  std::shared_lock guard(call_mutex_);
+
+  auto cp_iter = call_pairs_.find(pic);
+  if (cp_iter != call_pairs_.end())
+  {
+    auto req = cp_iter->second;
+    auto topic_call_iter = calls_.find(req);
+    if (topic_call_iter != calls_.end())
+    {
+      auto& tcalls = topic_call_iter->second;
+      tcalls.recv_index++;
+
+      auto& matching_call = tcalls.callers.front();
+      PLAY_CHECK(matching_call.call_id == tcalls.recv_index);
+      tcalls.callers.pop_front();
+    }
   }
 }
 

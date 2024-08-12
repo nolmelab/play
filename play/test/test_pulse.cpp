@@ -314,9 +314,10 @@ TEST_CASE("with_session")
   }
 }
 
-TEST_CASE("pulse remote")
+TEST_CASE("pulse call")
 {
   using pulse = pulse_fb<secure_protocol<uint16_t>>;
+  pulse::add_unpacker(topic_message, &pulse::unpack_fn<fb::req_move, fb::req_moveT>);
 
   size_t recv_count = 0;
 
@@ -324,25 +325,26 @@ TEST_CASE("pulse remote")
   pulse pulse_server;
   pulse pulse_client;
 
-  pulse::add_unpacker(topic_message, &pulse::unpack_fn<fb::req_move, fb::req_moveT>);
+  pulse pulse_child;
+  pulse_child.as_child(&pulse_client);
 
   auto result_1 = pulse_server.as_server(7000).with_runner(&runner).start();
 
   auto result_2 = pulse_client.as_client("127.0.0.1:7000")
-                      .with_runner(&runner)
-                      .subscribe(pulse::topic_estalished,
-                                 [](pulse::session_ptr se, pulse::frame_ptr fr)
-                                 {
-                                   fb::req_moveT move;
-                                   move.pos = std::make_unique<fb::vec3>(1, 1, 1);
-                                   move.name = "hello";
-
-                                   pulse::call<fb::req_move>(se, topic_message, move);
-                                 })
-                      .start();
+      .with_runner(&runner)
+      .subscribe(pulse::topic_estalished,
+                 [&pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
+                 {
+                   pulse_child.with_session(se).start();
+                   pulse_child.subscribe();
+                   pulse_child.call();
+                 })
+      .start();
 
   CHECK(result_1);
   CHECK(result_2);
+
+  // 연결되면 자식을 만들고 call 호출. 어떻게 알 수 있는가?
 
   runner.poll_one();
 

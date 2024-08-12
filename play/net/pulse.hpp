@@ -77,6 +77,10 @@ public:
   template <typename TopicInput>
   pulse& subscribe(TopicInput topic, receiver cb);
 
+  // 특정 토픽의 구독 여부 확인
+  template <typename TopicInput>
+  bool has_subscription(TopicInput topic) const;
+
   // 구독 테스트용.
   void publish(session_ptr se, topic pic, frame_ptr frame);
 
@@ -106,13 +110,13 @@ protected:
   virtual frame_ptr unpack(topic pic, const uint8_t* data, size_t len) = 0;
 
   // 하위 클래스에서 call 구현에 활용
+  /**
+   * call()은 서버 간 통신에서 단선을 일관되게 처리하기위한 기능. 
+   * call()로 요청한 내용은 기억하고 단선시 call_receiver로 호출. 
+   * with_session()으로 세션을 지정한 경우 세션 단위로만 동작.
+   */
   template <typename TopicInput>
   void call(session_ptr se, TopicInput request, TopicInput response, call_receiver cb);
-
-private:
-  void call_closed(session_ptr se);
-
-  void call_receive(session_ptr se, topic pic);
 
 private:
   enum class mode : uint8_t
@@ -132,20 +136,15 @@ private:
 
   struct caller
   {
+    size_t call_id{0};
     call_receiver cb;
   };
 
   struct topic_calls
   {
     size_t call_index{0};
-    size_t recv_index{0};
-    std::map<size_t, caller> calls;  // call_id가 키
-  };
-
-  struct session_calls
-  {
-    uintptr_t session_key;
-    std::map<topic, topic_calls> calls;
+    size_t reply_index{0};
+    std::deuque<caller> callers;  // 큐로 동작
   };
 
   using subscriber_map = std::map<topic, std::vector<subscription>>;
@@ -153,7 +152,7 @@ private:
   using shared_mutex = std::shared_timed_mutex;
   using interest_key = std::pair<uintptr_t, topic>;
   using interest_map = std::map<interest_key, child_map>;
-  using call_map = std::map<uintptr_t, session_calls>;
+  using call_map = std::map<topic, topic_calls>;
   using call_pair_map = std::map<topic, topic>;  // res / req mapping
 
 private:
@@ -171,6 +170,15 @@ private:
 
   // 구독한 함수들에 전달. 스트랜드 여부 반영. 자식들 dispatch() 호출
   void dispatch(session_ptr se, topic pic, frame_ptr frame, bool from_root = false);
+
+  // 특정 call에 대한 응답 구독 여부
+  bool call_subscribe_reply(topic pic);
+
+  bool call_subscribe_closed();
+
+  void call_closed(session_ptr se);
+
+  void call_receive(session_ptr se, topic pic);
 
   // 루트에 등록한 관심 그룹 처리를 분리하여 배포 여부를 결정
   bool is_target(uintptr_t sub_key, uintptr_t key, bool from_root) const;
