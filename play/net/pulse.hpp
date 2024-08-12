@@ -109,7 +109,10 @@ protected:
   template <typename TopicInput>
   void call(session_ptr se, TopicInput request, TopicInput response, call_receiver cb);
 
+private:
   void call_closed(session_ptr se);
+
+  void call_receive(session_ptr se, topic pic);
 
 private:
   enum class mode : uint8_t
@@ -129,15 +132,11 @@ private:
 
   struct caller
   {
-    size_t call_id{0};
-    size_t recv_id{0};
     call_receiver cb;
   };
 
   struct topic_calls
   {
-    topic req;
-    topic res;
     size_t call_index{0};
     size_t recv_index{0};
     std::map<size_t, caller> calls;  // call_id가 키
@@ -155,7 +154,7 @@ private:
   using interest_key = std::pair<uintptr_t, topic>;
   using interest_map = std::map<interest_key, child_map>;
   using call_map = std::map<uintptr_t, session_calls>;
-  using call_pair_map = std::map<topic, topic>;
+  using call_pair_map = std::map<topic, topic>;  // res / req mapping
 
 private:
   // 자식 펄스를 연결

@@ -235,6 +235,7 @@ inline void pulse<Protocol, Frame>::on_receive(session_ptr se, topic pic, const 
   }
 
   dispatch(se, pic, frame_ptr);
+  call_receive(se, pic);
 }
 
 template <typename Protocol, typename Frame>
@@ -285,13 +286,88 @@ void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput
     tcalls.insert(std::pair{tcalls.call_index, {tcalls.call_index, 0, cb}});
 
     // 페어 등록
-    call_pairs_[req] = res;
+    call_pairs_[res] = req;
   }
 }
 
 template <typename Protocol, typename Frame>
 void pulse<Protocol, Frame>::call_closed(session_ptr se)
 {
+  auto skey = reinterpret_cast<uintptr_t>(se.get());
+
+  std::vector<std::pair<size_t, call_receiver>> callbacks;
+
+  // collect
+  {
+    std::unique_lock guard(call_mutex_);
+    auto iter == calls_.find(skey);
+    if (iter != calls_end())
+    {
+      auto& topic_calls = iter->second.calls;
+      for (auto& kv : topic_calls)
+      {
+        auto& callers = kv.second.calls;
+        for (auto& caller : callers)
+        {
+          if (strand_key_ == 0)
+          {
+            callbacks.push_back({0, caller.cb});
+          }
+          else
+          {
+            callbacks.push_back({strand_key_, caller.cb});
+          }
+        }
+      }
+    }
+  }
+
+  for (auto& cb : callbacks)
+  {
+    if (cb.first == 0)
+    {
+      cb.second();
+    }
+    else
+    {
+      auto cb = cb.second;
+      this->get_runner()->post(strand_key_,
+                               [cb]()
+                               {
+                                 cb();
+                               });
+    }
+  }
+}
+
+template <typename Protocol, typename Frame>
+void pulse<Protocol, Frame>::call_receive(session_ptr se, topic pic)
+{
+  auto skey = reinterpret_cast<uintptr_t>(se.get());
+
+  std::shared_lock guard(call_mutex_);
+  auto iter = calls_.find(skey);
+  if (iter != calls_.end())
+  {
+    auto cp_iter = call_pairs_.find(pic);
+    if (cp_iter != call_pairs_.end())
+    {
+      auto req = cp_iter->second;
+      auto& scalls = iter->second;
+      auto tcall_iter = scalls.calls.find(req);
+      if (tcall_iter != scalls.calls.end())
+      {
+        auto& tcalls = tcall_iter->second;
+        tcalls.recv_index++;
+
+        auto caller_iter = tcalls.calls.find(tcalls.recv_index);
+        PLAY_CHECK(caller_iter != tcalls.calls.end());
+        PLAY_CHECK(caller_iter->second.call_id == tcalls.recv_index);
+
+        tcalls.calls.erase(tcalls.recv_index);  // 여기서 지우면 됨
+      }
+    }
+  }
 }
 
 template <typename Protocol, typename Frame>
