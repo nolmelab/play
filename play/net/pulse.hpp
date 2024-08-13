@@ -61,6 +61,9 @@ public:
    */
   pulse& with_session(session_ptr ss);
 
+  // 세션이 지정된 가장 가까운 부모의 세션을 받아서 세션으로 지정. with_session과 동일 효과
+  pulse& inherit_session();
+
   // asio strand 키 지정
   pulse& with_strand(size_t key);
 

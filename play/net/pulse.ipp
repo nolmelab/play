@@ -63,6 +63,29 @@ pulse<Protocol, Frame>& pulse<Protocol, Frame>::with_session(session_ptr ss)
 }
 
 template <typename Protocol, typename Frame>
+pulse<Protocol, Frame>& pulse<Protocol, Frame>::inherit_session()
+{
+  PLAY_CHECK(!session_);
+
+  pulse* p = parent_;
+
+  while (p != nullptr)
+  {
+    if (p->session_)
+    {
+      session_ = p->session_;
+      break;
+    }
+    else
+    {
+      p = p->parent_;
+    }
+  }
+
+  PLAY_CHECK(!!session_);
+}
+
+template <typename Protocol, typename Frame>
 bool pulse<Protocol, Frame>::start()
 {
   PLAY_CHECK(mode_ != mode::none);
