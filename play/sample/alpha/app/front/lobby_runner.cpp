@@ -1,7 +1,7 @@
 #include <alpha/share/fb/auth_generated.h>
 #include <alpha/share/fb/topic_generated.h>
-#include <alpha/app/front/actor_user.hpp>
 #include <alpha/app/front/lobby_runner.hpp>
+#include <alpha/app/front/lobby_user.hpp>
 
 namespace alpha {
 
@@ -84,6 +84,5 @@ void lobby_runner::on_auth_syn_logout_b2f(app::pulse::session_ptr se, app::pulse
 {
   //
 }
-
 
 }  // namespace alpha
