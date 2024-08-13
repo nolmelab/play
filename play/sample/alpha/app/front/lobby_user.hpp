@@ -9,10 +9,10 @@ namespace alpha {
 /**
  * 인증 후 이루어지는 이벤트 처리를 담당
  */
-class actor_user : public actor_base
+class lobby_user : public actor_base
 {
 public:
-  actor_user(service_base& service)
+  lobby_user(service_base& service)
       : service_{service}
   {
   }
