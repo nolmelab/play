@@ -60,6 +60,8 @@ namespace {
 class lobby_user
 {
 public:
+  lobby_user() {};
+
   lobby_user(const std::string& name, uintptr_t session_key)
       : name_{name},
         session_key_{session_key}
@@ -84,9 +86,27 @@ private:
 class user_container
 {
 public:
+  user_container() {}
+
   void add(lobby_user&& user)
   {
     users_.insert(std::move(user));
+  }
+
+  void add(lobby_user& user)
+  {
+    users_.insert(user);
+  }
+
+  std::pair<bool, const lobby_user&> find_by_name(std::string_view name)
+  {
+    auto& name_index = users_.get<index_name>();
+    auto iter = name_index.find(name);
+    if (iter == name_index.end())
+    {
+      return {false, null_};
+    }
+    return {true, *iter};
   }
 
 private:
@@ -101,6 +121,7 @@ private:
                                                               get_session_key)>>>;
 
   multi_index_container users_;
+  lobby_user null_;
 };
 
 }  // namespace
@@ -112,5 +133,7 @@ TEST_CASE("user container design")
     user_container users;
 
     users.add({std::string{"name"}, 3});
+    auto user = users.find_by_name("name");
+    CHECK(user.first);
   }
 }
