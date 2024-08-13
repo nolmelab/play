@@ -31,6 +31,7 @@ add_executable(
   test_codecs.cpp
   test_ensure.cpp
   test_flatbuffers.cpp
+  test_index.cpp
   test_json.cpp
   test_logger.cpp
   test_object_pool.cpp

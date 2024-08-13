@@ -101,7 +101,7 @@ public:
   std::pair<bool, const lobby_user&> find_by_name(std::string_view name)
   {
     auto& name_index = users_.get<index_name>();
-    auto iter = name_index.find(name);
+    auto iter = name_index.find(std::string{name});
     if (iter == name_index.end())
     {
       return {false, null_};
@@ -135,5 +135,10 @@ TEST_CASE("user container design")
     users.add({std::string{"name"}, 3});
     auto user = users.find_by_name("name");
     CHECK(user.first);
+
+    auto user2 = users.find_by_name("name_2");
+    CHECK(!user2.first);
+
+    // hmm... implementing a simple double index container seems to be simpler.
   }
 }
