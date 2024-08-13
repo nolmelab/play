@@ -260,6 +260,13 @@ void pulse<Protocol, Frame>::on_closed(session_ptr se, error_code ec)
 }
 
 template <typename Protocol, typename Frame>
+bool pulse<Protocol, Frame>::connect(std::string_view addr, uint16_t port)
+{
+  PLAY_CHECK(mode_ == mode::client);
+  client_->connect(addr, port);
+}
+
+template <typename Protocol, typename Frame>
 template <typename TopicInput>
 void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput response,
                                   call_receiver cb)
