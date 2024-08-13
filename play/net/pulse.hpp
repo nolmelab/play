@@ -74,6 +74,12 @@ public:
   template <typename TopicInput>
   pulse& subscribe(TopicInput topic, receiver cb);
 
+  template <typename TopicInput>
+  pulse& sub(TopicInput topic, receiver cb)
+  {
+    return subscribe(topic, cb);
+  }
+
   // 특정 토픽의 구독 여부 확인
   template <typename TopicInput>
   bool has_subscription(TopicInput topic) const;
@@ -152,6 +158,7 @@ private:
   using shared_mutex = std::shared_timed_mutex;
   using interest_key = std::pair<uintptr_t, topic>;
   using interest_map = std::map<interest_key, child_map>;
+  using interest_keep_map = std::map<interest_key, bool>;
   using call_map = std::map<topic, topic_calls>;
   using call_pair_map = std::map<topic, topic>;  // res / req mapping
 
@@ -198,6 +205,7 @@ private:
   mutable shared_mutex sub_mutex_;
   subscriber_map subscriptions_;
   interest_map interests_;
+  interest_keep_map self_interests_;
   runner* runner_{nullptr};
   bool stop_{false};
 

@@ -207,6 +207,12 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
   if (!is_root())
   {
     auto skey = reinterpret_cast<uintptr_t>(session_.get());
+    // keep interests
+    {
+      std::unique_lock guard(sub_mutex_);
+      auto key = std::pair{skey, pic};
+      self_interests_[key] = true;
+    }
     get_root()->show_interest(this, skey, pic);
   }
 
@@ -320,20 +326,23 @@ void pulse<Protocol, Frame>::unbind_child(pulse* child)
   PLAY_CHECK(child != nullptr);
   auto key = reinterpret_cast<uintptr_t>(child);
 
-  // lose interests
-  {
-    std::unique_lock guard(sub_mutex_);
-    for (auto& kv : interests_)
-    {
-      auto& cmap = kv.second;
-      cmap.erase(key);
-    }
-  }
-
   // unbind
   {
     std::unique_lock guard(sub_mutex_);
     childs_.erase(key);
+
+    // lose interests
+    if (is_root())
+    {
+      for (auto& kv : child->self_interests_)
+      {
+        auto iter = interests_.find(kv.first);
+        if (iter != interests_.end())
+        {
+          iter->second.erase(key);
+        }
+      }
+    }
   }
 }
 

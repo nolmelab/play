@@ -10,15 +10,15 @@ bool lobby_runner::start()
   pulse_front_ = std::make_unique<app::pulse>();
   pulse_front_->as_child(&get_app().get_pulse())
       .with_strand(get_id())
-      .subscribe(alpha::topic::auth_req_login, PULSE_FUNC(on_auth_req_login))
-      .subscribe(app::pulse::topic_closed, PULSE_FUNC(on_closed_front))
+      .sub(alpha::topic::auth_req_login, PULSE_FN(on_auth_req_login))
+      .sub(app::pulse::topic_closed, PULSE_FN(on_closed_front))
       .start();
 
   pulse_back_ = std::make_unique<app::pulse>();
   pulse_back_->as_client(&get_app().get_runner(), "127.0.0.1:8000")
-      .subscribe(app::pulse::topic_estalished, PULSE_FUNC(on_established_back))
-      .subscribe(app::pulse::topic_closed, PULSE_FUNC(on_closed_back))
-      .subscribe(alpha::topic::auth_syn_login_b2f, PULSE_FUNC(on_auth_syn_login_b2f))
+      .sub(app::pulse::topic_estalished, PULSE_FN(on_established_back))
+      .sub(app::pulse::topic_closed, PULSE_FN(on_closed_back))
+      .sub(alpha::topic::auth_syn_login_b2f, PULSE_FN(on_auth_syn_login_b2f))
       .start();
 
   return true;

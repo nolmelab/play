@@ -7,7 +7,7 @@
     "Codespace": "",
     "CMAKE_TOOLCHAIN_FILE": "/var/opt/vcpkg/scripts/buildsystems/vcpkg.cmake",
     "CMAKE_MAKE_PROGRAM": "make",
-    "CMAKE_BUILD_TYPE": "Release",
+    "CMAKE_BUILD_TYPE": "Debug",
     "VCPKG_TARGET_TRIPLET": "x64-linux"
   },
   "cmake.outputLogEncoding": "utf8",

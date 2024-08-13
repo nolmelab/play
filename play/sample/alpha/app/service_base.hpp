@@ -30,7 +30,7 @@ private:
 
 }  // namespace alpha
 
-#define PULSE_FUNC(func)                                    \
+#define PULSE_FN(func)                                    \
   [this](app::pulse::session_ptr se, app::pulse::frame_ptr req) \
   {                                                             \
     func(se, req);                                              \
