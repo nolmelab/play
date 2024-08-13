@@ -30,6 +30,12 @@ public:
     return pulse_;
   }
 
+  // 백엔드 연결 펄스를 얻음
+  pulse& get_pulse_back()
+  {
+    return pulse_back_;
+  }
+
   play::runner& get_runner()
   {
     return *runner_;
@@ -45,6 +51,7 @@ private:
   nlohmann::json jconf_;
   std::unique_ptr<play::thread_runner> runner_;
   pulse pulse_;
+  pulse pulse_back_;
   std::string role_;
   bool stop_{false};
 };

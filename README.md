@@ -70,10 +70,6 @@ pulse 내에서 asio strand를 통한 처리, session 단위 구독 필터링을
   CHECK(pulse_server.start());
   CHECK(pulse_client.start());
 
-  runner.poll_one();
-
-  bool end = false;
-
   while (recv_count < test_config::test_frame_count)
   {
     if (runner.poll_one() == 0)

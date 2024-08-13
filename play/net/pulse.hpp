@@ -58,6 +58,7 @@ public:
   /**
    * subscribe 호출 전에 지정하면 해당 세션에 대해서만 관심을 등록. 
    * 모든 세션에 대해 구독하는 경우 with_session() 호출 전에 구독해야 함.
+   * start() 이후에 세션 연결이나 변경이 가능. 이전 세션 구독은 동작하지 않으므로 주의 필요
    */
   pulse& with_session(session_ptr ss);
 
@@ -125,7 +126,9 @@ protected:
    * with_session()으로 세션을 지정한 경우 세션 단위로만 동작.
    */
   template <typename TopicInput>
-  void call(session_ptr se, TopicInput request, TopicInput response, call_receiver cb);
+  void call(TopicInput request, TopicInput response, call_receiver cb);
+
+  session_ptr get_session();
 
 private:
   enum class mode : uint8_t

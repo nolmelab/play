@@ -48,6 +48,13 @@ bool app::start(const nlohmann::json& jconf)
       return false;
     }
 
+    if (role_ == "front")
+    {
+      auto addr = play::json_reader::read(jconf_, "alpha.backend", std::string{"127.0.0.1:7000"});
+      pulse_back_.as_client(runner_.get(), addr);
+      // pulse_back_의 start()는 서비스 start 이후로 하여 established를 받을 수 있도록 함
+    }
+
     auto rc_2 = start_services();
     if (rc_2)
     {
@@ -94,17 +101,17 @@ bool app::start_services()
 
     create_service<room_runner>(*this);
     get_service<room_runner>()->start();
-  }
-  else
-  {
-    PLAY_CHECK(role_ == "back");
-    // TODO: error handling
-    create_service<lobby_master>(*this);
-    get_service<lobby_master>()->start();
 
-    create_service<room_master>(*this);
-    get_service<room_master>()->start();
+    return pulse_back_.start();
   }
+  // else
+  PLAY_CHECK(role_ == "back");
+  // TODO: error handling
+  create_service<lobby_master>(*this);
+  get_service<lobby_master>()->start();
+
+  create_service<room_master>(*this);
+  get_service<room_master>()->start();
 
   return true;
 }

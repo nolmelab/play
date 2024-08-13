@@ -68,6 +68,7 @@ syn_lobby_master_up 프레임을 lobby_runner에서 구독하여 처리합니다
 
 call()의 호출 오류도 처리할 수 있어야 합니다. 
 
+## 
 
 
 

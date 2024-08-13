@@ -370,7 +370,7 @@ TEST_CASE("pulse call")
                        fb::req_moveT req_move;
                        req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
                        req_move.name = "hello call";
-                       pulse_child.call<fb::req_move>(se, topic_req, topic_res, req_move,
+                       pulse_child.call<fb::req_move>(topic_req, topic_res, req_move,
                                                       []()
                                                       {
                                                         LOG()->error("call failed");
@@ -383,7 +383,7 @@ TEST_CASE("pulse call")
                        fb::req_moveT req_move;
                        req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
                        req_move.name = "hello call";
-                       pulse_child.call<fb::req_move>(se, topic_req, topic_res, req_move,
+                       pulse_child.call<fb::req_move>(topic_req, topic_res, req_move,
                                                       []()
                                                       {
                                                         LOG()->error("call failed");

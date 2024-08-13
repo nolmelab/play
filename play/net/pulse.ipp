@@ -297,8 +297,7 @@ bool pulse<Protocol, Frame>::connect(std::string_view addr, uint16_t port)
 
 template <typename Protocol, typename Frame>
 template <typename TopicInput>
-void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput response,
-                                  call_receiver cb)
+void pulse<Protocol, Frame>::call(TopicInput request, TopicInput response, call_receiver cb)
 {
   PLAY_CHECK(mode_ == mode::child);
   PLAY_CHECK(!!session_);
@@ -308,8 +307,6 @@ void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput
 
   call_subscribe_closed();
   call_subscribe_reply(res);
-
-  auto skey = reinterpret_cast<uintptr_t>(se.get());
 
   // caller까지 추가
   {
@@ -331,6 +328,12 @@ void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput
     // 페어 등록
     call_pairs_[res] = req;
   }
+}
+
+template <typename Protocol, typename Frame>
+typename pulse<Protocol, Frame>::session_ptr pulse<Protocol, Frame>::get_session()
+{
+  return session_;
 }
 
 template <typename Protocol, typename Frame>
