@@ -268,8 +268,10 @@ void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput
   PLAY_CHECK(!!session_);
   PLAY_CHECK(!is_root());
 
+  auto res = static_cast<topic>(response);
+
   call_subscribe_closed();
-  call_subscribe_reply(response);
+  call_subscribe_reply(res);
 
   auto skey = reinterpret_cast<uintptr_t>(se.get());
 
@@ -345,23 +347,6 @@ void pulse<Protocol, Frame>::show_interest(pulse* child, uintptr_t skey, topic p
   }
   auto ckey = reinterpret_cast<uintptr_t>(child);
   iter->second.insert(std::pair{ckey, child});
-}
-
-template <typename Protocol, typename Frame>
-void pulse<Protocol, Frame>::lose_interest(pulse* child, uintptr_t skey, topic pic)
-{
-  PLAY_CHECK(is_root());
-
-  auto key = interest_key{skey, pic};
-  auto ckey = reinterpret_cast<uintptr_t>(child);
-
-  std::unique_lock guard(sub_mutex_);
-  auto iter = interests_.find(key);
-  if (iter != interests_.end())
-  {
-    auto& cmap = iter->second;
-    cmap.erase(ckey);
-  }
 }
 
 template <typename Protocol, typename Frame>

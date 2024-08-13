@@ -409,3 +409,29 @@ TEST_CASE("pulse call")
   pulse_server.stop();
   pulse_client.stop();
 }
+
+TEST_CASE("std::map perf")
+{
+
+  size_t test_count = 10;
+
+  std::map<int, int> m;
+
+  for (size_t i = 0; i < test_count; ++i)
+  {
+    m.insert(std::pair{i, i});
+  }
+
+  play::stop_watch watch;
+
+  for (size_t i = 0; i < test_count; ++i)
+  {
+    m.find(i);
+  }
+
+  LOG()->info("map elapsed: {}", watch.get_elapsed());
+  // 1억건, 릴리스 0초. find는 부하가 거의 없다.
+  // insert에서 메모리 할당과 트리 균형 작업으로 느리다.
+  // 문제가 되지는 않으나 불편해 하는 사람들이 있을 수 있다. 더 나은(?) 방법이
+  // 있다고 생각할 수 있기 때문이다.
+}

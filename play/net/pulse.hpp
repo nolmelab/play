@@ -162,9 +162,6 @@ private:
   // 루트에 관심을 알림
   void show_interest(pulse* child, uintptr_t skey, topic pic);
 
-  // 루트에 관심이 없음을 알림
-  void lose_interest(pulse* child, uintptr_t skey, topic pic);
-
   // 구독한 함수들에 전달. 스트랜드 여부 반영. 자식들 dispatch() 호출
   /**
    * 핸들러 코드에서 구독이나 call 실행 중 다시 구독이나 call 하는 경우가 많아 

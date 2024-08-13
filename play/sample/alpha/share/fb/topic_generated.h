@@ -16,45 +16,53 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
 namespace alpha {
 
 enum class topic : uint16_t {
-  auth_req_login = 101,
-  auto_req_login_f2b = 102,
-  auth_syn_login_b2f = 103,
-  auth_res_login = 104,
-  auth_req_logout = 105,
-  auth_req_logout_f2b = 106,
-  auth_syn_logout_b2f = 107,
-  auth_res_logout_b2f = 108,
-  auth_res_logout = 109,
-  room_req_create = 201,
-  room_req_create_f2b = 202,
-  room_req_create_b2f = 203,
-  room_res_create_f2b = 204,
-  room_res_create = 205,
-  room_req_page = 206,
-  room_req_page_f2b = 207,
-  room_res_page_b2f = 208,
-  room_res_page = 209,
-  room_req_reserve = 210,
-  room_req_reserve_f2b = 211,
-  room_req_reserve_b2f = 212,
-  room_res_reserve_f2b = 213,
-  room_res_reserve_b2f = 214,
-  room_res_reserve = 215,
-  room_req_checkin = 216,
-  room_syn_checkin_f2b = 217,
-  room_res_checkin = 218,
-  room_req_chat = 219,
-  room_res_chat = 220,
-  room_syn_chat = 221,
-  room_req_leave = 222,
-  room_syn_leave_f2b = 223,
-  room_res_leave = 224,
-  MIN = auth_req_login,
+  service_lobby_runner_up = 101,
+  service_lobby_master_up = 102,
+  service_room_runner_up = 103,
+  service_room_master_up = 104,
+  auth_req_login = 201,
+  auto_req_login_f2b = 202,
+  auth_syn_login_b2f = 203,
+  auth_res_login = 204,
+  auth_req_logout = 205,
+  auth_req_logout_f2b = 206,
+  auth_syn_logout_b2f = 207,
+  auth_res_logout_b2f = 208,
+  auth_res_logout = 209,
+  room_req_create = 301,
+  room_req_create_f2b = 302,
+  room_req_create_b2f = 303,
+  room_res_create_f2b = 304,
+  room_res_create = 305,
+  room_req_page = 306,
+  room_req_page_f2b = 307,
+  room_res_page_b2f = 308,
+  room_res_page = 309,
+  room_req_reserve = 310,
+  room_req_reserve_f2b = 311,
+  room_req_reserve_b2f = 312,
+  room_res_reserve_f2b = 313,
+  room_res_reserve_b2f = 314,
+  room_res_reserve = 315,
+  room_req_checkin = 316,
+  room_syn_checkin_f2b = 317,
+  room_res_checkin = 318,
+  room_req_chat = 319,
+  room_res_chat = 320,
+  room_syn_chat = 321,
+  room_req_leave = 322,
+  room_syn_leave_f2b = 323,
+  room_res_leave = 324,
+  MIN = service_lobby_runner_up,
   MAX = room_res_leave
 };
 
-inline const topic (&EnumValuestopic())[33] {
+inline const topic (&EnumValuestopic())[37] {
   static const topic values[] = {
+    topic::service_lobby_runner_up,
+    topic::service_lobby_master_up,
+    topic::service_room_runner_up,
+    topic::service_room_master_up,
     topic::auth_req_login,
     topic::auto_req_login_f2b,
     topic::auth_syn_login_b2f,
@@ -92,141 +100,47 @@ inline const topic (&EnumValuestopic())[33] {
   return values;
 }
 
-inline const char * const *EnumNamestopic() {
-  static const char * const names[125] = {
-    "auth_req_login",
-    "auto_req_login_f2b",
-    "auth_syn_login_b2f",
-    "auth_res_login",
-    "auth_req_logout",
-    "auth_req_logout_f2b",
-    "auth_syn_logout_b2f",
-    "auth_res_logout_b2f",
-    "auth_res_logout",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "room_req_create",
-    "room_req_create_f2b",
-    "room_req_create_b2f",
-    "room_res_create_f2b",
-    "room_res_create",
-    "room_req_page",
-    "room_req_page_f2b",
-    "room_res_page_b2f",
-    "room_res_page",
-    "room_req_reserve",
-    "room_req_reserve_f2b",
-    "room_req_reserve_b2f",
-    "room_res_reserve_f2b",
-    "room_res_reserve_b2f",
-    "room_res_reserve",
-    "room_req_checkin",
-    "room_syn_checkin_f2b",
-    "room_res_checkin",
-    "room_req_chat",
-    "room_res_chat",
-    "room_syn_chat",
-    "room_req_leave",
-    "room_syn_leave_f2b",
-    "room_res_leave",
-    nullptr
-  };
-  return names;
-}
-
 inline const char *EnumNametopic(topic e) {
-  if (::flatbuffers::IsOutRange(e, topic::auth_req_login, topic::room_res_leave)) return "";
-  const size_t index = static_cast<size_t>(e) - static_cast<size_t>(topic::auth_req_login);
-  return EnumNamestopic()[index];
+  switch (e) {
+    case topic::service_lobby_runner_up: return "service_lobby_runner_up";
+    case topic::service_lobby_master_up: return "service_lobby_master_up";
+    case topic::service_room_runner_up: return "service_room_runner_up";
+    case topic::service_room_master_up: return "service_room_master_up";
+    case topic::auth_req_login: return "auth_req_login";
+    case topic::auto_req_login_f2b: return "auto_req_login_f2b";
+    case topic::auth_syn_login_b2f: return "auth_syn_login_b2f";
+    case topic::auth_res_login: return "auth_res_login";
+    case topic::auth_req_logout: return "auth_req_logout";
+    case topic::auth_req_logout_f2b: return "auth_req_logout_f2b";
+    case topic::auth_syn_logout_b2f: return "auth_syn_logout_b2f";
+    case topic::auth_res_logout_b2f: return "auth_res_logout_b2f";
+    case topic::auth_res_logout: return "auth_res_logout";
+    case topic::room_req_create: return "room_req_create";
+    case topic::room_req_create_f2b: return "room_req_create_f2b";
+    case topic::room_req_create_b2f: return "room_req_create_b2f";
+    case topic::room_res_create_f2b: return "room_res_create_f2b";
+    case topic::room_res_create: return "room_res_create";
+    case topic::room_req_page: return "room_req_page";
+    case topic::room_req_page_f2b: return "room_req_page_f2b";
+    case topic::room_res_page_b2f: return "room_res_page_b2f";
+    case topic::room_res_page: return "room_res_page";
+    case topic::room_req_reserve: return "room_req_reserve";
+    case topic::room_req_reserve_f2b: return "room_req_reserve_f2b";
+    case topic::room_req_reserve_b2f: return "room_req_reserve_b2f";
+    case topic::room_res_reserve_f2b: return "room_res_reserve_f2b";
+    case topic::room_res_reserve_b2f: return "room_res_reserve_b2f";
+    case topic::room_res_reserve: return "room_res_reserve";
+    case topic::room_req_checkin: return "room_req_checkin";
+    case topic::room_syn_checkin_f2b: return "room_syn_checkin_f2b";
+    case topic::room_res_checkin: return "room_res_checkin";
+    case topic::room_req_chat: return "room_req_chat";
+    case topic::room_res_chat: return "room_res_chat";
+    case topic::room_syn_chat: return "room_syn_chat";
+    case topic::room_req_leave: return "room_req_leave";
+    case topic::room_syn_leave_f2b: return "room_syn_leave_f2b";
+    case topic::room_res_leave: return "room_res_leave";
+    default: return "";
+  }
 }
 
 }  // namespace alpha
