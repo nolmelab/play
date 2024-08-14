@@ -230,21 +230,21 @@ TEST_CASE("with_session")
     pulse p1;
     p1.as_child(&root)
         .with_session(se_1)
-        .subscribe(11,
-                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
-                   {
-                     call_count++;
-                   })
+        .sub(11,
+             [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+             {
+               call_count++;
+             })
         .start();
 
     pulse p2;
     p2.as_child(&root)
         .with_session(se_2)
-        .subscribe(11,
-                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
-                   {
-                     call_count++;
-                   })
+        .sub(11,
+             [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+             {
+               call_count++;
+             })
         .start();
 
     auto move = std::make_shared<fb::req_moveT>();
@@ -286,27 +286,27 @@ TEST_CASE("with_session")
 
     pulse p1;
     p1.as_child(&root)
-        .subscribe(11,
-                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
-                   {
-                     call_count++;
-                   })
+        .sub(11,
+             [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+             {
+               call_count++;
+             })
         .with_session(se_1)
-        .subscribe(11,
-                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
-                   {
-                     call_count++;
-                   })
+        .sub(11,
+             [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+             {
+               call_count++;
+             })
         .start();
 
     pulse p2;
     p2.as_child(&root)
         .with_session(se_2)
-        .subscribe(11,
-                   [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
-                   {
-                     call_count++;
-                   })
+        .sub(11,
+             [&call_count](pulse::session_ptr se, pulse::frame_ptr fr)
+             {
+               call_count++;
+             })
         .start();
 
     auto move = std::make_shared<fb::req_moveT>();
@@ -352,44 +352,43 @@ TEST_CASE("pulse call")
   pulse_child.as_child(&pulse_client);
 
   auto result_1 = pulse_server.as_server(&runner, 8000)
-                      .subscribe(topic_req,
-                                 [](pulse::session_ptr se, pulse::frame_ptr fr)
-                                 {
-                                   fb::res_moveT res_move;
-                                   res_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
-                                   pulse::send<fb::res_move>(se, topic_res, res_move);
-                                 })
+                      .sub(topic_req,
+                           [](pulse::session_ptr se, pulse::frame_ptr fr)
+                           {
+                             fb::res_moveT res_move;
+                             res_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+                             pulse::send<fb::res_move>(se, topic_res, res_move);
+                           })
                       .start();
 
-  auto result_2 =
-      pulse_client.as_client(&runner, "127.0.0.1:8000")
-          .subscribe(pulse::topic_estalished,
-                     [&pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
-                     {
-                       pulse_child.with_session(se).start();
-                       fb::req_moveT req_move;
-                       req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
-                       req_move.name = "hello call";
-                       pulse_child.call<fb::req_move>(topic_req, topic_res, req_move,
-                                                      []()
-                                                      {
-                                                        LOG()->error("call failed");
-                                                      });
-                     })
-          .subscribe(topic_res,
-                     [&recv_count, &pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
-                     {
-                       ++recv_count;
-                       fb::req_moveT req_move;
-                       req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
-                       req_move.name = "hello call";
-                       pulse_child.call<fb::req_move>(topic_req, topic_res, req_move,
-                                                      []()
-                                                      {
-                                                        LOG()->error("call failed");
-                                                      });
-                     })
-          .start();
+  auto result_2 = pulse_client.as_client(&runner, "127.0.0.1:8000")
+                      .sub(pulse::topic_estalished,
+                           [&pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
+                           {
+                             pulse_child.with_session(se).start();
+                             fb::req_moveT req_move;
+                             req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+                             req_move.name = "hello call";
+                             pulse_child.call<fb::req_move>(topic_req, topic_res, req_move,
+                                                            []()
+                                                            {
+                                                              LOG()->error("call failed");
+                                                            });
+                           })
+                      .sub(topic_res,
+                           [&recv_count, &pulse_child](pulse::session_ptr se, pulse::frame_ptr fr)
+                           {
+                             ++recv_count;
+                             fb::req_moveT req_move;
+                             req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+                             req_move.name = "hello call";
+                             pulse_child.call<fb::req_move>(topic_req, topic_res, req_move,
+                                                            []()
+                                                            {
+                                                              LOG()->error("call failed");
+                                                            });
+                           })
+                      .start();
 
   CHECK(result_1);
   CHECK(result_2);

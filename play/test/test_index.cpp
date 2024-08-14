@@ -1,6 +1,6 @@
 #include <doctest/doctest.h>
 #include <map>
-#include <play/base/index.hpp>
+#include <play/app/index.hpp>
 #include <string>
 
 TEST_CASE("index")

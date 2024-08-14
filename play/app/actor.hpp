@@ -16,6 +16,7 @@ class actor : public std::enable_shared_from_this<actor>
 {
 public:
   using ptr = std::shared_ptr<actor>;
+  using id_type = size_t;
 
 public:
   actor();

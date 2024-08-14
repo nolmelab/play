@@ -27,6 +27,7 @@ add_executable(
   learn_function_ptr.cpp
   learn_flatbuffers.cpp
   learn_multiindex.cpp
+  test_actor_container.cpp
   test_app.cpp
   test_codecs.cpp
   test_ensure.cpp
