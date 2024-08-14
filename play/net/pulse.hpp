@@ -40,7 +40,7 @@ public:
 public:
   pulse() = default;
 
-  ~pulse();
+  virtual ~pulse();
 
   // 서버를 내장한 모드 설정
   pulse& as_server(runner* runner, uint16_t port);
