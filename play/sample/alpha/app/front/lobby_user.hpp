@@ -54,7 +54,6 @@ private:
     return service_;
   }
 
-  // called when login completed
   bool on_start() final;
 
   void on_stop() final;
