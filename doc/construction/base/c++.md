@@ -7,3 +7,7 @@
 
 ## dependent name lookup
 
+https://eli.thegreenplace.net/2012/02/06/dependent-name-lookup-for-c-templates
+위 링크에 아주 친절하게 설명되어 있습니다. Sepecialization으로 함수가 
+다르게 구현되는 경우를 예시로 하고 있습니다. 
+
