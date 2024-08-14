@@ -1,6 +1,7 @@
 #pragma once
 
 #include <alpha/share/fb/auth_generated.h>
+#include <alpha/share/fb/room_generated.h>
 #include <alpha/share/fb/topic_generated.h>
 #include <alpha/app/actor.hpp>
 #include <alpha/app/app.hpp>
@@ -63,6 +64,10 @@ private:
   void on_auth_req_logout(app::pulse::session_ptr se, app::pulse::frame_ptr req);
 
   void on_session_closed(app::pulse::session_ptr se, app::pulse::frame_ptr req);
+
+  void on_room_req_create(app::pulse::session_ptr se, app::pulse::frame_ptr req);
+
+  void on_room_req_page(app::pulse::session_ptr se, app::pulse::frame_ptr req);
 
 private:
   lobby_runner& service_;

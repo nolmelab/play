@@ -34,7 +34,7 @@ enum topic : ushort
   room_syn_checkin_f2b, 
   room_res_checkin, 
   room_req_chat, 
-  room_res_chat,        // req / res가 맞는가? req / syn?
+  room_res_chat,        
   room_syn_chat,
   room_req_leave, 
   room_syn_leave_f2b, 

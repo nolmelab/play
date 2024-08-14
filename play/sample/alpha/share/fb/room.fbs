@@ -5,3 +5,8 @@ table req_create
     name : string;
     size : ushort;
 }
+
+table req_page 
+{
+  offset : ushort;
+}
