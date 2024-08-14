@@ -12,10 +12,6 @@ public:
 
 public:
   service() = default;
-
-  virtual bool start() = 0;
-
-  virtual void stop() = 0;
 };
 
 }  // namespace play

@@ -39,6 +39,14 @@ public:
    */
   bool connect(std::string_view addr, uint16_t port);
 
+  // 한번 저장한 주소, 포트로 접속 시도
+  bool connect()
+  {
+    PLAY_CHECK(!addr_.empty())
+    PLAY_CHECK(port_ > 0);
+    return connect(addr_, port_);
+  }
+
   // 현재 세션을 얻음. 통신 등에 사용
   session_ptr get_session()
   {

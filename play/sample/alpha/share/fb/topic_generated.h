@@ -21,7 +21,7 @@ enum class topic : uint16_t {
   service_room_runner_up = 103,
   service_room_master_up = 104,
   auth_req_login = 201,
-  auto_req_login_f2b = 202,
+  auth_req_login_f2b = 202,
   auth_syn_login_b2f = 203,
   auth_res_login = 204,
   auth_req_logout = 205,
@@ -64,7 +64,7 @@ inline const topic (&EnumValuestopic())[37] {
     topic::service_room_runner_up,
     topic::service_room_master_up,
     topic::auth_req_login,
-    topic::auto_req_login_f2b,
+    topic::auth_req_login_f2b,
     topic::auth_syn_login_b2f,
     topic::auth_res_login,
     topic::auth_req_logout,
@@ -107,7 +107,7 @@ inline const char *EnumNametopic(topic e) {
     case topic::service_room_runner_up: return "service_room_runner_up";
     case topic::service_room_master_up: return "service_room_master_up";
     case topic::auth_req_login: return "auth_req_login";
-    case topic::auto_req_login_f2b: return "auto_req_login_f2b";
+    case topic::auth_req_login_f2b: return "auth_req_login_f2b";
     case topic::auth_syn_login_b2f: return "auth_syn_login_b2f";
     case topic::auth_res_login: return "auth_res_login";
     case topic::auth_req_logout: return "auth_req_logout";

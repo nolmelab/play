@@ -13,7 +13,13 @@ bot::bot(ensure& app, const nlohmann::json& json, const std::string& name, size_
 {
 }
 
-bool bot::start()
+void bot::update()
+{
+  // act_serial의 on_update 호출
+  flow_->update();
+}
+
+bool bot::on_start()
 {
   flow_ = std::make_shared<flow>(*this, json_);  // acts need to be shared_ptr always
   auto rc = flow_->activate();
@@ -35,13 +41,7 @@ bool bot::start()
   return false;
 }
 
-void bot::update()
-{
-  // act_serial의 on_update 호출
-  flow_->update();
-}
-
-void bot::stop()
+void bot::on_stop()
 {
   if (bot_timer_)
   {

@@ -20,13 +20,14 @@ class dummy_actor : public actor
 public:
   dummy_actor() {}
 
-  bool start() final
+private:
+  bool on_start() final
   {
     return true;
   }
 
   // 종료
-  void stop()
+  void on_stop() final
   {
     //
   }

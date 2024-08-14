@@ -7,7 +7,7 @@ enum topic : ushort
   service_room_runner_up, 
   service_room_master_up,
   auth_req_login = 201, 
-  auto_req_login_f2b,
+  auth_req_login_f2b,
   auth_syn_login_b2f,
   auth_res_login, 
   auth_req_logout,

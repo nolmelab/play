@@ -2,14 +2,14 @@
 
 namespace alpha {
 
-bool room_master::start()
+bool room_master::on_start()
 {
   // sub topics
   // timers
   return true;
 }
 
-void room_master::stop()
+void room_master::on_stop()
 {
   // not much to do.
 }

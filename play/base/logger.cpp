@@ -11,7 +11,7 @@ void logger::setup()
 {
   get_instance().initialized_ = true;
 
-  auto filename = fmt::format("logs/{}", name);
+  auto filename = fmt::format("logs/{}.log", name);
 
   spdlog::init_thread_pool(32 * 1024, 1);
   auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();

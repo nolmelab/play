@@ -13,9 +13,10 @@ public:
   {
   }
 
-  bool start() final;
+private:
+  bool on_start() final;
 
-  void stop() final;
+  void on_stop() final;
 };
 
 }  // namespace alpha

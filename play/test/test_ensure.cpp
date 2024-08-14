@@ -15,13 +15,13 @@ namespace {
 
 class mockup_actor : public ::play::actor
 {
-public:
-  bool start() final
+private:
+  bool on_start() final
   {
     return true;
   }
 
-  void stop() final {}
+  void on_stop() final {}
 };
 
 }  // namespace

@@ -112,7 +112,7 @@ public:
   void on_closed(session_ptr se, error_code ec) final;
 
   // mode::client일 경우 연결이 끊어지면 재연결 요청이 가능
-  bool connect(std::string_view addr, uint16_t port);
+  bool connect();
 
 protected:
   // 프레임을 구체적인 하위 클래스에서 생성

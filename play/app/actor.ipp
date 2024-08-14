@@ -11,6 +11,16 @@ inline actor::actor()
   id_ = dynamic_snowflake::get().next();
 }
 
+inline bool actor::start()
+{
+  return on_start();
+}
+
+inline void actor::stop()
+{
+  on_stop();
+}
+
 template <typename Act, typename... Args>
 inline bool actor::create_act(Args&&... args)
 {

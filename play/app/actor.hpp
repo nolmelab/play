@@ -21,13 +21,16 @@ public:
 public:
   actor();
 
-  virtual ~actor() {}
+  virtual ~actor()
+  {
+    stop();
+  }
 
   // 시작
-  virtual bool start() = 0;
+  bool start();
 
   // 종료
-  virtual void stop() = 0;
+  void stop();
 
   // 동적으로 생성한 고유 아이디를 제공
   size_t get_id() const
@@ -46,6 +49,10 @@ public:
 
 protected:
   virtual void on_created_act(const std::type_index& type_index, act::ptr ap);
+
+  virtual bool on_start() = 0;
+
+  virtual void on_stop() = 0;
 
 private:
   using act_map = std::map<std::type_index, act::ptr>;

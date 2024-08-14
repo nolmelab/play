@@ -4,23 +4,29 @@ namespace alpha.auth;
 
 table req_login
 {
-    user_id : string;
+    name : string;
     password : string;
 }
 
 table req_login_f2b 
 {
-  user_id : string;
+  name : string;
   password : string;
 }
 
 table syn_login_b2f 
 {
   ec : error_code;
+  name : string;
   reason : string;
 }
 
 table res_login
+{
+  ec : error_code;
+}
+
+table syn_kickout
 {
   ec : error_code;
 }
@@ -31,12 +37,12 @@ table req_logout
 
 table req_logout_f2b 
 {
-  user_id : string;
+  name : string;
 }
 
 table syn_logout_b2f 
 {
-  user_id : string;
+  name : string;
 }
 
 table res_logout_b2f 

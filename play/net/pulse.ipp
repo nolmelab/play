@@ -289,10 +289,10 @@ void pulse<Protocol, Frame>::on_closed(session_ptr se, error_code ec)
 }
 
 template <typename Protocol, typename Frame>
-bool pulse<Protocol, Frame>::connect(std::string_view addr, uint16_t port)
+bool pulse<Protocol, Frame>::connect()
 {
   PLAY_CHECK(mode_ == mode::client);
-  client_->connect(addr, port);
+  return client_->connect();
 }
 
 template <typename Protocol, typename Frame>

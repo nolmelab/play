@@ -41,6 +41,14 @@ public:
 public:
   pulse_fb() = default;
 
+  // 세션이 있을 경우 내부 세션을 사용하여 전송
+  template <typename FlatBufferObj, typename TopicInput, typename Obj>
+  bool send(TopicInput topic_in, Obj& obj, bool encrypt = false)
+  {
+    PLAY_CHECK(this->get_session());
+    return this->send<FlatBufferObj>(this->get_session(), topic_in, obj, encrypt);
+  }
+
   // 세션에 대해 call() 요청을 보내고, 세션 단선시 call_receiver를 호출
   template <typename FlatBufferObj, typename TopicInput, typename Obj>
   bool call(TopicInput req, TopicInput res, Obj& obj, call_receiver cb, bool encrypt = false);

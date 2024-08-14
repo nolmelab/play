@@ -2,14 +2,14 @@
 
 namespace alpha {
 
-bool lobby_master::start()
+bool lobby_master::on_start()
 {
   // sub topics
   // timers
   return true;
 }
 
-void lobby_master::stop()
+void lobby_master::on_stop()
 {
   // not much to do.
 }

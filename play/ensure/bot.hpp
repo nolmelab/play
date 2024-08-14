@@ -18,13 +18,8 @@ public:
 public:
   bot(ensure& app, const nlohmann::json& json, const std::string& name, size_t index);
 
-  // flow를 로딩. flow를 시작.
-  bool start() final;
-
   // bot timer를 통해 flow update
   void update();
-
-  void stop() final;
 
   ensure& get_app()
   {
@@ -60,6 +55,12 @@ public:
   {
     return board_;
   }
+
+private:
+  // flow를 로딩. flow를 시작.
+  bool on_start() final;
+
+  void on_stop() final;
 
 private:
   ensure& app_;
