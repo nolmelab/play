@@ -9,11 +9,13 @@ set(SOURCE
   main.cpp
   app.cpp
   front/lobby_runner.cpp
-  front/actor_user.cpp
+  front/lobby_user.cpp
   front/room_runner.cpp 
-  front/actor_room.cpp 
+  front/room.cpp 
   back/lobby_master.cpp 
   back/room_master.cpp 
+  back/master_room.cpp 
+  back/master_lobby_user.cpp 
 )
 
 set(INC

@@ -6,10 +6,10 @@
 namespace alpha {
 
 // 알파 서비스의 기반 클래스
-class service_base : public play::service
+class service : public play::service
 {
 public:
-  service_base(app& app)
+  service(app& app)
       : app_{app}
   {
   }
@@ -30,7 +30,7 @@ private:
 
 }  // namespace alpha
 
-#define PULSE_FUNC(func)                                    \
+#define PULSE_FN(func)                                          \
   [this](app::pulse::session_ptr se, app::pulse::frame_ptr req) \
   {                                                             \
     func(se, req);                                              \

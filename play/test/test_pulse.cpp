@@ -46,32 +46,32 @@ TEST_CASE("pulse")
   pulse_t::add_unpacker(topic_message, &pulse_t::unpack_fn<fb::req_move, fb::req_moveT>);
 
   pulse_server.as_server(&runner, 7000)
-      .subscribe(topic_message,
-                 [](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
-                 {
-                   auto req_move = std::static_pointer_cast<fb::req_moveT>(fr);
-                   auto v = req_move->pos->x();
-                   pulse_t::send<fb::req_move>(se, topic_message, *req_move.get(), false);
-                 });
+      .sub(topic_message,
+           [](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
+           {
+             auto req_move = std::static_pointer_cast<fb::req_moveT>(fr);
+             auto v = req_move->pos->x();
+             pulse_t::send<fb::req_move>(se, topic_message, *req_move.get(), false);
+           });
 
   pulse_client.as_client(&runner, "127.0.0.1:7000")
-      .subscribe(pulse_t::topic_estalished,
-                 [](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
-                 {
-                   fb::req_moveT move;
-                   move.pos = std::make_unique<fb::vec3>(1, 1, 1);
-                   move.name = "hello";
+      .sub(pulse_t::topic_estalished,
+           [](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
+           {
+             fb::req_moveT move;
+             move.pos = std::make_unique<fb::vec3>(1, 1, 1);
+             move.name = "hello";
 
-                   pulse_t::send<fb::req_move>(se, topic_message, move, false);
-                 })
-      .subscribe(topic_message,
-                 [&recv_count](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
-                 {
-                   recv_count++;
-                   auto req_move = std::static_pointer_cast<fb::req_moveT>(fr);
-                   auto v = req_move->pos->x();
-                   pulse_t::send<fb::req_move>(se, topic_message, *req_move.get(), true);
-                 });
+             pulse_t::send<fb::req_move>(se, topic_message, move, false);
+           })
+      .sub(topic_message,
+           [&recv_count](pulse_t::session_ptr se, pulse_t::frame_ptr fr)
+           {
+             recv_count++;
+             auto req_move = std::static_pointer_cast<fb::req_moveT>(fr);
+             auto v = req_move->pos->x();
+             pulse_t::send<fb::req_move>(se, topic_message, *req_move.get(), true);
+           });
 
   CHECK(pulse_server.start());
   CHECK(pulse_client.start());
@@ -370,7 +370,7 @@ TEST_CASE("pulse call")
                        fb::req_moveT req_move;
                        req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
                        req_move.name = "hello call";
-                       pulse_child.call<fb::req_move>(se, topic_req, topic_res, req_move,
+                       pulse_child.call<fb::req_move>(topic_req, topic_res, req_move,
                                                       []()
                                                       {
                                                         LOG()->error("call failed");
@@ -383,7 +383,7 @@ TEST_CASE("pulse call")
                        fb::req_moveT req_move;
                        req_move.pos = std::make_unique<fb::vec3>(1, 1, 1);
                        req_move.name = "hello call";
-                       pulse_child.call<fb::req_move>(se, topic_req, topic_res, req_move,
+                       pulse_child.call<fb::req_move>(topic_req, topic_res, req_move,
                                                       []()
                                                       {
                                                         LOG()->error("call failed");
@@ -408,4 +408,32 @@ TEST_CASE("pulse call")
 
   pulse_server.stop();
   pulse_client.stop();
+}
+
+TEST_CASE("std::map perf")
+{
+
+  size_t test_count = 10;
+
+  std::map<int, int> m;
+
+  for (size_t i = 0; i < test_count; ++i)
+  {
+    m.insert(std::pair{i, i});
+  }
+
+  play::stop_watch watch;
+
+  for (size_t i = 0; i < test_count; ++i)
+  {
+    m.find(i);
+  }
+
+  LOG()->info("map elapsed: {}", watch.get_elapsed());
+
+  // session, topic 기반 관심 관리시 구독이 많아지면 수백만 건이 될 수 있어 성능을 측정.
+  // - 1억건, 릴리스 0초. find는 부하가 거의 없다. nano초 미만이다.
+  // insert에서 메모리 할당과 트리 균형 작업으로 느리다.
+  // 문제가 되지는 않으나 불편해 하는 사람들이 있을 수 있다. 더 나은(?) 방법이
+  // 있다고 생각할 수 있기 때문이다.
 }

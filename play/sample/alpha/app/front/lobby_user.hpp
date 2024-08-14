@@ -1,7 +1,7 @@
 #pragma once
 
-#include <alpha/app/actor_base.hpp>
-#include <alpha/app/service_base.hpp>
+#include <alpha/app/actor.hpp>
+#include <alpha/app/service.hpp>
 
 namespace alpha {
 
@@ -9,10 +9,10 @@ namespace alpha {
 /**
  * 인증 후 이루어지는 이벤트 처리를 담당
  */
-class actor_user : public actor_base
+class lobby_user : public actor
 {
 public:
-  actor_user(service_base& service)
+  lobby_user(service& service)
       : service_{service}
   {
   }
@@ -23,7 +23,7 @@ private:
   void stop() final;
 
 private:
-  service_base& get_service()
+  service& get_service()
   {
     return service_;
   }
@@ -35,7 +35,7 @@ private:
   }
 
 private:
-  service_base& service_;
+  service& service_;
 };
 
 }  // namespace alpha

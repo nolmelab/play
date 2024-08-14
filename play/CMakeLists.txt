@@ -10,6 +10,10 @@ add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING=1)
 # adding following line causes an compile error
 #add_compile_definitions(_WIN32_WINNT=0x060)
 
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-g -O3")
+
 add_subdirectory(base)
 add_subdirectory(net)
 add_subdirectory(app)

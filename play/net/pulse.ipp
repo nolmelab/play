@@ -63,6 +63,29 @@ pulse<Protocol, Frame>& pulse<Protocol, Frame>::with_session(session_ptr ss)
 }
 
 template <typename Protocol, typename Frame>
+pulse<Protocol, Frame>& pulse<Protocol, Frame>::inherit_session()
+{
+  PLAY_CHECK(!session_);
+
+  pulse* p = parent_;
+
+  while (p != nullptr)
+  {
+    if (p->session_)
+    {
+      session_ = p->session_;
+      break;
+    }
+    else
+    {
+      p = p->parent_;
+    }
+  }
+
+  PLAY_CHECK(!!session_);
+}
+
+template <typename Protocol, typename Frame>
 bool pulse<Protocol, Frame>::start()
 {
   PLAY_CHECK(mode_ != mode::none);
@@ -207,6 +230,12 @@ inline pulse<Protocol, Frame>& pulse<Protocol, Frame>::subscribe(TopicInput topi
   if (!is_root())
   {
     auto skey = reinterpret_cast<uintptr_t>(session_.get());
+    // keep interests
+    {
+      std::unique_lock guard(sub_mutex_);
+      auto key = std::pair{skey, pic};
+      self_interests_[key] = true;
+    }
     get_root()->show_interest(this, skey, pic);
   }
 
@@ -268,17 +297,16 @@ bool pulse<Protocol, Frame>::connect(std::string_view addr, uint16_t port)
 
 template <typename Protocol, typename Frame>
 template <typename TopicInput>
-void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput response,
-                                  call_receiver cb)
+void pulse<Protocol, Frame>::call(TopicInput request, TopicInput response, call_receiver cb)
 {
   PLAY_CHECK(mode_ == mode::child);
   PLAY_CHECK(!!session_);
   PLAY_CHECK(!is_root());
 
-  call_subscribe_closed();
-  call_subscribe_reply(response);
+  auto res = static_cast<topic>(response);
 
-  auto skey = reinterpret_cast<uintptr_t>(se.get());
+  call_subscribe_closed();
+  call_subscribe_reply(res);
 
   // caller까지 추가
   {
@@ -303,6 +331,12 @@ void pulse<Protocol, Frame>::call(session_ptr se, TopicInput request, TopicInput
 }
 
 template <typename Protocol, typename Frame>
+typename pulse<Protocol, Frame>::session_ptr pulse<Protocol, Frame>::get_session()
+{
+  return session_;
+}
+
+template <typename Protocol, typename Frame>
 void pulse<Protocol, Frame>::bind_child(pulse* child)
 {
   PLAY_CHECK(child != nullptr);
@@ -318,20 +352,23 @@ void pulse<Protocol, Frame>::unbind_child(pulse* child)
   PLAY_CHECK(child != nullptr);
   auto key = reinterpret_cast<uintptr_t>(child);
 
-  // lose interests
-  {
-    std::unique_lock guard(sub_mutex_);
-    for (auto& kv : interests_)
-    {
-      auto& cmap = kv.second;
-      cmap.erase(key);
-    }
-  }
-
   // unbind
   {
     std::unique_lock guard(sub_mutex_);
     childs_.erase(key);
+
+    // lose interests
+    if (is_root())
+    {
+      for (auto& kv : child->self_interests_)
+      {
+        auto iter = interests_.find(kv.first);
+        if (iter != interests_.end())
+        {
+          iter->second.erase(key);
+        }
+      }
+    }
   }
 }
 
@@ -352,23 +389,6 @@ void pulse<Protocol, Frame>::show_interest(pulse* child, uintptr_t skey, topic p
   }
   auto ckey = reinterpret_cast<uintptr_t>(child);
   iter->second.insert(std::pair{ckey, child});
-}
-
-template <typename Protocol, typename Frame>
-void pulse<Protocol, Frame>::lose_interest(pulse* child, uintptr_t skey, topic pic)
-{
-  PLAY_CHECK(is_root());
-
-  auto key = interest_key{skey, pic};
-  auto ckey = reinterpret_cast<uintptr_t>(child);
-
-  std::unique_lock guard(sub_mutex_);
-  auto iter = interests_.find(key);
-  if (iter != interests_.end())
-  {
-    auto& cmap = iter->second;
-    cmap.erase(ckey);
-  }
 }
 
 template <typename Protocol, typename Frame>

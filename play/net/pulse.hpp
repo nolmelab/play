@@ -15,8 +15,7 @@ namespace play {
  * - with_strand()로 키를 지정하면 해당 키로 strand를 선택하여 처리 
  * - with_session()으로 세션을 지정하면 구독을 세션으로도 필터링
  * - post(), once(), repeat()로 이어처리, 타이머 처리를 함.
- * 
- * - TODO: 원격지 전송 call()과 단선시 에러 콜백
+ * - 원격지 전송 call()과 단선시 에러 콜백
  */
 template <typename Protocol, typename Frame>
 class pulse : public pulse_listener<session<Protocol>>
@@ -40,7 +39,7 @@ public:
 public:
   pulse() = default;
 
-  ~pulse();
+  virtual ~pulse();
 
   // 서버를 내장한 모드 설정
   pulse& as_server(runner* runner, uint16_t port);
@@ -58,8 +57,12 @@ public:
   /**
    * subscribe 호출 전에 지정하면 해당 세션에 대해서만 관심을 등록. 
    * 모든 세션에 대해 구독하는 경우 with_session() 호출 전에 구독해야 함.
+   * start() 이후에 세션 연결이나 변경이 가능. 이전 세션 구독은 동작하지 않으므로 주의 필요
    */
   pulse& with_session(session_ptr ss);
+
+  // 세션이 지정된 가장 가까운 부모의 세션을 받아서 세션으로 지정. with_session과 동일 효과
+  pulse& inherit_session();
 
   // asio strand 키 지정
   pulse& with_strand(size_t key);
@@ -73,6 +76,12 @@ public:
   // topic 구독
   template <typename TopicInput>
   pulse& subscribe(TopicInput topic, receiver cb);
+
+  template <typename TopicInput>
+  pulse& sub(TopicInput topic, receiver cb)
+  {
+    return subscribe(topic, cb);
+  }
 
   // 특정 토픽의 구독 여부 확인
   template <typename TopicInput>
@@ -116,7 +125,9 @@ protected:
    * with_session()으로 세션을 지정한 경우 세션 단위로만 동작.
    */
   template <typename TopicInput>
-  void call(session_ptr se, TopicInput request, TopicInput response, call_receiver cb);
+  void call(TopicInput request, TopicInput response, call_receiver cb);
+
+  session_ptr get_session();
 
 private:
   enum class mode : uint8_t
@@ -152,6 +163,7 @@ private:
   using shared_mutex = std::shared_timed_mutex;
   using interest_key = std::pair<uintptr_t, topic>;
   using interest_map = std::map<interest_key, child_map>;
+  using interest_keep_map = std::map<interest_key, bool>;
   using call_map = std::map<topic, topic_calls>;
   using call_pair_map = std::map<topic, topic>;  // res / req mapping
 
@@ -164,9 +176,6 @@ private:
 
   // 루트에 관심을 알림
   void show_interest(pulse* child, uintptr_t skey, topic pic);
-
-  // 루트에 관심이 없음을 알림
-  void lose_interest(pulse* child, uintptr_t skey, topic pic);
 
   // 구독한 함수들에 전달. 스트랜드 여부 반영. 자식들 dispatch() 호출
   /**
@@ -201,6 +210,7 @@ private:
   mutable shared_mutex sub_mutex_;
   subscriber_map subscriptions_;
   interest_map interests_;
+  interest_keep_map self_interests_;
   runner* runner_{nullptr};
   bool stop_{false};
 

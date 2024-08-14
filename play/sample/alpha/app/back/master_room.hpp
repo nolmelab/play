@@ -1,11 +1,11 @@
 #pragma once
 
-#include <alpha/app/actor_base.hpp>
+#include <alpha/app/actor.hpp>
 
 namespace alpha {
 
 // 방 생성 이후 join / checkin / leave 처리
-class actor_room_master : public actor_base
+class master_room : public actor
 {
 };
 
