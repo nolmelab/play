@@ -15,8 +15,7 @@ namespace play {
  * - with_strand()로 키를 지정하면 해당 키로 strand를 선택하여 처리 
  * - with_session()으로 세션을 지정하면 구독을 세션으로도 필터링
  * - post(), once(), repeat()로 이어처리, 타이머 처리를 함.
- * 
- * - TODO: 원격지 전송 call()과 단선시 에러 콜백
+ * - 원격지 전송 call()과 단선시 에러 콜백
  */
 template <typename Protocol, typename Frame>
 class pulse : public pulse_listener<session<Protocol>>
