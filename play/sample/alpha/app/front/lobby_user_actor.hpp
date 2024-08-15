@@ -15,10 +15,10 @@ class lobby_runner;
 /**
  * 인증 후 이루어지는 이벤트 처리를 담당
  */
-class lobby_user : public actor
+class lobby_user_actor : public actor
 {
 public:
-  using ptr = std::shared_ptr<lobby_user>;
+  using ptr = std::shared_ptr<lobby_user_actor>;
 
   enum class state
   {
@@ -27,8 +27,8 @@ public:
   };
 
 public:
-  lobby_user(lobby_runner& service, const std::string& name, app::pulse::session_ptr se,
-             const std::string& password)
+  lobby_user_actor(lobby_runner& service, const std::string& name, app::pulse::session_ptr se,
+                   const std::string& password)
       : service_{service},
         name_{name},
         session_{se},
@@ -38,6 +38,10 @@ public:
 
 public:
   void do_login(const alpha::auth::syn_login_b2fT& syn);
+
+  void do_room_res_create_b2f(const alpha::room::res_createT& res);
+
+  void do_room_res_reserve_b2f(const alpha::room::res_reserveT& res);
 
   const std::string& get_name() const
   {

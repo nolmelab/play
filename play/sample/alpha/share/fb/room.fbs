@@ -16,14 +16,14 @@ table syn_runner_up
 
 table req_create 
 {
-  name : string;        // room_req_create_f2b, room_req_create_b2f에서 사용
+  user_name : string;        // room_req_create_f2b, room_req_create_b2f에서 사용
   room : room_info;
 }
 
 table res_create
 {
   ec : error_code;
-  name : string;        // room_res_create_f2b, room_res_create_b2f에서 사용
+  user_name : string;        // room_res_create_f2b, room_res_create_b2f에서 사용
   room : room_info;
 }
 
@@ -42,12 +42,14 @@ table res_page
 
 table req_reserve 
 {
+  user_name: string;
   uuid : string;
 }
 
 table res_reserve
 {
   ec : error_code;
+  user_name: string;
   room : room_info;
 }
 
@@ -60,6 +62,7 @@ table req_checkin
 table res_checkin 
 {
   ec : error_code;
+  user_name: string;
   room : room_info;
 }
 
@@ -75,18 +78,18 @@ table res_chat
 
 table syn_chat 
 {
-  name : string;
+  user_name: string;
   message : string;
 }
 
 table req_leave 
 {
-  name : string; 
+  user_name: string;
   room : room_info;
 }
 
 table res_leave 
 {
-  name : string;
+  user_name: string;
   room : room_info;
 }

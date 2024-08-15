@@ -51,16 +51,35 @@ inline typename pulse_fb<Protocol>::frame_ptr pulse_fb<Protocol>::unpack_fn(cons
 
 template <typename Protocol>
 template <typename FlatBufferObj, typename TopicInput, typename Obj>
-bool pulse_fb<Protocol>::call(TopicInput req, TopicInput res, Obj& obj, call_receiver cb,
+void pulse_fb<Protocol>::call(TopicInput req, TopicInput res, Obj& obj, call_receiver cb,
                               bool encrypt)
 {
   PLAY_CHECK(this->get_session());
   if (this->send<FlatBufferObj>(this->get_session(), req, obj, encrypt))
   {
     base::call(req, res, cb);
-    return true;
   }
-  return false;
+  else
+  {
+    // 에러 처리 하도록 함
+    cb();
+  }
+}
+
+template <typename Protocol>
+template <typename FlatBufferObj, typename TopicInput, typename Obj>
+void pulse_fb<Protocol>::call(TopicInput req, Obj& obj, call_receiver cb, bool encrypt)
+{
+  PLAY_CHECK(this->get_session());
+  if (this->send<FlatBufferObj>(this->get_session(), req, obj, encrypt))
+  {
+    // 응답 대기는 하지 않음
+  }
+  else
+  {
+    // 에러 처리 하도록 함
+    cb();
+  }
 }
 
 template <typename Protocol>

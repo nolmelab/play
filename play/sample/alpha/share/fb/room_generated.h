@@ -222,7 +222,7 @@ inline ::flatbuffers::Offset<syn_runner_up> Createsyn_runner_up(
 
 struct req_createT : public ::flatbuffers::NativeTable {
   typedef req_create TableType;
-  std::string name{};
+  std::string user_name{};
   std::unique_ptr<alpha::room::room_infoT> room{};
   req_createT() = default;
   req_createT(const req_createT &o);
@@ -234,19 +234,19 @@ struct req_create FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef req_createT NativeTableType;
   typedef req_createBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_NAME = 4,
+    VT_USER_NAME = 4,
     VT_ROOM = 6
   };
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
   }
   const alpha::room::room_info *room() const {
     return GetPointer<const alpha::room::room_info *>(VT_ROOM);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
            VerifyOffset(verifier, VT_ROOM) &&
            verifier.VerifyTable(room()) &&
            verifier.EndTable();
@@ -260,8 +260,8 @@ struct req_createBuilder {
   typedef req_create Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(req_create::VT_NAME, name);
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(req_create::VT_USER_NAME, user_name);
   }
   void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
     fbb_.AddOffset(req_create::VT_ROOM, room);
@@ -279,22 +279,22 @@ struct req_createBuilder {
 
 inline ::flatbuffers::Offset<req_create> Createreq_create(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
   req_createBuilder builder_(_fbb);
   builder_.add_room(room);
-  builder_.add_name(name);
+  builder_.add_user_name(user_name);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<req_create> Createreq_createDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *name = nullptr,
+    const char *user_name = nullptr,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
   return alpha::room::Createreq_create(
       _fbb,
-      name__,
+      user_name__,
       room);
 }
 
@@ -303,7 +303,7 @@ inline ::flatbuffers::Offset<req_create> Createreq_createDirect(
 struct res_createT : public ::flatbuffers::NativeTable {
   typedef res_create TableType;
   alpha::error_code ec = alpha::error_code::success;
-  std::string name{};
+  std::string user_name{};
   std::unique_ptr<alpha::room::room_infoT> room{};
   res_createT() = default;
   res_createT(const res_createT &o);
@@ -316,14 +316,14 @@ struct res_create FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef res_createBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_EC = 4,
-    VT_NAME = 6,
+    VT_USER_NAME = 6,
     VT_ROOM = 8
   };
   alpha::error_code ec() const {
     return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
   }
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
   }
   const alpha::room::room_info *room() const {
     return GetPointer<const alpha::room::room_info *>(VT_ROOM);
@@ -331,8 +331,8 @@ struct res_create FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_EC, 2) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
            VerifyOffset(verifier, VT_ROOM) &&
            verifier.VerifyTable(room()) &&
            verifier.EndTable();
@@ -349,8 +349,8 @@ struct res_createBuilder {
   void add_ec(alpha::error_code ec) {
     fbb_.AddElement<uint16_t>(res_create::VT_EC, static_cast<uint16_t>(ec), 0);
   }
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(res_create::VT_NAME, name);
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(res_create::VT_USER_NAME, user_name);
   }
   void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
     fbb_.AddOffset(res_create::VT_ROOM, room);
@@ -369,11 +369,11 @@ struct res_createBuilder {
 inline ::flatbuffers::Offset<res_create> Createres_create(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     alpha::error_code ec = alpha::error_code::success,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
   res_createBuilder builder_(_fbb);
   builder_.add_room(room);
-  builder_.add_name(name);
+  builder_.add_user_name(user_name);
   builder_.add_ec(ec);
   return builder_.Finish();
 }
@@ -381,13 +381,13 @@ inline ::flatbuffers::Offset<res_create> Createres_create(
 inline ::flatbuffers::Offset<res_create> Createres_createDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     alpha::error_code ec = alpha::error_code::success,
-    const char *name = nullptr,
+    const char *user_name = nullptr,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
   return alpha::room::Createres_create(
       _fbb,
       ec,
-      name__,
+      user_name__,
       room);
 }
 
@@ -553,6 +553,7 @@ inline ::flatbuffers::Offset<res_page> Createres_pageDirect(
 
 struct req_reserveT : public ::flatbuffers::NativeTable {
   typedef req_reserve TableType;
+  std::string user_name{};
   std::string uuid{};
 };
 
@@ -560,13 +561,19 @@ struct req_reserve FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef req_reserveT NativeTableType;
   typedef req_reserveBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_UUID = 4
+    VT_USER_NAME = 4,
+    VT_UUID = 6
   };
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
+  }
   const ::flatbuffers::String *uuid() const {
     return GetPointer<const ::flatbuffers::String *>(VT_UUID);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
            VerifyOffset(verifier, VT_UUID) &&
            verifier.VerifyString(uuid()) &&
            verifier.EndTable();
@@ -580,6 +587,9 @@ struct req_reserveBuilder {
   typedef req_reserve Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(req_reserve::VT_USER_NAME, user_name);
+  }
   void add_uuid(::flatbuffers::Offset<::flatbuffers::String> uuid) {
     fbb_.AddOffset(req_reserve::VT_UUID, uuid);
   }
@@ -596,18 +606,23 @@ struct req_reserveBuilder {
 
 inline ::flatbuffers::Offset<req_reserve> Createreq_reserve(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
     ::flatbuffers::Offset<::flatbuffers::String> uuid = 0) {
   req_reserveBuilder builder_(_fbb);
   builder_.add_uuid(uuid);
+  builder_.add_user_name(user_name);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<req_reserve> Createreq_reserveDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *user_name = nullptr,
     const char *uuid = nullptr) {
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
   auto uuid__ = uuid ? _fbb.CreateString(uuid) : 0;
   return alpha::room::Createreq_reserve(
       _fbb,
+      user_name__,
       uuid__);
 }
 
@@ -616,6 +631,7 @@ inline ::flatbuffers::Offset<req_reserve> Createreq_reserveDirect(
 struct res_reserveT : public ::flatbuffers::NativeTable {
   typedef res_reserve TableType;
   alpha::error_code ec = alpha::error_code::success;
+  std::string user_name{};
   std::unique_ptr<alpha::room::room_infoT> room{};
   res_reserveT() = default;
   res_reserveT(const res_reserveT &o);
@@ -628,10 +644,14 @@ struct res_reserve FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef res_reserveBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_EC = 4,
-    VT_ROOM = 6
+    VT_USER_NAME = 6,
+    VT_ROOM = 8
   };
   alpha::error_code ec() const {
     return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
   }
   const alpha::room::room_info *room() const {
     return GetPointer<const alpha::room::room_info *>(VT_ROOM);
@@ -639,6 +659,8 @@ struct res_reserve FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_EC, 2) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
            VerifyOffset(verifier, VT_ROOM) &&
            verifier.VerifyTable(room()) &&
            verifier.EndTable();
@@ -654,6 +676,9 @@ struct res_reserveBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_ec(alpha::error_code ec) {
     fbb_.AddElement<uint16_t>(res_reserve::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(res_reserve::VT_USER_NAME, user_name);
   }
   void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
     fbb_.AddOffset(res_reserve::VT_ROOM, room);
@@ -672,11 +697,26 @@ struct res_reserveBuilder {
 inline ::flatbuffers::Offset<res_reserve> Createres_reserve(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     alpha::error_code ec = alpha::error_code::success,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
   res_reserveBuilder builder_(_fbb);
   builder_.add_room(room);
+  builder_.add_user_name(user_name);
   builder_.add_ec(ec);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<res_reserve> Createres_reserveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
+    const char *user_name = nullptr,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
+  return alpha::room::Createres_reserve(
+      _fbb,
+      ec,
+      user_name__,
+      room);
 }
 
 ::flatbuffers::Offset<res_reserve> Createres_reserve(::flatbuffers::FlatBufferBuilder &_fbb, const res_reserveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -764,6 +804,7 @@ inline ::flatbuffers::Offset<req_checkin> Createreq_checkinDirect(
 struct res_checkinT : public ::flatbuffers::NativeTable {
   typedef res_checkin TableType;
   alpha::error_code ec = alpha::error_code::success;
+  std::string user_name{};
   std::unique_ptr<alpha::room::room_infoT> room{};
   res_checkinT() = default;
   res_checkinT(const res_checkinT &o);
@@ -776,10 +817,14 @@ struct res_checkin FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef res_checkinBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_EC = 4,
-    VT_ROOM = 6
+    VT_USER_NAME = 6,
+    VT_ROOM = 8
   };
   alpha::error_code ec() const {
     return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
   }
   const alpha::room::room_info *room() const {
     return GetPointer<const alpha::room::room_info *>(VT_ROOM);
@@ -787,6 +832,8 @@ struct res_checkin FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_EC, 2) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
            VerifyOffset(verifier, VT_ROOM) &&
            verifier.VerifyTable(room()) &&
            verifier.EndTable();
@@ -802,6 +849,9 @@ struct res_checkinBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_ec(alpha::error_code ec) {
     fbb_.AddElement<uint16_t>(res_checkin::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(res_checkin::VT_USER_NAME, user_name);
   }
   void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
     fbb_.AddOffset(res_checkin::VT_ROOM, room);
@@ -820,11 +870,26 @@ struct res_checkinBuilder {
 inline ::flatbuffers::Offset<res_checkin> Createres_checkin(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     alpha::error_code ec = alpha::error_code::success,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
   res_checkinBuilder builder_(_fbb);
   builder_.add_room(room);
+  builder_.add_user_name(user_name);
   builder_.add_ec(ec);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<res_checkin> Createres_checkinDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
+    const char *user_name = nullptr,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
+  return alpha::room::Createres_checkin(
+      _fbb,
+      ec,
+      user_name__,
+      room);
 }
 
 ::flatbuffers::Offset<res_checkin> Createres_checkin(::flatbuffers::FlatBufferBuilder &_fbb, const res_checkinT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -945,7 +1010,7 @@ inline ::flatbuffers::Offset<res_chat> Createres_chat(
 
 struct syn_chatT : public ::flatbuffers::NativeTable {
   typedef syn_chat TableType;
-  std::string name{};
+  std::string user_name{};
   std::string message{};
 };
 
@@ -953,19 +1018,19 @@ struct syn_chat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef syn_chatT NativeTableType;
   typedef syn_chatBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_NAME = 4,
+    VT_USER_NAME = 4,
     VT_MESSAGE = 6
   };
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
   }
   const ::flatbuffers::String *message() const {
     return GetPointer<const ::flatbuffers::String *>(VT_MESSAGE);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
            VerifyOffset(verifier, VT_MESSAGE) &&
            verifier.VerifyString(message()) &&
            verifier.EndTable();
@@ -979,8 +1044,8 @@ struct syn_chatBuilder {
   typedef syn_chat Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(syn_chat::VT_NAME, name);
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(syn_chat::VT_USER_NAME, user_name);
   }
   void add_message(::flatbuffers::Offset<::flatbuffers::String> message) {
     fbb_.AddOffset(syn_chat::VT_MESSAGE, message);
@@ -998,23 +1063,23 @@ struct syn_chatBuilder {
 
 inline ::flatbuffers::Offset<syn_chat> Createsyn_chat(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
     ::flatbuffers::Offset<::flatbuffers::String> message = 0) {
   syn_chatBuilder builder_(_fbb);
   builder_.add_message(message);
-  builder_.add_name(name);
+  builder_.add_user_name(user_name);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<syn_chat> Createsyn_chatDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *name = nullptr,
+    const char *user_name = nullptr,
     const char *message = nullptr) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
   auto message__ = message ? _fbb.CreateString(message) : 0;
   return alpha::room::Createsyn_chat(
       _fbb,
-      name__,
+      user_name__,
       message__);
 }
 
@@ -1022,7 +1087,7 @@ inline ::flatbuffers::Offset<syn_chat> Createsyn_chatDirect(
 
 struct req_leaveT : public ::flatbuffers::NativeTable {
   typedef req_leave TableType;
-  std::string name{};
+  std::string user_name{};
   std::unique_ptr<alpha::room::room_infoT> room{};
   req_leaveT() = default;
   req_leaveT(const req_leaveT &o);
@@ -1034,19 +1099,19 @@ struct req_leave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef req_leaveT NativeTableType;
   typedef req_leaveBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_NAME = 4,
+    VT_USER_NAME = 4,
     VT_ROOM = 6
   };
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
   }
   const alpha::room::room_info *room() const {
     return GetPointer<const alpha::room::room_info *>(VT_ROOM);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
            VerifyOffset(verifier, VT_ROOM) &&
            verifier.VerifyTable(room()) &&
            verifier.EndTable();
@@ -1060,8 +1125,8 @@ struct req_leaveBuilder {
   typedef req_leave Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(req_leave::VT_NAME, name);
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(req_leave::VT_USER_NAME, user_name);
   }
   void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
     fbb_.AddOffset(req_leave::VT_ROOM, room);
@@ -1079,22 +1144,22 @@ struct req_leaveBuilder {
 
 inline ::flatbuffers::Offset<req_leave> Createreq_leave(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
   req_leaveBuilder builder_(_fbb);
   builder_.add_room(room);
-  builder_.add_name(name);
+  builder_.add_user_name(user_name);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<req_leave> Createreq_leaveDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *name = nullptr,
+    const char *user_name = nullptr,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
   return alpha::room::Createreq_leave(
       _fbb,
-      name__,
+      user_name__,
       room);
 }
 
@@ -1102,7 +1167,7 @@ inline ::flatbuffers::Offset<req_leave> Createreq_leaveDirect(
 
 struct res_leaveT : public ::flatbuffers::NativeTable {
   typedef res_leave TableType;
-  std::string name{};
+  std::string user_name{};
   std::unique_ptr<alpha::room::room_infoT> room{};
   res_leaveT() = default;
   res_leaveT(const res_leaveT &o);
@@ -1114,19 +1179,19 @@ struct res_leave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef res_leaveT NativeTableType;
   typedef res_leaveBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_NAME = 4,
+    VT_USER_NAME = 4,
     VT_ROOM = 6
   };
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
   }
   const alpha::room::room_info *room() const {
     return GetPointer<const alpha::room::room_info *>(VT_ROOM);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
            VerifyOffset(verifier, VT_ROOM) &&
            verifier.VerifyTable(room()) &&
            verifier.EndTable();
@@ -1140,8 +1205,8 @@ struct res_leaveBuilder {
   typedef res_leave Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
-    fbb_.AddOffset(res_leave::VT_NAME, name);
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(res_leave::VT_USER_NAME, user_name);
   }
   void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
     fbb_.AddOffset(res_leave::VT_ROOM, room);
@@ -1159,22 +1224,22 @@ struct res_leaveBuilder {
 
 inline ::flatbuffers::Offset<res_leave> Createres_leave(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
   res_leaveBuilder builder_(_fbb);
   builder_.add_room(room);
-  builder_.add_name(name);
+  builder_.add_user_name(user_name);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<res_leave> Createres_leaveDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *name = nullptr,
+    const char *user_name = nullptr,
     ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
   return alpha::room::Createres_leave(
       _fbb,
-      name__,
+      user_name__,
       room);
 }
 
@@ -1239,12 +1304,12 @@ inline ::flatbuffers::Offset<syn_runner_up> Createsyn_runner_up(::flatbuffers::F
 }
 
 inline req_createT::req_createT(const req_createT &o)
-      : name(o.name),
+      : user_name(o.user_name),
         room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
 }
 
 inline req_createT &req_createT::operator=(req_createT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(name, o.name);
+  std::swap(user_name, o.user_name);
   std::swap(room, o.room);
   return *this;
 }
@@ -1258,7 +1323,7 @@ inline req_createT *req_create::UnPack(const ::flatbuffers::resolver_function_t 
 inline void req_create::UnPackTo(req_createT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
   { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
 }
 
@@ -1270,23 +1335,23 @@ inline ::flatbuffers::Offset<req_create> Createreq_create(::flatbuffers::FlatBuf
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_createT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
   auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
   return alpha::room::Createreq_create(
       _fbb,
-      _name,
+      _user_name,
       _room);
 }
 
 inline res_createT::res_createT(const res_createT &o)
       : ec(o.ec),
-        name(o.name),
+        user_name(o.user_name),
         room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
 }
 
 inline res_createT &res_createT::operator=(res_createT o) FLATBUFFERS_NOEXCEPT {
   std::swap(ec, o.ec);
-  std::swap(name, o.name);
+  std::swap(user_name, o.user_name);
   std::swap(room, o.room);
   return *this;
 }
@@ -1301,7 +1366,7 @@ inline void res_create::UnPackTo(res_createT *_o, const ::flatbuffers::resolver_
   (void)_o;
   (void)_resolver;
   { auto _e = ec(); _o->ec = _e; }
-  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
   { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
 }
 
@@ -1314,12 +1379,12 @@ inline ::flatbuffers::Offset<res_create> Createres_create(::flatbuffers::FlatBuf
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_createT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _ec = _o->ec;
-  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
   auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
   return alpha::room::Createres_create(
       _fbb,
       _ec,
-      _name,
+      _user_name,
       _room);
 }
 
@@ -1409,6 +1474,7 @@ inline req_reserveT *req_reserve::UnPack(const ::flatbuffers::resolver_function_
 inline void req_reserve::UnPackTo(req_reserveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
   { auto _e = uuid(); if (_e) _o->uuid = _e->str(); }
 }
 
@@ -1420,19 +1486,23 @@ inline ::flatbuffers::Offset<req_reserve> Createreq_reserve(::flatbuffers::FlatB
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_reserveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
   auto _uuid = _o->uuid.empty() ? 0 : _fbb.CreateString(_o->uuid);
   return alpha::room::Createreq_reserve(
       _fbb,
+      _user_name,
       _uuid);
 }
 
 inline res_reserveT::res_reserveT(const res_reserveT &o)
       : ec(o.ec),
+        user_name(o.user_name),
         room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
 }
 
 inline res_reserveT &res_reserveT::operator=(res_reserveT o) FLATBUFFERS_NOEXCEPT {
   std::swap(ec, o.ec);
+  std::swap(user_name, o.user_name);
   std::swap(room, o.room);
   return *this;
 }
@@ -1447,6 +1517,7 @@ inline void res_reserve::UnPackTo(res_reserveT *_o, const ::flatbuffers::resolve
   (void)_o;
   (void)_resolver;
   { auto _e = ec(); _o->ec = _e; }
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
   { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
 }
 
@@ -1459,10 +1530,12 @@ inline ::flatbuffers::Offset<res_reserve> Createres_reserve(::flatbuffers::FlatB
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_reserveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _ec = _o->ec;
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
   auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
   return alpha::room::Createres_reserve(
       _fbb,
       _ec,
+      _user_name,
       _room);
 }
 
@@ -1508,11 +1581,13 @@ inline ::flatbuffers::Offset<req_checkin> Createreq_checkin(::flatbuffers::FlatB
 
 inline res_checkinT::res_checkinT(const res_checkinT &o)
       : ec(o.ec),
+        user_name(o.user_name),
         room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
 }
 
 inline res_checkinT &res_checkinT::operator=(res_checkinT o) FLATBUFFERS_NOEXCEPT {
   std::swap(ec, o.ec);
+  std::swap(user_name, o.user_name);
   std::swap(room, o.room);
   return *this;
 }
@@ -1527,6 +1602,7 @@ inline void res_checkin::UnPackTo(res_checkinT *_o, const ::flatbuffers::resolve
   (void)_o;
   (void)_resolver;
   { auto _e = ec(); _o->ec = _e; }
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
   { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
 }
 
@@ -1539,10 +1615,12 @@ inline ::flatbuffers::Offset<res_checkin> Createres_checkin(::flatbuffers::FlatB
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_checkinT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _ec = _o->ec;
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
   auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
   return alpha::room::Createres_checkin(
       _fbb,
       _ec,
+      _user_name,
       _room);
 }
 
@@ -1607,7 +1685,7 @@ inline syn_chatT *syn_chat::UnPack(const ::flatbuffers::resolver_function_t *_re
 inline void syn_chat::UnPackTo(syn_chatT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
   { auto _e = message(); if (_e) _o->message = _e->str(); }
 }
 
@@ -1619,21 +1697,21 @@ inline ::flatbuffers::Offset<syn_chat> Createsyn_chat(::flatbuffers::FlatBufferB
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const syn_chatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
   auto _message = _o->message.empty() ? 0 : _fbb.CreateString(_o->message);
   return alpha::room::Createsyn_chat(
       _fbb,
-      _name,
+      _user_name,
       _message);
 }
 
 inline req_leaveT::req_leaveT(const req_leaveT &o)
-      : name(o.name),
+      : user_name(o.user_name),
         room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
 }
 
 inline req_leaveT &req_leaveT::operator=(req_leaveT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(name, o.name);
+  std::swap(user_name, o.user_name);
   std::swap(room, o.room);
   return *this;
 }
@@ -1647,7 +1725,7 @@ inline req_leaveT *req_leave::UnPack(const ::flatbuffers::resolver_function_t *_
 inline void req_leave::UnPackTo(req_leaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
   { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
 }
 
@@ -1659,21 +1737,21 @@ inline ::flatbuffers::Offset<req_leave> Createreq_leave(::flatbuffers::FlatBuffe
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_leaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
   auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
   return alpha::room::Createreq_leave(
       _fbb,
-      _name,
+      _user_name,
       _room);
 }
 
 inline res_leaveT::res_leaveT(const res_leaveT &o)
-      : name(o.name),
+      : user_name(o.user_name),
         room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
 }
 
 inline res_leaveT &res_leaveT::operator=(res_leaveT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(name, o.name);
+  std::swap(user_name, o.user_name);
   std::swap(room, o.room);
   return *this;
 }
@@ -1687,7 +1765,7 @@ inline res_leaveT *res_leave::UnPack(const ::flatbuffers::resolver_function_t *_
 inline void res_leave::UnPackTo(res_leaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
   { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
 }
 
@@ -1699,11 +1777,11 @@ inline ::flatbuffers::Offset<res_leave> Createres_leave(::flatbuffers::FlatBuffe
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_leaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
   auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
   return alpha::room::Createres_leave(
       _fbb,
-      _name,
+      _user_name,
       _room);
 }
 

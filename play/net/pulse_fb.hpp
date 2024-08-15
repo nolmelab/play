@@ -51,7 +51,11 @@ public:
 
   // 세션에 대해 call() 요청을 보내고, 세션 단선시 call_receiver를 호출
   template <typename FlatBufferObj, typename TopicInput, typename Obj>
-  bool call(TopicInput req, TopicInput res, Obj& obj, call_receiver cb, bool encrypt = false);
+  void call(TopicInput req, TopicInput res, Obj& obj, call_receiver cb, bool encrypt = false);
+
+  // 단선 상태만 체크하여 에러 처리하는 함수
+  template <typename FlatBufferObj, typename TopicInput, typename Obj>
+  void call(TopicInput req, Obj& obj, call_receiver cb, bool encrypt = false);
 
 private:
   // 플랫버퍼 프레임인 NatvieTable을 등록된 unpacker들에서 생성

@@ -1,9 +1,9 @@
 #include <alpha/app/front/lobby_runner.hpp>
-#include <alpha/app/front/lobby_user.hpp>
+#include <alpha/app/front/lobby_user_actor.hpp>
 
 namespace alpha {
 
-void lobby_user::do_login(const alpha::auth::syn_login_b2fT& syn)
+void lobby_user_actor::do_login(const alpha::auth::syn_login_b2fT& syn)
 {
   if (syn.ec == error_code::success)
   {
@@ -39,7 +39,17 @@ void lobby_user::do_login(const alpha::auth::syn_login_b2fT& syn)
   }
 }
 
-bool lobby_user::on_start()
+void lobby_user_actor::do_room_res_create_b2f(const alpha::room::res_createT& res)
+{
+  // TODO
+}
+
+void lobby_user_actor::do_room_res_reserve_b2f(const alpha::room::res_reserveT& res)
+{
+  // TODO
+}
+
+bool lobby_user_actor::on_start()
 {
   PLAY_CHECK(session_);
 
@@ -65,12 +75,12 @@ bool lobby_user::on_start()
   return true;
 }
 
-void lobby_user::on_stop()
+void lobby_user_actor::on_stop()
 {
   // close session?
 }
 
-void lobby_user::on_login_fail_pending()
+void lobby_user_actor::on_login_fail_pending()
 {
   auth::res_loginT res;
   res.ec = error_code::fail_backend_not_responding;
@@ -79,25 +89,29 @@ void lobby_user::on_login_fail_pending()
   service_.post_del_user(get_id());
 }
 
-void lobby_user::on_auth_req_logout(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_user_actor::on_auth_req_logout(app::pulse::session_ptr se, app::pulse::frame_ptr req)
 {
   auth::req_logout_f2bT req_back;
   req_back.name = name_;
 
-  service_.get_pulse_back()->send<auth::req_logout_f2b>(topic::auth_req_logout_f2b, req_back);
+  service_.get_pulse_back()->call<auth::req_logout_f2b>(topic::auth_req_logout_f2b, req_back,
+                                                        []()
+                                                        {
+                                                          // empty
+                                                        });
 }
 
-void lobby_user::on_session_closed(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_user_actor::on_session_closed(app::pulse::session_ptr se, app::pulse::frame_ptr req)
 {
   on_auth_req_logout(se, std::make_shared<auth::req_logoutT>());
 }
 
-void lobby_user::on_room_req_create(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_user_actor::on_room_req_create(app::pulse::session_ptr se, app::pulse::frame_ptr req)
 {
   // a long trip
 }
 
-void lobby_user::on_room_req_page(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_user_actor::on_room_req_page(app::pulse::session_ptr se, app::pulse::frame_ptr req)
 {
   // a short trip
 }

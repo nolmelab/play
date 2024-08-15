@@ -1,7 +1,7 @@
 #include <alpha/share/fb/auth_generated.h>
 #include <alpha/share/fb/topic_generated.h>
 #include <alpha/app/front/lobby_runner.hpp>
-#include <alpha/app/front/lobby_user.hpp>
+#include <alpha/app/front/lobby_user_actor.hpp>
 
 namespace alpha {
 
@@ -20,6 +20,7 @@ bool lobby_runner::on_start()
   pulse_front_->as_child(&get_app().get_pulse())
       .with_strand(get_id())
       .sub(alpha::topic::auth_req_login, PULSE_FN(on_auth_req_login))
+      .sub(alpha::topic::room_res_create_b2f, PULSE_FN(on_room_res_create_b2f))
       .start();
 
   // established 처리를 위해 임시 등록
@@ -67,7 +68,7 @@ void lobby_runner::on_auth_req_login(app::pulse::session_ptr se, app::pulse::fra
 {
   auto req_login = std::static_pointer_cast<alpha::auth::req_loginT>(req);
 
-  auto user = std::make_shared<lobby_user>(*this, req_login->name, se, req_login->password);
+  auto user = std::make_shared<lobby_user_actor>(*this, req_login->name, se, req_login->password);
   users_.add(user);
   user->start();
 }
@@ -83,9 +84,19 @@ void lobby_runner::on_auth_syn_login_b2f(app::pulse::session_ptr se, app::pulse:
   }
 }
 
-void lobby_runner::on_auth_syn_logout_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_runner::on_auth_syn_logout_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
   // 샘플 프로토콜에서는 특별히 할 일이 없음.
+}
+
+void lobby_runner::on_room_res_create_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
+{
+  //
+}
+
+void lobby_runner::on_room_res_reserve_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
+{
+  //
 }
 
 }  // namespace alpha

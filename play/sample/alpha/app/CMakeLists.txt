@@ -9,7 +9,7 @@ set(SOURCE
   main.cpp
   app.cpp
   front/lobby_runner.cpp
-  front/lobby_user.cpp
+  front/lobby_user_actor.cpp
   front/room_runner.cpp
   front/room_actor.cpp
   front/room_user_actor.cpp

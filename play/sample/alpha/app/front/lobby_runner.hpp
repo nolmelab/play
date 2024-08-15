@@ -1,6 +1,6 @@
 #pragma once
 
-#include <alpha/app/front/lobby_user.hpp>
+#include <alpha/app/front/lobby_user_actor.hpp>
 #include <alpha/app/service.hpp>
 #include <play/app/actor_container.hpp>
 
@@ -29,7 +29,7 @@ public:
   }
 
 private:
-  using user_container = play::actor_container<lobby_user, true, true, false>;
+  using user_container = play::actor_container<lobby_user_actor, true, true, false>;
 
 private:
   bool on_start() final;
@@ -43,6 +43,9 @@ private:
   void on_auth_req_login(app::pulse::session_ptr se, app::pulse::frame_ptr req);
   void on_auth_syn_login_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr req);
   void on_auth_syn_logout_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr req);
+
+  void on_room_res_create_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr req);
+  void on_room_res_reserve_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr req);
 
 private:
   std::unique_ptr<app::pulse> pulse_back_;
