@@ -26,6 +26,8 @@ public:
     login
   };
 
+  friend class lobby_runner;
+
 public:
   lobby_user_actor(lobby_runner& service, const std::string& name, app::pulse::session_ptr se,
                    const std::string& password)
@@ -37,12 +39,6 @@ public:
   }
 
 public:
-  void do_login(const alpha::auth::syn_login_b2fT& syn);
-
-  void do_room_res_create_b2f(const alpha::room::res_createT& res);
-
-  void do_room_res_reserve_b2f(const alpha::room::res_reserveT& res);
-
   const std::string& get_name() const
   {
     return name_;
@@ -60,17 +56,16 @@ private:
   }
 
   bool on_start() final;
-
   void on_stop() final;
 
+  void do_login(const alpha::auth::syn_login_b2fT& syn);
   void on_login_fail_pending();
-
   void on_auth_req_logout(app::pulse::session_ptr se, app::pulse::frame_ptr req);
-
   void on_session_closed(app::pulse::session_ptr se, app::pulse::frame_ptr req);
 
+  void do_room_res_create_b2f(const alpha::room::res_createT& res);
+  void do_room_res_reserve_b2f(const alpha::room::res_reserveT& res);
   void on_room_req_create(app::pulse::session_ptr se, app::pulse::frame_ptr req);
-
   void on_room_req_page(app::pulse::session_ptr se, app::pulse::frame_ptr req);
 
 private:

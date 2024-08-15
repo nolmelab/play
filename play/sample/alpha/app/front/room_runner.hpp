@@ -37,7 +37,6 @@ private:
 
 private:
   void on_established_back(app::pulse::session_ptr se, app::pulse::frame_ptr req);
-  void on_closed_back(app::pulse::session_ptr se, app::pulse::frame_ptr req);
 
   void on_room_req_create_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr req);
   void on_room_req_reserve_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr fr);

@@ -18,6 +18,8 @@ class room_actor : public actor
 public:
   using ptr = std::shared_ptr<room_actor>;
 
+  friend class room_runner;
+
 public:
   room_actor(room_runner& service, const std::string& name, size_t capacity,
              const std::string& creator)
@@ -28,10 +30,6 @@ public:
   {
   }
 
-  void do_reserve();
-
-  void do_join();
-
 public:
   const std::string& get_name() const
   {
@@ -41,6 +39,11 @@ public:
   const boost::uuids::uuid& get_uuid() const
   {
     return uuid_.get();
+  }
+
+  const std::string get_uuid_string() const
+  {
+    return uuid_.to_string();
   }
 
   app::pulse* get_pulse_front();
@@ -54,6 +57,10 @@ private:
   bool on_start() final;
 
   void on_stop() final;
+
+  void do_reserve(const room::req_reserveT& req);
+
+  void do_chekin(const room::req_checkinT& req);
 
 private:
   room_runner& service_;

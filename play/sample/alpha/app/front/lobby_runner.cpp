@@ -52,16 +52,9 @@ void lobby_runner::on_established_back(app::pulse::session_ptr se, app::pulse::f
       .with_strand(get_id())
       .with_session(se)
       .sub(app::pulse::topic_estalished, PULSE_FN(on_established_back))
-      .sub(app::pulse::topic_closed, PULSE_FN(on_closed_back))
       .sub(alpha::topic::auth_syn_login_b2f, PULSE_FN(on_auth_syn_login_b2f))
       .sub(alpha::topic::auth_syn_logout_b2f, PULSE_FN(on_auth_syn_logout_b2f))
       .start();
-}
-
-void lobby_runner::on_closed_back(app::pulse::session_ptr se, app::pulse::frame_ptr req)
-{
-  // 사용자의 요청 등 뒷단 연결이 끊어진 경우 에러 처리가 필요
-  // 이를 쉽게 처리할 방법은 무엇이 있을까?
 }
 
 void lobby_runner::on_auth_req_login(app::pulse::session_ptr se, app::pulse::frame_ptr req)
@@ -91,12 +84,24 @@ void lobby_runner::on_auth_syn_logout_b2f(app::pulse::session_ptr se, app::pulse
 
 void lobby_runner::on_room_res_create_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  //
+  auto res = std::static_pointer_cast<room::res_createT>(fr);
+  auto uv = users_.find(res->user_name);
+  if (uv)
+  {
+    auto user = uv.value();
+    user->do_room_res_create_b2f(*res);
+  }
 }
 
 void lobby_runner::on_room_res_reserve_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  //
+  auto res = std::static_pointer_cast<room::res_reserveT>(fr);
+  auto uv = users_.find(res->user_name);
+  if (uv)
+  {
+    auto user = uv.value();
+    user->do_room_res_reserve_b2f(*res);
+  }
 }
 
 }  // namespace alpha
