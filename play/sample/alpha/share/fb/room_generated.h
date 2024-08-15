@@ -13,17 +13,221 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 24 &&
               FLATBUFFERS_VERSION_REVISION == 25,
              "Non-compatible flatbuffers version included");
 
+#include "error_code_generated.h"
+
 namespace alpha {
 namespace room {
+
+struct room_info;
+struct room_infoBuilder;
+struct room_infoT;
+
+struct syn_runner_up;
+struct syn_runner_upBuilder;
+struct syn_runner_upT;
 
 struct req_create;
 struct req_createBuilder;
 struct req_createT;
 
+struct res_create;
+struct res_createBuilder;
+struct res_createT;
+
+struct req_page;
+struct req_pageBuilder;
+struct req_pageT;
+
+struct res_page;
+struct res_pageBuilder;
+struct res_pageT;
+
+struct req_reserve;
+struct req_reserveBuilder;
+struct req_reserveT;
+
+struct res_reserve;
+struct res_reserveBuilder;
+struct res_reserveT;
+
+struct req_checkin;
+struct req_checkinBuilder;
+struct req_checkinT;
+
+struct res_checkin;
+struct res_checkinBuilder;
+struct res_checkinT;
+
+struct req_chat;
+struct req_chatBuilder;
+struct req_chatT;
+
+struct res_chat;
+struct res_chatBuilder;
+struct res_chatT;
+
+struct syn_chat;
+struct syn_chatBuilder;
+struct syn_chatT;
+
+struct req_leave;
+struct req_leaveBuilder;
+struct req_leaveT;
+
+struct res_leave;
+struct res_leaveBuilder;
+struct res_leaveT;
+
+struct room_infoT : public ::flatbuffers::NativeTable {
+  typedef room_info TableType;
+  std::string name{};
+  uint16_t capacity = 0;
+  uint16_t current = 0;
+  std::string uuid{};
+};
+
+struct room_info FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef room_infoT NativeTableType;
+  typedef room_infoBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_CAPACITY = 6,
+    VT_CURRENT = 8,
+    VT_UUID = 10
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  uint16_t capacity() const {
+    return GetField<uint16_t>(VT_CAPACITY, 0);
+  }
+  uint16_t current() const {
+    return GetField<uint16_t>(VT_CURRENT, 0);
+  }
+  const ::flatbuffers::String *uuid() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_UUID);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyField<uint16_t>(verifier, VT_CAPACITY, 2) &&
+           VerifyField<uint16_t>(verifier, VT_CURRENT, 2) &&
+           VerifyOffset(verifier, VT_UUID) &&
+           verifier.VerifyString(uuid()) &&
+           verifier.EndTable();
+  }
+  room_infoT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(room_infoT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<room_info> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const room_infoT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct room_infoBuilder {
+  typedef room_info Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(room_info::VT_NAME, name);
+  }
+  void add_capacity(uint16_t capacity) {
+    fbb_.AddElement<uint16_t>(room_info::VT_CAPACITY, capacity, 0);
+  }
+  void add_current(uint16_t current) {
+    fbb_.AddElement<uint16_t>(room_info::VT_CURRENT, current, 0);
+  }
+  void add_uuid(::flatbuffers::Offset<::flatbuffers::String> uuid) {
+    fbb_.AddOffset(room_info::VT_UUID, uuid);
+  }
+  explicit room_infoBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<room_info> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<room_info>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<room_info> Createroom_info(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    uint16_t capacity = 0,
+    uint16_t current = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> uuid = 0) {
+  room_infoBuilder builder_(_fbb);
+  builder_.add_uuid(uuid);
+  builder_.add_name(name);
+  builder_.add_current(current);
+  builder_.add_capacity(capacity);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<room_info> Createroom_infoDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    uint16_t capacity = 0,
+    uint16_t current = 0,
+    const char *uuid = nullptr) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  auto uuid__ = uuid ? _fbb.CreateString(uuid) : 0;
+  return alpha::room::Createroom_info(
+      _fbb,
+      name__,
+      capacity,
+      current,
+      uuid__);
+}
+
+::flatbuffers::Offset<room_info> Createroom_info(::flatbuffers::FlatBufferBuilder &_fbb, const room_infoT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct syn_runner_upT : public ::flatbuffers::NativeTable {
+  typedef syn_runner_up TableType;
+};
+
+struct syn_runner_up FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef syn_runner_upT NativeTableType;
+  typedef syn_runner_upBuilder Builder;
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+  syn_runner_upT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(syn_runner_upT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<syn_runner_up> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const syn_runner_upT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct syn_runner_upBuilder {
+  typedef syn_runner_up Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit syn_runner_upBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<syn_runner_up> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<syn_runner_up>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<syn_runner_up> Createsyn_runner_up(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  syn_runner_upBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<syn_runner_up> Createsyn_runner_up(::flatbuffers::FlatBufferBuilder &_fbb, const syn_runner_upT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct req_createT : public ::flatbuffers::NativeTable {
   typedef req_create TableType;
   std::string name{};
-  uint16_t size = 0;
+  std::unique_ptr<alpha::room::room_infoT> room{};
+  req_createT() = default;
+  req_createT(const req_createT &o);
+  req_createT(req_createT&&) FLATBUFFERS_NOEXCEPT = default;
+  req_createT &operator=(req_createT o) FLATBUFFERS_NOEXCEPT;
 };
 
 struct req_create FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -31,19 +235,20 @@ struct req_create FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef req_createBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
-    VT_SIZE = 6
+    VT_ROOM = 6
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
   }
-  uint16_t size() const {
-    return GetField<uint16_t>(VT_SIZE, 0);
+  const alpha::room::room_info *room() const {
+    return GetPointer<const alpha::room::room_info *>(VT_ROOM);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
-           VerifyField<uint16_t>(verifier, VT_SIZE, 2) &&
+           VerifyOffset(verifier, VT_ROOM) &&
+           verifier.VerifyTable(room()) &&
            verifier.EndTable();
   }
   req_createT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -58,8 +263,8 @@ struct req_createBuilder {
   void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
     fbb_.AddOffset(req_create::VT_NAME, name);
   }
-  void add_size(uint16_t size) {
-    fbb_.AddElement<uint16_t>(req_create::VT_SIZE, size, 0);
+  void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
+    fbb_.AddOffset(req_create::VT_ROOM, room);
   }
   explicit req_createBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -75,25 +280,974 @@ struct req_createBuilder {
 inline ::flatbuffers::Offset<req_create> Createreq_create(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
-    uint16_t size = 0) {
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
   req_createBuilder builder_(_fbb);
+  builder_.add_room(room);
   builder_.add_name(name);
-  builder_.add_size(size);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<req_create> Createreq_createDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *name = nullptr,
-    uint16_t size = 0) {
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   return alpha::room::Createreq_create(
       _fbb,
       name__,
-      size);
+      room);
 }
 
 ::flatbuffers::Offset<req_create> Createreq_create(::flatbuffers::FlatBufferBuilder &_fbb, const req_createT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct res_createT : public ::flatbuffers::NativeTable {
+  typedef res_create TableType;
+  alpha::error_code ec = alpha::error_code::success;
+  std::string name{};
+  std::unique_ptr<alpha::room::room_infoT> room{};
+  res_createT() = default;
+  res_createT(const res_createT &o);
+  res_createT(res_createT&&) FLATBUFFERS_NOEXCEPT = default;
+  res_createT &operator=(res_createT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct res_create FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_createT NativeTableType;
+  typedef res_createBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EC = 4,
+    VT_NAME = 6,
+    VT_ROOM = 8
+  };
+  alpha::error_code ec() const {
+    return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  const alpha::room::room_info *room() const {
+    return GetPointer<const alpha::room::room_info *>(VT_ROOM);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_EC, 2) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_ROOM) &&
+           verifier.VerifyTable(room()) &&
+           verifier.EndTable();
+  }
+  res_createT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_createT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_create> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_createT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_createBuilder {
+  typedef res_create Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_ec(alpha::error_code ec) {
+    fbb_.AddElement<uint16_t>(res_create::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(res_create::VT_NAME, name);
+  }
+  void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
+    fbb_.AddOffset(res_create::VT_ROOM, room);
+  }
+  explicit res_createBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_create> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_create>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_create> Createres_create(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  res_createBuilder builder_(_fbb);
+  builder_.add_room(room);
+  builder_.add_name(name);
+  builder_.add_ec(ec);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<res_create> Createres_createDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
+    const char *name = nullptr,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return alpha::room::Createres_create(
+      _fbb,
+      ec,
+      name__,
+      room);
+}
+
+::flatbuffers::Offset<res_create> Createres_create(::flatbuffers::FlatBufferBuilder &_fbb, const res_createT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct req_pageT : public ::flatbuffers::NativeTable {
+  typedef req_page TableType;
+  uint16_t page = 0;
+};
+
+struct req_page FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef req_pageT NativeTableType;
+  typedef req_pageBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PAGE = 4
+  };
+  uint16_t page() const {
+    return GetField<uint16_t>(VT_PAGE, 0);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_PAGE, 2) &&
+           verifier.EndTable();
+  }
+  req_pageT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(req_pageT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<req_page> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_pageT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct req_pageBuilder {
+  typedef req_page Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_page(uint16_t page) {
+    fbb_.AddElement<uint16_t>(req_page::VT_PAGE, page, 0);
+  }
+  explicit req_pageBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<req_page> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<req_page>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<req_page> Createreq_page(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint16_t page = 0) {
+  req_pageBuilder builder_(_fbb);
+  builder_.add_page(page);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<req_page> Createreq_page(::flatbuffers::FlatBufferBuilder &_fbb, const req_pageT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct res_pageT : public ::flatbuffers::NativeTable {
+  typedef res_page TableType;
+  uint16_t page = 0;
+  uint16_t page_size = 0;
+  uint16_t total_pages = 0;
+  std::vector<std::unique_ptr<alpha::room::room_infoT>> room{};
+  res_pageT() = default;
+  res_pageT(const res_pageT &o);
+  res_pageT(res_pageT&&) FLATBUFFERS_NOEXCEPT = default;
+  res_pageT &operator=(res_pageT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct res_page FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_pageT NativeTableType;
+  typedef res_pageBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PAGE = 4,
+    VT_PAGE_SIZE = 6,
+    VT_TOTAL_PAGES = 8,
+    VT_ROOM = 10
+  };
+  uint16_t page() const {
+    return GetField<uint16_t>(VT_PAGE, 0);
+  }
+  uint16_t page_size() const {
+    return GetField<uint16_t>(VT_PAGE_SIZE, 0);
+  }
+  uint16_t total_pages() const {
+    return GetField<uint16_t>(VT_TOTAL_PAGES, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<alpha::room::room_info>> *room() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<alpha::room::room_info>> *>(VT_ROOM);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_PAGE, 2) &&
+           VerifyField<uint16_t>(verifier, VT_PAGE_SIZE, 2) &&
+           VerifyField<uint16_t>(verifier, VT_TOTAL_PAGES, 2) &&
+           VerifyOffset(verifier, VT_ROOM) &&
+           verifier.VerifyVector(room()) &&
+           verifier.VerifyVectorOfTables(room()) &&
+           verifier.EndTable();
+  }
+  res_pageT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_pageT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_page> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_pageT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_pageBuilder {
+  typedef res_page Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_page(uint16_t page) {
+    fbb_.AddElement<uint16_t>(res_page::VT_PAGE, page, 0);
+  }
+  void add_page_size(uint16_t page_size) {
+    fbb_.AddElement<uint16_t>(res_page::VT_PAGE_SIZE, page_size, 0);
+  }
+  void add_total_pages(uint16_t total_pages) {
+    fbb_.AddElement<uint16_t>(res_page::VT_TOTAL_PAGES, total_pages, 0);
+  }
+  void add_room(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<alpha::room::room_info>>> room) {
+    fbb_.AddOffset(res_page::VT_ROOM, room);
+  }
+  explicit res_pageBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_page> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_page>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_page> Createres_page(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint16_t page = 0,
+    uint16_t page_size = 0,
+    uint16_t total_pages = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<alpha::room::room_info>>> room = 0) {
+  res_pageBuilder builder_(_fbb);
+  builder_.add_room(room);
+  builder_.add_total_pages(total_pages);
+  builder_.add_page_size(page_size);
+  builder_.add_page(page);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<res_page> Createres_pageDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint16_t page = 0,
+    uint16_t page_size = 0,
+    uint16_t total_pages = 0,
+    const std::vector<::flatbuffers::Offset<alpha::room::room_info>> *room = nullptr) {
+  auto room__ = room ? _fbb.CreateVector<::flatbuffers::Offset<alpha::room::room_info>>(*room) : 0;
+  return alpha::room::Createres_page(
+      _fbb,
+      page,
+      page_size,
+      total_pages,
+      room__);
+}
+
+::flatbuffers::Offset<res_page> Createres_page(::flatbuffers::FlatBufferBuilder &_fbb, const res_pageT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct req_reserveT : public ::flatbuffers::NativeTable {
+  typedef req_reserve TableType;
+  std::string uuid{};
+};
+
+struct req_reserve FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef req_reserveT NativeTableType;
+  typedef req_reserveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_UUID = 4
+  };
+  const ::flatbuffers::String *uuid() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_UUID);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_UUID) &&
+           verifier.VerifyString(uuid()) &&
+           verifier.EndTable();
+  }
+  req_reserveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(req_reserveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<req_reserve> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_reserveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct req_reserveBuilder {
+  typedef req_reserve Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_uuid(::flatbuffers::Offset<::flatbuffers::String> uuid) {
+    fbb_.AddOffset(req_reserve::VT_UUID, uuid);
+  }
+  explicit req_reserveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<req_reserve> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<req_reserve>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<req_reserve> Createreq_reserve(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> uuid = 0) {
+  req_reserveBuilder builder_(_fbb);
+  builder_.add_uuid(uuid);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<req_reserve> Createreq_reserveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *uuid = nullptr) {
+  auto uuid__ = uuid ? _fbb.CreateString(uuid) : 0;
+  return alpha::room::Createreq_reserve(
+      _fbb,
+      uuid__);
+}
+
+::flatbuffers::Offset<req_reserve> Createreq_reserve(::flatbuffers::FlatBufferBuilder &_fbb, const req_reserveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct res_reserveT : public ::flatbuffers::NativeTable {
+  typedef res_reserve TableType;
+  alpha::error_code ec = alpha::error_code::success;
+  std::unique_ptr<alpha::room::room_infoT> room{};
+  res_reserveT() = default;
+  res_reserveT(const res_reserveT &o);
+  res_reserveT(res_reserveT&&) FLATBUFFERS_NOEXCEPT = default;
+  res_reserveT &operator=(res_reserveT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct res_reserve FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_reserveT NativeTableType;
+  typedef res_reserveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EC = 4,
+    VT_ROOM = 6
+  };
+  alpha::error_code ec() const {
+    return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
+  const alpha::room::room_info *room() const {
+    return GetPointer<const alpha::room::room_info *>(VT_ROOM);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_EC, 2) &&
+           VerifyOffset(verifier, VT_ROOM) &&
+           verifier.VerifyTable(room()) &&
+           verifier.EndTable();
+  }
+  res_reserveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_reserveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_reserve> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_reserveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_reserveBuilder {
+  typedef res_reserve Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_ec(alpha::error_code ec) {
+    fbb_.AddElement<uint16_t>(res_reserve::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
+  void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
+    fbb_.AddOffset(res_reserve::VT_ROOM, room);
+  }
+  explicit res_reserveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_reserve> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_reserve>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_reserve> Createres_reserve(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  res_reserveBuilder builder_(_fbb);
+  builder_.add_room(room);
+  builder_.add_ec(ec);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<res_reserve> Createres_reserve(::flatbuffers::FlatBufferBuilder &_fbb, const res_reserveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct req_checkinT : public ::flatbuffers::NativeTable {
+  typedef req_checkin TableType;
+  std::string user_name{};
+  std::unique_ptr<alpha::room::room_infoT> room{};
+  req_checkinT() = default;
+  req_checkinT(const req_checkinT &o);
+  req_checkinT(req_checkinT&&) FLATBUFFERS_NOEXCEPT = default;
+  req_checkinT &operator=(req_checkinT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct req_checkin FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef req_checkinT NativeTableType;
+  typedef req_checkinBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_USER_NAME = 4,
+    VT_ROOM = 6
+  };
+  const ::flatbuffers::String *user_name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
+  }
+  const alpha::room::room_info *room() const {
+    return GetPointer<const alpha::room::room_info *>(VT_ROOM);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_USER_NAME) &&
+           verifier.VerifyString(user_name()) &&
+           VerifyOffset(verifier, VT_ROOM) &&
+           verifier.VerifyTable(room()) &&
+           verifier.EndTable();
+  }
+  req_checkinT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(req_checkinT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<req_checkin> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_checkinT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct req_checkinBuilder {
+  typedef req_checkin Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
+    fbb_.AddOffset(req_checkin::VT_USER_NAME, user_name);
+  }
+  void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
+    fbb_.AddOffset(req_checkin::VT_ROOM, room);
+  }
+  explicit req_checkinBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<req_checkin> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<req_checkin>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<req_checkin> Createreq_checkin(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  req_checkinBuilder builder_(_fbb);
+  builder_.add_room(room);
+  builder_.add_user_name(user_name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<req_checkin> Createreq_checkinDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *user_name = nullptr,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
+  return alpha::room::Createreq_checkin(
+      _fbb,
+      user_name__,
+      room);
+}
+
+::flatbuffers::Offset<req_checkin> Createreq_checkin(::flatbuffers::FlatBufferBuilder &_fbb, const req_checkinT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct res_checkinT : public ::flatbuffers::NativeTable {
+  typedef res_checkin TableType;
+  alpha::error_code ec = alpha::error_code::success;
+  std::unique_ptr<alpha::room::room_infoT> room{};
+  res_checkinT() = default;
+  res_checkinT(const res_checkinT &o);
+  res_checkinT(res_checkinT&&) FLATBUFFERS_NOEXCEPT = default;
+  res_checkinT &operator=(res_checkinT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct res_checkin FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_checkinT NativeTableType;
+  typedef res_checkinBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EC = 4,
+    VT_ROOM = 6
+  };
+  alpha::error_code ec() const {
+    return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
+  const alpha::room::room_info *room() const {
+    return GetPointer<const alpha::room::room_info *>(VT_ROOM);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_EC, 2) &&
+           VerifyOffset(verifier, VT_ROOM) &&
+           verifier.VerifyTable(room()) &&
+           verifier.EndTable();
+  }
+  res_checkinT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_checkinT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_checkin> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_checkinT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_checkinBuilder {
+  typedef res_checkin Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_ec(alpha::error_code ec) {
+    fbb_.AddElement<uint16_t>(res_checkin::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
+  void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
+    fbb_.AddOffset(res_checkin::VT_ROOM, room);
+  }
+  explicit res_checkinBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_checkin> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_checkin>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_checkin> Createres_checkin(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  res_checkinBuilder builder_(_fbb);
+  builder_.add_room(room);
+  builder_.add_ec(ec);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<res_checkin> Createres_checkin(::flatbuffers::FlatBufferBuilder &_fbb, const res_checkinT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct req_chatT : public ::flatbuffers::NativeTable {
+  typedef req_chat TableType;
+  std::string message{};
+};
+
+struct req_chat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef req_chatT NativeTableType;
+  typedef req_chatBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MESSAGE = 4
+  };
+  const ::flatbuffers::String *message() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_MESSAGE);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_MESSAGE) &&
+           verifier.VerifyString(message()) &&
+           verifier.EndTable();
+  }
+  req_chatT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(req_chatT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<req_chat> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_chatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct req_chatBuilder {
+  typedef req_chat Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_message(::flatbuffers::Offset<::flatbuffers::String> message) {
+    fbb_.AddOffset(req_chat::VT_MESSAGE, message);
+  }
+  explicit req_chatBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<req_chat> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<req_chat>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<req_chat> Createreq_chat(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> message = 0) {
+  req_chatBuilder builder_(_fbb);
+  builder_.add_message(message);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<req_chat> Createreq_chatDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *message = nullptr) {
+  auto message__ = message ? _fbb.CreateString(message) : 0;
+  return alpha::room::Createreq_chat(
+      _fbb,
+      message__);
+}
+
+::flatbuffers::Offset<req_chat> Createreq_chat(::flatbuffers::FlatBufferBuilder &_fbb, const req_chatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct res_chatT : public ::flatbuffers::NativeTable {
+  typedef res_chat TableType;
+  alpha::error_code ec = alpha::error_code::success;
+};
+
+struct res_chat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_chatT NativeTableType;
+  typedef res_chatBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EC = 4
+  };
+  alpha::error_code ec() const {
+    return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_EC, 2) &&
+           verifier.EndTable();
+  }
+  res_chatT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_chatT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_chat> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_chatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_chatBuilder {
+  typedef res_chat Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_ec(alpha::error_code ec) {
+    fbb_.AddElement<uint16_t>(res_chat::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
+  explicit res_chatBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_chat> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_chat>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_chat> Createres_chat(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success) {
+  res_chatBuilder builder_(_fbb);
+  builder_.add_ec(ec);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<res_chat> Createres_chat(::flatbuffers::FlatBufferBuilder &_fbb, const res_chatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct syn_chatT : public ::flatbuffers::NativeTable {
+  typedef syn_chat TableType;
+  std::string name{};
+  std::string message{};
+};
+
+struct syn_chat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef syn_chatT NativeTableType;
+  typedef syn_chatBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_MESSAGE = 6
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  const ::flatbuffers::String *message() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_MESSAGE);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_MESSAGE) &&
+           verifier.VerifyString(message()) &&
+           verifier.EndTable();
+  }
+  syn_chatT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(syn_chatT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<syn_chat> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const syn_chatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct syn_chatBuilder {
+  typedef syn_chat Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(syn_chat::VT_NAME, name);
+  }
+  void add_message(::flatbuffers::Offset<::flatbuffers::String> message) {
+    fbb_.AddOffset(syn_chat::VT_MESSAGE, message);
+  }
+  explicit syn_chatBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<syn_chat> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<syn_chat>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<syn_chat> Createsyn_chat(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> message = 0) {
+  syn_chatBuilder builder_(_fbb);
+  builder_.add_message(message);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<syn_chat> Createsyn_chatDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    const char *message = nullptr) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  auto message__ = message ? _fbb.CreateString(message) : 0;
+  return alpha::room::Createsyn_chat(
+      _fbb,
+      name__,
+      message__);
+}
+
+::flatbuffers::Offset<syn_chat> Createsyn_chat(::flatbuffers::FlatBufferBuilder &_fbb, const syn_chatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct req_leaveT : public ::flatbuffers::NativeTable {
+  typedef req_leave TableType;
+  std::string name{};
+  std::unique_ptr<alpha::room::room_infoT> room{};
+  req_leaveT() = default;
+  req_leaveT(const req_leaveT &o);
+  req_leaveT(req_leaveT&&) FLATBUFFERS_NOEXCEPT = default;
+  req_leaveT &operator=(req_leaveT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct req_leave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef req_leaveT NativeTableType;
+  typedef req_leaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_ROOM = 6
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  const alpha::room::room_info *room() const {
+    return GetPointer<const alpha::room::room_info *>(VT_ROOM);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_ROOM) &&
+           verifier.VerifyTable(room()) &&
+           verifier.EndTable();
+  }
+  req_leaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(req_leaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<req_leave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_leaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct req_leaveBuilder {
+  typedef req_leave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(req_leave::VT_NAME, name);
+  }
+  void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
+    fbb_.AddOffset(req_leave::VT_ROOM, room);
+  }
+  explicit req_leaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<req_leave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<req_leave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<req_leave> Createreq_leave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  req_leaveBuilder builder_(_fbb);
+  builder_.add_room(room);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<req_leave> Createreq_leaveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return alpha::room::Createreq_leave(
+      _fbb,
+      name__,
+      room);
+}
+
+::flatbuffers::Offset<req_leave> Createreq_leave(::flatbuffers::FlatBufferBuilder &_fbb, const req_leaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct res_leaveT : public ::flatbuffers::NativeTable {
+  typedef res_leave TableType;
+  std::string name{};
+  std::unique_ptr<alpha::room::room_infoT> room{};
+  res_leaveT() = default;
+  res_leaveT(const res_leaveT &o);
+  res_leaveT(res_leaveT&&) FLATBUFFERS_NOEXCEPT = default;
+  res_leaveT &operator=(res_leaveT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct res_leave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef res_leaveT NativeTableType;
+  typedef res_leaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_NAME = 4,
+    VT_ROOM = 6
+  };
+  const ::flatbuffers::String *name() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  }
+  const alpha::room::room_info *room() const {
+    return GetPointer<const alpha::room::room_info *>(VT_ROOM);
+  }
+  bool Verify(::flatbuffers::Verifier &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyString(name()) &&
+           VerifyOffset(verifier, VT_ROOM) &&
+           verifier.VerifyTable(room()) &&
+           verifier.EndTable();
+  }
+  res_leaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(res_leaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<res_leave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_leaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct res_leaveBuilder {
+  typedef res_leave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+    fbb_.AddOffset(res_leave::VT_NAME, name);
+  }
+  void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
+    fbb_.AddOffset(res_leave::VT_ROOM, room);
+  }
+  explicit res_leaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<res_leave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<res_leave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<res_leave> Createres_leave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  res_leaveBuilder builder_(_fbb);
+  builder_.add_room(room);
+  builder_.add_name(name);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<res_leave> Createres_leaveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *name = nullptr,
+    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+  auto name__ = name ? _fbb.CreateString(name) : 0;
+  return alpha::room::Createres_leave(
+      _fbb,
+      name__,
+      room);
+}
+
+::flatbuffers::Offset<res_leave> Createres_leave(::flatbuffers::FlatBufferBuilder &_fbb, const res_leaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+inline room_infoT *room_info::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<room_infoT>(new room_infoT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void room_info::UnPackTo(room_infoT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = capacity(); _o->capacity = _e; }
+  { auto _e = current(); _o->current = _e; }
+  { auto _e = uuid(); if (_e) _o->uuid = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<room_info> room_info::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const room_infoT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createroom_info(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<room_info> Createroom_info(::flatbuffers::FlatBufferBuilder &_fbb, const room_infoT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const room_infoT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _capacity = _o->capacity;
+  auto _current = _o->current;
+  auto _uuid = _o->uuid.empty() ? 0 : _fbb.CreateString(_o->uuid);
+  return alpha::room::Createroom_info(
+      _fbb,
+      _name,
+      _capacity,
+      _current,
+      _uuid);
+}
+
+inline syn_runner_upT *syn_runner_up::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<syn_runner_upT>(new syn_runner_upT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void syn_runner_up::UnPackTo(syn_runner_upT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+}
+
+inline ::flatbuffers::Offset<syn_runner_up> syn_runner_up::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const syn_runner_upT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createsyn_runner_up(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<syn_runner_up> Createsyn_runner_up(::flatbuffers::FlatBufferBuilder &_fbb, const syn_runner_upT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const syn_runner_upT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  return alpha::room::Createsyn_runner_up(
+      _fbb);
+}
+
+inline req_createT::req_createT(const req_createT &o)
+      : name(o.name),
+        room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
+}
+
+inline req_createT &req_createT::operator=(req_createT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(name, o.name);
+  std::swap(room, o.room);
+  return *this;
+}
 
 inline req_createT *req_create::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<req_createT>(new req_createT());
@@ -105,7 +1259,7 @@ inline void req_create::UnPackTo(req_createT *_o, const ::flatbuffers::resolver_
   (void)_o;
   (void)_resolver;
   { auto _e = name(); if (_e) _o->name = _e->str(); }
-  { auto _e = size(); _o->size = _e; }
+  { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
 }
 
 inline ::flatbuffers::Offset<req_create> req_create::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_createT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -117,11 +1271,440 @@ inline ::flatbuffers::Offset<req_create> Createreq_create(::flatbuffers::FlatBuf
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_createT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
-  auto _size = _o->size;
+  auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
   return alpha::room::Createreq_create(
       _fbb,
       _name,
-      _size);
+      _room);
+}
+
+inline res_createT::res_createT(const res_createT &o)
+      : ec(o.ec),
+        name(o.name),
+        room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
+}
+
+inline res_createT &res_createT::operator=(res_createT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(ec, o.ec);
+  std::swap(name, o.name);
+  std::swap(room, o.room);
+  return *this;
+}
+
+inline res_createT *res_create::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_createT>(new res_createT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_create::UnPackTo(res_createT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = ec(); _o->ec = _e; }
+  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
+}
+
+inline ::flatbuffers::Offset<res_create> res_create::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_createT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_create(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_create> Createres_create(::flatbuffers::FlatBufferBuilder &_fbb, const res_createT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_createT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _ec = _o->ec;
+  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
+  return alpha::room::Createres_create(
+      _fbb,
+      _ec,
+      _name,
+      _room);
+}
+
+inline req_pageT *req_page::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<req_pageT>(new req_pageT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void req_page::UnPackTo(req_pageT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = page(); _o->page = _e; }
+}
+
+inline ::flatbuffers::Offset<req_page> req_page::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_pageT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createreq_page(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<req_page> Createreq_page(::flatbuffers::FlatBufferBuilder &_fbb, const req_pageT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_pageT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _page = _o->page;
+  return alpha::room::Createreq_page(
+      _fbb,
+      _page);
+}
+
+inline res_pageT::res_pageT(const res_pageT &o)
+      : page(o.page),
+        page_size(o.page_size),
+        total_pages(o.total_pages) {
+  room.reserve(o.room.size());
+  for (const auto &room_ : o.room) { room.emplace_back((room_) ? new alpha::room::room_infoT(*room_) : nullptr); }
+}
+
+inline res_pageT &res_pageT::operator=(res_pageT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(page, o.page);
+  std::swap(page_size, o.page_size);
+  std::swap(total_pages, o.total_pages);
+  std::swap(room, o.room);
+  return *this;
+}
+
+inline res_pageT *res_page::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_pageT>(new res_pageT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_page::UnPackTo(res_pageT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = page(); _o->page = _e; }
+  { auto _e = page_size(); _o->page_size = _e; }
+  { auto _e = total_pages(); _o->total_pages = _e; }
+  { auto _e = room(); if (_e) { _o->room.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->room[_i]) { _e->Get(_i)->UnPackTo(_o->room[_i].get(), _resolver); } else { _o->room[_i] = std::unique_ptr<alpha::room::room_infoT>(_e->Get(_i)->UnPack(_resolver)); }; } } else { _o->room.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<res_page> res_page::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_pageT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_page(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_page> Createres_page(::flatbuffers::FlatBufferBuilder &_fbb, const res_pageT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_pageT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _page = _o->page;
+  auto _page_size = _o->page_size;
+  auto _total_pages = _o->total_pages;
+  auto _room = _o->room.size() ? _fbb.CreateVector<::flatbuffers::Offset<alpha::room::room_info>> (_o->room.size(), [](size_t i, _VectorArgs *__va) { return Createroom_info(*__va->__fbb, __va->__o->room[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return alpha::room::Createres_page(
+      _fbb,
+      _page,
+      _page_size,
+      _total_pages,
+      _room);
+}
+
+inline req_reserveT *req_reserve::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<req_reserveT>(new req_reserveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void req_reserve::UnPackTo(req_reserveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = uuid(); if (_e) _o->uuid = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<req_reserve> req_reserve::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_reserveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createreq_reserve(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<req_reserve> Createreq_reserve(::flatbuffers::FlatBufferBuilder &_fbb, const req_reserveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_reserveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _uuid = _o->uuid.empty() ? 0 : _fbb.CreateString(_o->uuid);
+  return alpha::room::Createreq_reserve(
+      _fbb,
+      _uuid);
+}
+
+inline res_reserveT::res_reserveT(const res_reserveT &o)
+      : ec(o.ec),
+        room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
+}
+
+inline res_reserveT &res_reserveT::operator=(res_reserveT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(ec, o.ec);
+  std::swap(room, o.room);
+  return *this;
+}
+
+inline res_reserveT *res_reserve::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_reserveT>(new res_reserveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_reserve::UnPackTo(res_reserveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = ec(); _o->ec = _e; }
+  { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
+}
+
+inline ::flatbuffers::Offset<res_reserve> res_reserve::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_reserveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_reserve(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_reserve> Createres_reserve(::flatbuffers::FlatBufferBuilder &_fbb, const res_reserveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_reserveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _ec = _o->ec;
+  auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
+  return alpha::room::Createres_reserve(
+      _fbb,
+      _ec,
+      _room);
+}
+
+inline req_checkinT::req_checkinT(const req_checkinT &o)
+      : user_name(o.user_name),
+        room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
+}
+
+inline req_checkinT &req_checkinT::operator=(req_checkinT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(user_name, o.user_name);
+  std::swap(room, o.room);
+  return *this;
+}
+
+inline req_checkinT *req_checkin::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<req_checkinT>(new req_checkinT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void req_checkin::UnPackTo(req_checkinT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
+  { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
+}
+
+inline ::flatbuffers::Offset<req_checkin> req_checkin::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_checkinT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createreq_checkin(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<req_checkin> Createreq_checkin(::flatbuffers::FlatBufferBuilder &_fbb, const req_checkinT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_checkinT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
+  auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
+  return alpha::room::Createreq_checkin(
+      _fbb,
+      _user_name,
+      _room);
+}
+
+inline res_checkinT::res_checkinT(const res_checkinT &o)
+      : ec(o.ec),
+        room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
+}
+
+inline res_checkinT &res_checkinT::operator=(res_checkinT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(ec, o.ec);
+  std::swap(room, o.room);
+  return *this;
+}
+
+inline res_checkinT *res_checkin::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_checkinT>(new res_checkinT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_checkin::UnPackTo(res_checkinT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = ec(); _o->ec = _e; }
+  { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
+}
+
+inline ::flatbuffers::Offset<res_checkin> res_checkin::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_checkinT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_checkin(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_checkin> Createres_checkin(::flatbuffers::FlatBufferBuilder &_fbb, const res_checkinT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_checkinT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _ec = _o->ec;
+  auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
+  return alpha::room::Createres_checkin(
+      _fbb,
+      _ec,
+      _room);
+}
+
+inline req_chatT *req_chat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<req_chatT>(new req_chatT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void req_chat::UnPackTo(req_chatT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = message(); if (_e) _o->message = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<req_chat> req_chat::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_chatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createreq_chat(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<req_chat> Createreq_chat(::flatbuffers::FlatBufferBuilder &_fbb, const req_chatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_chatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _message = _o->message.empty() ? 0 : _fbb.CreateString(_o->message);
+  return alpha::room::Createreq_chat(
+      _fbb,
+      _message);
+}
+
+inline res_chatT *res_chat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_chatT>(new res_chatT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_chat::UnPackTo(res_chatT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = ec(); _o->ec = _e; }
+}
+
+inline ::flatbuffers::Offset<res_chat> res_chat::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_chatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_chat(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_chat> Createres_chat(::flatbuffers::FlatBufferBuilder &_fbb, const res_chatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_chatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _ec = _o->ec;
+  return alpha::room::Createres_chat(
+      _fbb,
+      _ec);
+}
+
+inline syn_chatT *syn_chat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<syn_chatT>(new syn_chatT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void syn_chat::UnPackTo(syn_chatT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = message(); if (_e) _o->message = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<syn_chat> syn_chat::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const syn_chatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createsyn_chat(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<syn_chat> Createsyn_chat(::flatbuffers::FlatBufferBuilder &_fbb, const syn_chatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const syn_chatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _message = _o->message.empty() ? 0 : _fbb.CreateString(_o->message);
+  return alpha::room::Createsyn_chat(
+      _fbb,
+      _name,
+      _message);
+}
+
+inline req_leaveT::req_leaveT(const req_leaveT &o)
+      : name(o.name),
+        room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
+}
+
+inline req_leaveT &req_leaveT::operator=(req_leaveT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(name, o.name);
+  std::swap(room, o.room);
+  return *this;
+}
+
+inline req_leaveT *req_leave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<req_leaveT>(new req_leaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void req_leave::UnPackTo(req_leaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
+}
+
+inline ::flatbuffers::Offset<req_leave> req_leave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const req_leaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createreq_leave(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<req_leave> Createreq_leave(::flatbuffers::FlatBufferBuilder &_fbb, const req_leaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const req_leaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
+  return alpha::room::Createreq_leave(
+      _fbb,
+      _name,
+      _room);
+}
+
+inline res_leaveT::res_leaveT(const res_leaveT &o)
+      : name(o.name),
+        room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
+}
+
+inline res_leaveT &res_leaveT::operator=(res_leaveT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(name, o.name);
+  std::swap(room, o.room);
+  return *this;
+}
+
+inline res_leaveT *res_leave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<res_leaveT>(new res_leaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void res_leave::UnPackTo(res_leaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
+}
+
+inline ::flatbuffers::Offset<res_leave> res_leave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_leaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Createres_leave(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<res_leave> Createres_leave(::flatbuffers::FlatBufferBuilder &_fbb, const res_leaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_leaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
+  return alpha::room::Createres_leave(
+      _fbb,
+      _name,
+      _room);
 }
 
 }  // namespace room

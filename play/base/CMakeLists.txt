@@ -3,15 +3,16 @@ project("playplay_base")
 find_package(spdlog CONFIG REQUIRED)
 
 # set sources for playground_core
-set(SOURCE 
+set(SOURCE
   logger.cpp
   macros.cpp
+  uuid.cpp
 )
 
 # set library target with sources
 add_library(play_base ${SOURCE})
 
-if (MSVC)
+if(MSVC)
   target_compile_options(play_base PRIVATE /MTd)
 endif()
 

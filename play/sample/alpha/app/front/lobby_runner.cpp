@@ -59,7 +59,8 @@ void lobby_runner::on_established_back(app::pulse::session_ptr se, app::pulse::f
 
 void lobby_runner::on_closed_back(app::pulse::session_ptr se, app::pulse::frame_ptr req)
 {
-  pulse_back_->connect();
+  // 사용자의 요청 등 뒷단 연결이 끊어진 경우 에러 처리가 필요
+  // 이를 쉽게 처리할 방법은 무엇이 있을까?
 }
 
 void lobby_runner::on_auth_req_login(app::pulse::session_ptr se, app::pulse::frame_ptr req)
@@ -77,14 +78,14 @@ void lobby_runner::on_auth_syn_login_b2f(app::pulse::session_ptr se, app::pulse:
   auto uv = users_.find(res->name);
   if (uv.has_value())
   {
-    auto user = uv.value().get();
+    auto user = uv.value();
     user->do_login(*res);
   }
 }
 
 void lobby_runner::on_auth_syn_logout_b2f(app::pulse::session_ptr se, app::pulse::frame_ptr req)
 {
-  // TODO: what?
+  // 샘플 프로토콜에서는 특별히 할 일이 없음.
 }
 
 }  // namespace alpha

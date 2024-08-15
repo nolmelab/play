@@ -29,35 +29,36 @@ enum class topic : uint16_t {
   auth_syn_logout_b2f = 207,
   auth_res_logout_b2f = 208,
   auth_res_logout = 209,
-  room_req_create = 301,
-  room_req_create_f2b = 302,
-  room_req_create_b2f = 303,
-  room_res_create_f2b = 304,
-  room_res_create = 305,
-  room_req_page = 306,
-  room_req_page_f2b = 307,
-  room_res_page_b2f = 308,
-  room_res_page = 309,
-  room_req_reserve = 310,
-  room_req_reserve_f2b = 311,
-  room_req_reserve_b2f = 312,
-  room_res_reserve_f2b = 313,
-  room_res_reserve_b2f = 314,
-  room_res_reserve = 315,
-  room_req_checkin = 316,
-  room_syn_checkin_f2b = 317,
-  room_res_checkin = 318,
-  room_req_chat = 319,
-  room_res_chat = 320,
-  room_syn_chat = 321,
-  room_req_leave = 322,
-  room_syn_leave_f2b = 323,
-  room_res_leave = 324,
+  room_syn_runner_up = 301,
+  room_req_create = 302,
+  room_req_create_f2b = 303,
+  room_req_create_b2f = 304,
+  room_res_create_f2b = 305,
+  room_res_create_b2f = 306,
+  room_res_create = 307,
+  room_req_page = 308,
+  room_req_page_f2b = 309,
+  room_res_page_b2f = 310,
+  room_res_page = 311,
+  room_req_reserve = 312,
+  room_req_reserve_f2b = 313,
+  room_req_reserve_b2f = 314,
+  room_res_reserve_f2b = 315,
+  room_res_reserve_b2f = 316,
+  room_res_reserve = 317,
+  room_req_checkin = 318,
+  room_res_checkin = 319,
+  room_req_chat = 320,
+  room_res_chat = 321,
+  room_syn_chat = 322,
+  room_req_leave = 323,
+  room_syn_leave_f2b = 324,
+  room_res_leave = 325,
   MIN = service_lobby_runner_up,
   MAX = room_res_leave
 };
 
-inline const topic (&EnumValuestopic())[37] {
+inline const topic (&EnumValuestopic())[38] {
   static const topic values[] = {
     topic::service_lobby_runner_up,
     topic::service_lobby_master_up,
@@ -72,10 +73,12 @@ inline const topic (&EnumValuestopic())[37] {
     topic::auth_syn_logout_b2f,
     topic::auth_res_logout_b2f,
     topic::auth_res_logout,
+    topic::room_syn_runner_up,
     topic::room_req_create,
     topic::room_req_create_f2b,
     topic::room_req_create_b2f,
     topic::room_res_create_f2b,
+    topic::room_res_create_b2f,
     topic::room_res_create,
     topic::room_req_page,
     topic::room_req_page_f2b,
@@ -88,7 +91,6 @@ inline const topic (&EnumValuestopic())[37] {
     topic::room_res_reserve_b2f,
     topic::room_res_reserve,
     topic::room_req_checkin,
-    topic::room_syn_checkin_f2b,
     topic::room_res_checkin,
     topic::room_req_chat,
     topic::room_res_chat,
@@ -115,10 +117,12 @@ inline const char *EnumNametopic(topic e) {
     case topic::auth_syn_logout_b2f: return "auth_syn_logout_b2f";
     case topic::auth_res_logout_b2f: return "auth_res_logout_b2f";
     case topic::auth_res_logout: return "auth_res_logout";
+    case topic::room_syn_runner_up: return "room_syn_runner_up";
     case topic::room_req_create: return "room_req_create";
     case topic::room_req_create_f2b: return "room_req_create_f2b";
     case topic::room_req_create_b2f: return "room_req_create_b2f";
     case topic::room_res_create_f2b: return "room_res_create_f2b";
+    case topic::room_res_create_b2f: return "room_res_create_b2f";
     case topic::room_res_create: return "room_res_create";
     case topic::room_req_page: return "room_req_page";
     case topic::room_req_page_f2b: return "room_req_page_f2b";
@@ -131,7 +135,6 @@ inline const char *EnumNametopic(topic e) {
     case topic::room_res_reserve_b2f: return "room_res_reserve_b2f";
     case topic::room_res_reserve: return "room_res_reserve";
     case topic::room_req_checkin: return "room_req_checkin";
-    case topic::room_syn_checkin_f2b: return "room_syn_checkin_f2b";
     case topic::room_res_checkin: return "room_res_checkin";
     case topic::room_req_chat: return "room_req_chat";
     case topic::room_res_chat: return "room_res_chat";

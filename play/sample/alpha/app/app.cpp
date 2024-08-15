@@ -1,6 +1,6 @@
 #include <alpha/app/app.hpp>
-#include <alpha/app/back/lobby_master.hpp>
 #include <alpha/app/back/room_master.hpp>
+#include <alpha/app/back/user_master.hpp>
 #include <alpha/app/front/lobby_runner.hpp>
 #include <alpha/app/front/room_runner.hpp>
 #include <fstream>
@@ -51,7 +51,8 @@ bool app::start(const nlohmann::json& jconf)
     if (role_ == "front")
     {
       auto addr = play::json_reader::read(jconf_, "alpha.backend", std::string{"127.0.0.1:7000"});
-      pulse_back_.as_client(runner_.get(), addr);
+
+      pulse_back_.as_client(runner_.get(), addr).sub(pulse::topic_closed, PULSE_FN(on_closed_back));
       // pulse_back_의 start()는 서비스 start 이후로 하여 established를 받을 수 있도록 함
     }
 
@@ -106,9 +107,9 @@ bool app::start_services()
   }
   // else
   PLAY_CHECK(role_ == "back");
-  // TODO: error handling
-  create_service<lobby_master>(*this);
-  get_service<lobby_master>()->start();
+
+  create_service<user_master>(*this);
+  get_service<user_master>()->start();
 
   create_service<room_master>(*this);
   get_service<room_master>()->start();
@@ -123,6 +124,11 @@ void app::stop_services()
       {
         service->stop();
       });
+}
+
+void app::on_closed_back(pulse::session_ptr se, pulse::frame_ptr fr)
+{
+  pulse_back_.connect();
 }
 
 }  // namespace alpha

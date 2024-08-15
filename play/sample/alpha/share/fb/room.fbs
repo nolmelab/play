@@ -1,12 +1,92 @@
+include "error_code.fbs";
+
 namespace alpha.room;
+
+table room_info 
+{
+  name: string; 
+  capacity: ushort;
+  current: ushort;
+  uuid: string;
+}
+
+table syn_runner_up
+{
+}
 
 table req_create 
 {
-    name : string;
-    size : ushort;
+  name : string;        // room_req_create_f2b, room_req_create_b2f에서 사용
+  room : room_info;
+}
+
+table res_create
+{
+  ec : error_code;
+  name : string;        // room_res_create_f2b, room_res_create_b2f에서 사용
+  room : room_info;
 }
 
 table req_page 
 {
-  offset : ushort;
+  page : ushort;
+}
+
+table res_page 
+{
+  page : ushort;
+  page_size : ushort; 
+  total_pages : ushort;
+  room : [room_info];
+}
+
+table req_reserve 
+{
+  uuid : string;
+}
+
+table res_reserve
+{
+  ec : error_code;
+  room : room_info;
+}
+
+table req_checkin 
+{
+  user_name : string; 
+  room : room_info;
+}
+
+table res_checkin 
+{
+  ec : error_code;
+  room : room_info;
+}
+
+table req_chat 
+{
+  message: string;
+}
+
+table res_chat 
+{
+  ec : error_code;
+}
+
+table syn_chat 
+{
+  name : string;
+  message : string;
+}
+
+table req_leave 
+{
+  name : string; 
+  room : room_info;
+}
+
+table res_leave 
+{
+  name : string;
+  room : room_info;
 }

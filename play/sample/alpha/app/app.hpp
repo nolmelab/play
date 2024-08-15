@@ -46,6 +46,8 @@ private:
 
   void stop_services();
 
+  void on_closed_back(pulse::session_ptr se, pulse::frame_ptr fr);
+
 private:
   std::string config_file_;
   nlohmann::json jconf_;
@@ -57,3 +59,9 @@ private:
 };
 
 }  // namespace alpha
+
+#define PULSE_FN(func)                                          \
+  [this](app::pulse::session_ptr se, app::pulse::frame_ptr req) \
+  {                                                             \
+    func(se, req);                                              \
+  }
