@@ -7,5 +7,7 @@ enum error_code : ushort
   fail_user_not_authenticated,
   fail_kickout_by_duplicate_login,
   fail_room_not_found,
+  fail_room_full,
+  fail_room_user_not_found,
   // add all errors here
 }

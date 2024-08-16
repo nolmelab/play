@@ -21,35 +21,41 @@ enum class error_code : uint16_t {
   fail_user_not_authenticated = 2,
   fail_kickout_by_duplicate_login = 3,
   fail_room_not_found = 4,
+  fail_room_full = 5,
+  fail_room_user_not_found = 6,
   MIN = success,
-  MAX = fail_room_not_found
+  MAX = fail_room_user_not_found
 };
 
-inline const error_code (&EnumValueserror_code())[5] {
+inline const error_code (&EnumValueserror_code())[7] {
   static const error_code values[] = {
     error_code::success,
     error_code::fail_backend_not_responding,
     error_code::fail_user_not_authenticated,
     error_code::fail_kickout_by_duplicate_login,
-    error_code::fail_room_not_found
+    error_code::fail_room_not_found,
+    error_code::fail_room_full,
+    error_code::fail_room_user_not_found
   };
   return values;
 }
 
 inline const char * const *EnumNameserror_code() {
-  static const char * const names[6] = {
+  static const char * const names[8] = {
     "success",
     "fail_backend_not_responding",
     "fail_user_not_authenticated",
     "fail_kickout_by_duplicate_login",
     "fail_room_not_found",
+    "fail_room_full",
+    "fail_room_user_not_found",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameerror_code(error_code e) {
-  if (::flatbuffers::IsOutRange(e, error_code::success, error_code::fail_room_not_found)) return "";
+  if (::flatbuffers::IsOutRange(e, error_code::success, error_code::fail_room_user_not_found)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNameserror_code()[index];
 }

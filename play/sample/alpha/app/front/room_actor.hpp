@@ -5,7 +5,9 @@
 #include <alpha/share/fb/topic_generated.h>
 #include <alpha/app/actor.hpp>
 #include <alpha/app/app.hpp>
+#include <alpha/app/front/room_user_actor.hpp>
 #include <alpha/app/service.hpp>
+#include <play/app/actor_container.hpp>
 #include <play/base/uuid.hpp>
 
 namespace alpha {
@@ -17,6 +19,8 @@ class room_actor : public actor
 {
 public:
   using ptr = std::shared_ptr<room_actor>;
+  using user_container = play::actor_container<room_user_actor, true, true, false>;
+  using user_pending_container = play::actor_container<room_user_actor, true, false, false>;
 
   friend class room_runner;
 
@@ -31,6 +35,8 @@ public:
   }
 
 public:
+  void post_del_user(size_t id);
+
   const std::string& get_name() const
   {
     return name_;
@@ -48,6 +54,18 @@ public:
 
   app::pulse* get_pulse_front();
 
+  app::pulse* get_pulse_back();
+
+  size_t get_capacity() const
+  {
+    return capacity_;
+  }
+
+  user_container& get_users()
+  {
+    return users_;
+  }
+
 private:
   room_runner& get_service()
   {
@@ -60,7 +78,9 @@ private:
 
   void do_reserve(const room::req_reserveT& req);
 
-  void do_chekin(const room::req_checkinT& req);
+  void do_chekin(app::pulse::session_ptr se, const room::req_checkinT& req);
+
+  void send_res_reserve_f2b(const std::string& user_name, error_code ec);
 
 private:
   room_runner& service_;
@@ -69,6 +89,8 @@ private:
   std::string creator_;
   size_t capacity_{0};
   play::uuid uuid_;
+  user_container users_;
+  user_pending_container pending_users_;
 };
 
 }  // namespace alpha

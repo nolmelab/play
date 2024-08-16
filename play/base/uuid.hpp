@@ -17,6 +17,8 @@ public:
 
   std::string to_string() const;
 
+  static boost::uuids::uuid from(const std::string& suuid);
+
 private:
   boost::uuids::uuid uuid_;
 };

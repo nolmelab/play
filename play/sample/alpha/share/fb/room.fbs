@@ -62,8 +62,7 @@ table req_checkin
 table res_checkin 
 {
   ec : error_code;
-  user_name: string;
-  room : room_info;
+  users : [string];
 }
 
 table req_chat 

@@ -19,10 +19,16 @@ public:
   using ptr = std::shared_ptr<room_user_actor>;
 
 public:
-  room_user_actor(room_actor& room, app::pulse::session_ptr session, const std::string& name)
+  room_user_actor(room_actor& room, const std::string& name)
       : room_{room},
-        session_{session},
         name_{name}
+  {
+  }
+
+  room_user_actor(room_actor& room, const std::string& name, app::pulse::session_ptr se)
+      : room_{room},
+        name_{name},
+        session_{se}
   {
   }
 
@@ -32,13 +38,20 @@ public:
     return name_;
   }
 
+  uintptr_t get_session_key() const
+  {
+    return reinterpret_cast<uintptr_t>(session_.get());
+  }
+
 private:
   bool on_start() final;
 
   void on_stop() final;
 
   void on_req_chat(app::pulse::session_ptr se, app::pulse::frame_ptr req);
+  void on_req_leave(app::pulse::session_ptr se, app::pulse::frame_ptr req);
   void on_closed(app::pulse::session_ptr se, app::pulse::frame_ptr req);
+  void send_syn_leave_f2b();
 
 private:
   room_actor& room_;

@@ -61,6 +61,20 @@ public:
     return find<uintptr_t, true>(key);
   }
 
+  template <typename Fn>
+  void for_each(Fn fn)
+  {
+    for (auto& kv : actors_)
+    {
+      fn(kv.second);
+    }
+  }
+
+  size_t size() const
+  {
+    return actors_.size();
+  }
+
 private:
   container_type actors_;
 };

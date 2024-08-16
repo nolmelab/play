@@ -77,6 +77,7 @@ void room_runner::on_room_req_reserve_b2f(app::pulse::session_ptr se, app::pulse
     room::res_reserveT res;
     res.ec = error_code::fail_room_not_found;
     res.user_name = req->user_name;
+    res.room = std::make_unique<room::room_infoT>();
     res.room->uuid = req->uuid;
 
     pulse_back_->send<room::res_reserve>(topic::room_res_reserve_f2b, res);
@@ -86,6 +87,18 @@ void room_runner::on_room_req_reserve_b2f(app::pulse::session_ptr se, app::pulse
 void room_runner::on_room_req_checkin(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
   auto req = std::static_pointer_cast<room::req_checkinT>(fr);
+  auto _uuid = play::uuid::from(req->room->uuid);
+  auto rv = rooms_.find(_uuid);
+  if (rv)
+  {
+    rv.value()->do_chekin(se, *req);
+  }
+  else
+  {
+    room::res_checkinT res;
+    res.ec = error_code::fail_room_not_found;
+    pulse_front_->send<room::res_checkin>(topic::room_res_checkin, res);
+  }
 }
 
 }  // namespace alpha

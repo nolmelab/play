@@ -804,12 +804,7 @@ inline ::flatbuffers::Offset<req_checkin> Createreq_checkinDirect(
 struct res_checkinT : public ::flatbuffers::NativeTable {
   typedef res_checkin TableType;
   alpha::error_code ec = alpha::error_code::success;
-  std::string user_name{};
-  std::unique_ptr<alpha::room::room_infoT> room{};
-  res_checkinT() = default;
-  res_checkinT(const res_checkinT &o);
-  res_checkinT(res_checkinT&&) FLATBUFFERS_NOEXCEPT = default;
-  res_checkinT &operator=(res_checkinT o) FLATBUFFERS_NOEXCEPT;
+  std::vector<std::string> users{};
 };
 
 struct res_checkin FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -817,25 +812,20 @@ struct res_checkin FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef res_checkinBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_EC = 4,
-    VT_USER_NAME = 6,
-    VT_ROOM = 8
+    VT_USERS = 6
   };
   alpha::error_code ec() const {
     return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
   }
-  const ::flatbuffers::String *user_name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_USER_NAME);
-  }
-  const alpha::room::room_info *room() const {
-    return GetPointer<const alpha::room::room_info *>(VT_ROOM);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *users() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>> *>(VT_USERS);
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint16_t>(verifier, VT_EC, 2) &&
-           VerifyOffset(verifier, VT_USER_NAME) &&
-           verifier.VerifyString(user_name()) &&
-           VerifyOffset(verifier, VT_ROOM) &&
-           verifier.VerifyTable(room()) &&
+           VerifyOffset(verifier, VT_USERS) &&
+           verifier.VerifyVector(users()) &&
+           verifier.VerifyVectorOfStrings(users()) &&
            verifier.EndTable();
   }
   res_checkinT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -850,11 +840,8 @@ struct res_checkinBuilder {
   void add_ec(alpha::error_code ec) {
     fbb_.AddElement<uint16_t>(res_checkin::VT_EC, static_cast<uint16_t>(ec), 0);
   }
-  void add_user_name(::flatbuffers::Offset<::flatbuffers::String> user_name) {
-    fbb_.AddOffset(res_checkin::VT_USER_NAME, user_name);
-  }
-  void add_room(::flatbuffers::Offset<alpha::room::room_info> room) {
-    fbb_.AddOffset(res_checkin::VT_ROOM, room);
+  void add_users(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> users) {
+    fbb_.AddOffset(res_checkin::VT_USERS, users);
   }
   explicit res_checkinBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -870,11 +857,9 @@ struct res_checkinBuilder {
 inline ::flatbuffers::Offset<res_checkin> Createres_checkin(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     alpha::error_code ec = alpha::error_code::success,
-    ::flatbuffers::Offset<::flatbuffers::String> user_name = 0,
-    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<::flatbuffers::String>>> users = 0) {
   res_checkinBuilder builder_(_fbb);
-  builder_.add_room(room);
-  builder_.add_user_name(user_name);
+  builder_.add_users(users);
   builder_.add_ec(ec);
   return builder_.Finish();
 }
@@ -882,14 +867,12 @@ inline ::flatbuffers::Offset<res_checkin> Createres_checkin(
 inline ::flatbuffers::Offset<res_checkin> Createres_checkinDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     alpha::error_code ec = alpha::error_code::success,
-    const char *user_name = nullptr,
-    ::flatbuffers::Offset<alpha::room::room_info> room = 0) {
-  auto user_name__ = user_name ? _fbb.CreateString(user_name) : 0;
+    const std::vector<::flatbuffers::Offset<::flatbuffers::String>> *users = nullptr) {
+  auto users__ = users ? _fbb.CreateVector<::flatbuffers::Offset<::flatbuffers::String>>(*users) : 0;
   return alpha::room::Createres_checkin(
       _fbb,
       ec,
-      user_name__,
-      room);
+      users__);
 }
 
 ::flatbuffers::Offset<res_checkin> Createres_checkin(::flatbuffers::FlatBufferBuilder &_fbb, const res_checkinT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1579,19 +1562,6 @@ inline ::flatbuffers::Offset<req_checkin> Createreq_checkin(::flatbuffers::FlatB
       _room);
 }
 
-inline res_checkinT::res_checkinT(const res_checkinT &o)
-      : ec(o.ec),
-        user_name(o.user_name),
-        room((o.room) ? new alpha::room::room_infoT(*o.room) : nullptr) {
-}
-
-inline res_checkinT &res_checkinT::operator=(res_checkinT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(ec, o.ec);
-  std::swap(user_name, o.user_name);
-  std::swap(room, o.room);
-  return *this;
-}
-
 inline res_checkinT *res_checkin::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<res_checkinT>(new res_checkinT());
   UnPackTo(_o.get(), _resolver);
@@ -1602,8 +1572,7 @@ inline void res_checkin::UnPackTo(res_checkinT *_o, const ::flatbuffers::resolve
   (void)_o;
   (void)_resolver;
   { auto _e = ec(); _o->ec = _e; }
-  { auto _e = user_name(); if (_e) _o->user_name = _e->str(); }
-  { auto _e = room(); if (_e) { if(_o->room) { _e->UnPackTo(_o->room.get(), _resolver); } else { _o->room = std::unique_ptr<alpha::room::room_infoT>(_e->UnPack(_resolver)); } } else if (_o->room) { _o->room.reset(); } }
+  { auto _e = users(); if (_e) { _o->users.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->users[_i] = _e->Get(_i)->str(); } } else { _o->users.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<res_checkin> res_checkin::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const res_checkinT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1615,13 +1584,11 @@ inline ::flatbuffers::Offset<res_checkin> Createres_checkin(::flatbuffers::FlatB
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_checkinT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _ec = _o->ec;
-  auto _user_name = _o->user_name.empty() ? 0 : _fbb.CreateString(_o->user_name);
-  auto _room = _o->room ? Createroom_info(_fbb, _o->room.get(), _rehasher) : 0;
+  auto _users = _o->users.size() ? _fbb.CreateVectorOfStrings(_o->users) : 0;
   return alpha::room::Createres_checkin(
       _fbb,
       _ec,
-      _user_name,
-      _room);
+      _users);
 }
 
 inline req_chatT *req_chat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
