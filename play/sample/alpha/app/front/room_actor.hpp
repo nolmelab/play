@@ -23,6 +23,7 @@ public:
   using user_pending_container = play::actor_container<room_user_actor, true, false, false>;
 
   friend class room_runner;
+  friend class room_user_actor;
 
 public:
   room_actor(room_runner& service, const std::string& name, size_t capacity,
@@ -80,7 +81,19 @@ private:
 
   void do_chekin(app::pulse::session_ptr se, const room::req_checkinT& req);
 
+  void do_chat(const room::req_chatT& req);
+
   void send_res_reserve_f2b(const std::string& user_name, error_code ec);
+
+  template <typename FlatBufferObj, typename TopicInput, typename Obj>
+  bool broadcast(TopicInput topic_in, Obj& obj, bool encrypt = false)
+  {
+    users_.for_each(
+        [topic_in, &obj, encrypt](room_user_actor::ptr up)
+        {
+          up->get_pulse()->send<FlatBufferObj>(topic_in, obj, encrypt);
+        });
+  }
 
 private:
   room_runner& service_;

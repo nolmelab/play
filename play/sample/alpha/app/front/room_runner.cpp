@@ -14,6 +14,7 @@ bool room_runner::on_start()
   pulse_back_ = std::make_unique<app::pulse>();
   pulse_back_->as_child(&get_app().get_pulse_back())
       .with_strand(get_id())
+      .mark_final()
       .sub(app::pulse::topic_estalished, PULSE_FN(on_established_back))
       .start();
 
@@ -38,6 +39,7 @@ void room_runner::on_established_back(app::pulse::session_ptr se, app::pulse::fr
   pulse_back_->as_child(&get_app().get_pulse_back())
       .with_strand(get_id())
       .with_session(se)
+      .mark_final()
       .sub(app::pulse::topic_estalished, PULSE_FN(on_established_back))
       .sub(alpha::topic::room_req_create_b2f, PULSE_FN(on_room_req_create_b2f))
       .sub(alpha::topic::room_req_reserve_b2f, PULSE_FN(on_room_req_reserve_b2f))

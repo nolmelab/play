@@ -1,3 +1,4 @@
+#include <play/base/error.hpp>
 #include <play/net/pulse.hpp>
 #include <play/net/util/address.hpp>
 
@@ -83,6 +84,13 @@ pulse<Protocol, Frame>& pulse<Protocol, Frame>::inherit_session()
   }
 
   PLAY_CHECK(!!session_);
+}
+
+template <typename Protocol, typename Frame>
+pulse<Protocol, Frame>& pulse<Protocol, Frame>::mark_final()
+{
+  final_ = true;
+  return *this;
 }
 
 template <typename Protocol, typename Frame>
@@ -339,7 +347,13 @@ typename pulse<Protocol, Frame>::session_ptr pulse<Protocol, Frame>::get_session
 template <typename Protocol, typename Frame>
 void pulse<Protocol, Frame>::bind_child(pulse* child)
 {
+  PLAY_CHECK(!final_);
   PLAY_CHECK(child != nullptr);
+  if (final_)
+  {
+    throw error::create("final pulse cannot have a child");
+  }
+
   auto key = reinterpret_cast<uintptr_t>(child);
 
   std::unique_lock guard(sub_mutex_);
@@ -349,6 +363,7 @@ void pulse<Protocol, Frame>::bind_child(pulse* child)
 template <typename Protocol, typename Frame>
 void pulse<Protocol, Frame>::unbind_child(pulse* child)
 {
+  PLAY_CHECK(!final_);
   PLAY_CHECK(child != nullptr);
   auto key = reinterpret_cast<uintptr_t>(child);
 

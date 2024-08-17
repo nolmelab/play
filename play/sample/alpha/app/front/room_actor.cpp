@@ -79,6 +79,13 @@ void room_actor::do_chekin(app::pulse::session_ptr se, const room::req_checkinT&
   }
 }
 
+void room_actor::do_chat(const room::req_chatT& req)
+{
+  room::syn_chatT syn;
+  syn.message = req.message;
+  broadcast<room::syn_chat>(topic::room_syn_chat, syn);
+}
+
 void room_actor::send_res_reserve_f2b(const std::string& user_name, error_code ec)
 {
   room::res_reserveT res;

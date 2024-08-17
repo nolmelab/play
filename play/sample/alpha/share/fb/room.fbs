@@ -34,6 +34,7 @@ table req_page
 
 table res_page 
 {
+  ec : error_code;
   page : ushort;
   page_size : ushort; 
   total_pages : ushort;

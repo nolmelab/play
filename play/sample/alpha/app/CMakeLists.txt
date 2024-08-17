@@ -16,6 +16,7 @@ set(SOURCE
   back/user_master.cpp
   back/room_master.cpp
   back/room_proxy.cpp
+  back/room_runner_proxy.cpp
   back/user_proxy.cpp
 )
 

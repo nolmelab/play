@@ -67,6 +67,9 @@ public:
   // asio strand 키 지정
   pulse& with_strand(size_t key);
 
+  // 자식을 갖지 못하도록 설정
+  pulse& mark_final();
+
   // start pulse
   bool start();
 
@@ -207,6 +210,7 @@ private:
 
 private:
   mode mode_{mode::none};
+  bool final_{false};
   mutable shared_mutex sub_mutex_;
   subscriber_map subscriptions_;
   interest_map interests_;

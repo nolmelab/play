@@ -10,7 +10,7 @@ namespace play {
 /**
  * 서비스를 관리. 구체적인 기능은 서비스에서 구현
  */
-class app
+class app : public std::enable_shared_from_this<app>
 {
 public:
   app() {}

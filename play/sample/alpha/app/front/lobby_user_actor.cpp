@@ -89,7 +89,7 @@ void lobby_user_actor::on_login_fail_pending()
   service_.post_del_user(get_id());
 }
 
-void lobby_user_actor::on_auth_req_logout(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_user_actor::on_auth_req_logout(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
   auth::req_logout_f2bT req_back;
   req_back.name = name_;
@@ -101,19 +101,35 @@ void lobby_user_actor::on_auth_req_logout(app::pulse::session_ptr se, app::pulse
                                                         });
 }
 
-void lobby_user_actor::on_session_closed(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_user_actor::on_session_closed(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
   on_auth_req_logout(se, std::make_shared<auth::req_logoutT>());
 }
 
-void lobby_user_actor::on_room_req_create(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_user_actor::on_room_req_create(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  // a long trip
+  auto req = std::static_pointer_cast<room::req_createT>(fr);
+  service_.get_pulse_back()->call<room::req_create>(
+      topic::room_req_create_f2b, topic::room_res_create_b2f, *req,
+      [sp = shared_from_this(), this]()
+      {
+        room::res_createT res;
+        res.ec = error_code::fail_backend_not_responding;
+        pulse_->send<room::res_create>(topic::room_res_create, res);
+      });
 }
 
-void lobby_user_actor::on_room_req_page(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_user_actor::on_room_req_page(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  // a short trip
+  auto req = std::static_pointer_cast<room::req_pageT>(fr);
+  service_.get_pulse_back()->call<room::req_page>(
+      topic::room_req_page_f2b, topic::room_res_page_b2f, *req,
+      [sp = shared_from_this(), this]()
+      {
+        room::res_pageT res;
+        res.ec = error_code::fail_backend_not_responding;
+        pulse_->send<room::res_page>(topic::room_res_page, res);
+      });
 }
 
 }  // namespace alpha

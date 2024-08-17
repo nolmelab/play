@@ -447,6 +447,7 @@ inline ::flatbuffers::Offset<req_page> Createreq_page(
 
 struct res_pageT : public ::flatbuffers::NativeTable {
   typedef res_page TableType;
+  alpha::error_code ec = alpha::error_code::success;
   uint16_t page = 0;
   uint16_t page_size = 0;
   uint16_t total_pages = 0;
@@ -461,11 +462,15 @@ struct res_page FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef res_pageT NativeTableType;
   typedef res_pageBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PAGE = 4,
-    VT_PAGE_SIZE = 6,
-    VT_TOTAL_PAGES = 8,
-    VT_ROOM = 10
+    VT_EC = 4,
+    VT_PAGE = 6,
+    VT_PAGE_SIZE = 8,
+    VT_TOTAL_PAGES = 10,
+    VT_ROOM = 12
   };
+  alpha::error_code ec() const {
+    return static_cast<alpha::error_code>(GetField<uint16_t>(VT_EC, 0));
+  }
   uint16_t page() const {
     return GetField<uint16_t>(VT_PAGE, 0);
   }
@@ -480,6 +485,7 @@ struct res_page FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_EC, 2) &&
            VerifyField<uint16_t>(verifier, VT_PAGE, 2) &&
            VerifyField<uint16_t>(verifier, VT_PAGE_SIZE, 2) &&
            VerifyField<uint16_t>(verifier, VT_TOTAL_PAGES, 2) &&
@@ -497,6 +503,9 @@ struct res_pageBuilder {
   typedef res_page Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_ec(alpha::error_code ec) {
+    fbb_.AddElement<uint16_t>(res_page::VT_EC, static_cast<uint16_t>(ec), 0);
+  }
   void add_page(uint16_t page) {
     fbb_.AddElement<uint16_t>(res_page::VT_PAGE, page, 0);
   }
@@ -522,6 +531,7 @@ struct res_pageBuilder {
 
 inline ::flatbuffers::Offset<res_page> Createres_page(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
     uint16_t page = 0,
     uint16_t page_size = 0,
     uint16_t total_pages = 0,
@@ -531,11 +541,13 @@ inline ::flatbuffers::Offset<res_page> Createres_page(
   builder_.add_total_pages(total_pages);
   builder_.add_page_size(page_size);
   builder_.add_page(page);
+  builder_.add_ec(ec);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<res_page> Createres_pageDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    alpha::error_code ec = alpha::error_code::success,
     uint16_t page = 0,
     uint16_t page_size = 0,
     uint16_t total_pages = 0,
@@ -543,6 +555,7 @@ inline ::flatbuffers::Offset<res_page> Createres_pageDirect(
   auto room__ = room ? _fbb.CreateVector<::flatbuffers::Offset<alpha::room::room_info>>(*room) : 0;
   return alpha::room::Createres_page(
       _fbb,
+      ec,
       page,
       page_size,
       total_pages,
@@ -1398,7 +1411,8 @@ inline ::flatbuffers::Offset<req_page> Createreq_page(::flatbuffers::FlatBufferB
 }
 
 inline res_pageT::res_pageT(const res_pageT &o)
-      : page(o.page),
+      : ec(o.ec),
+        page(o.page),
         page_size(o.page_size),
         total_pages(o.total_pages) {
   room.reserve(o.room.size());
@@ -1406,6 +1420,7 @@ inline res_pageT::res_pageT(const res_pageT &o)
 }
 
 inline res_pageT &res_pageT::operator=(res_pageT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(ec, o.ec);
   std::swap(page, o.page);
   std::swap(page_size, o.page_size);
   std::swap(total_pages, o.total_pages);
@@ -1422,6 +1437,7 @@ inline res_pageT *res_page::UnPack(const ::flatbuffers::resolver_function_t *_re
 inline void res_page::UnPackTo(res_pageT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = ec(); _o->ec = _e; }
   { auto _e = page(); _o->page = _e; }
   { auto _e = page_size(); _o->page_size = _e; }
   { auto _e = total_pages(); _o->total_pages = _e; }
@@ -1436,12 +1452,14 @@ inline ::flatbuffers::Offset<res_page> Createres_page(::flatbuffers::FlatBufferB
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const res_pageT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _ec = _o->ec;
   auto _page = _o->page;
   auto _page_size = _o->page_size;
   auto _total_pages = _o->total_pages;
   auto _room = _o->room.size() ? _fbb.CreateVector<::flatbuffers::Offset<alpha::room::room_info>> (_o->room.size(), [](size_t i, _VectorArgs *__va) { return Createroom_info(*__va->__fbb, __va->__o->room[i].get(), __va->__rehasher); }, &_va ) : 0;
   return alpha::room::Createres_page(
       _fbb,
+      _ec,
       _page,
       _page_size,
       _total_pages,

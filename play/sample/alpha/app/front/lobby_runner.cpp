@@ -27,6 +27,7 @@ bool lobby_runner::on_start()
   pulse_back_ = std::make_unique<app::pulse>();
   pulse_back_->as_child(&get_app().get_pulse_back())
       .with_strand(get_id())
+      .mark_final()
       .sub(app::pulse::topic_estalished, PULSE_FN(on_established_back))
       .start();
 
@@ -47,6 +48,7 @@ void lobby_runner::on_established_back(app::pulse::session_ptr se, app::pulse::f
 {
   // 다시 펄스를 만들면서 세션을 연결. 연결이 끊어지고 다시 맺어지면 자동 복구
   pulse_back_.reset();
+  // XXX: 안전한가??
   pulse_back_ = std::make_unique<app::pulse>();
   pulse_back_->as_child(&get_app().get_pulse_back())
       .with_strand(get_id())
@@ -57,11 +59,10 @@ void lobby_runner::on_established_back(app::pulse::session_ptr se, app::pulse::f
       .start();
 }
 
-void lobby_runner::on_auth_req_login(app::pulse::session_ptr se, app::pulse::frame_ptr req)
+void lobby_runner::on_auth_req_login(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  auto req_login = std::static_pointer_cast<alpha::auth::req_loginT>(req);
-
-  auto user = std::make_shared<lobby_user_actor>(*this, req_login->name, se, req_login->password);
+  auto req = std::static_pointer_cast<alpha::auth::req_loginT>(fr);
+  auto user = std::make_shared<lobby_user_actor>(*this, req->name, se, req->password);
   users_.add(user);
   user->start();
 }
@@ -70,10 +71,9 @@ void lobby_runner::on_auth_syn_login_b2f(app::pulse::session_ptr se, app::pulse:
 {
   auto res = std::static_pointer_cast<alpha::auth::syn_login_b2fT>(fr);
   auto uv = users_.find(res->name);
-  if (uv.has_value())
+  if (uv)
   {
-    auto user = uv.value();
-    user->do_login(*res);
+    uv.value()->do_login(*res);
   }
 }
 

@@ -2,10 +2,6 @@ namespace alpha;
 
 enum topic : ushort
 {
-  service_lobby_runner_up = 101, 
-  service_lobby_master_up, 
-  service_room_runner_up, 
-  service_room_master_up,
   auth_req_login = 201, 
   auth_req_login_f2b,
   auth_syn_login_b2f,
