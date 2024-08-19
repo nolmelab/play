@@ -72,7 +72,10 @@ void room_master::on_front_established(app::pulse::session_ptr se, app::pulse::f
 
 void room_master::on_front_closed(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  // 세션으로 room_runner_proxy 삭제
+  auto session_key = reinterpret_cast<uintptr_t>(se.get());
+  room_runners_.del_by_session(session_key);
+
+  // TODO: room index에 반영
 }
 
 }  // namespace alpha

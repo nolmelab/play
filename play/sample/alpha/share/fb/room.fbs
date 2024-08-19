@@ -8,6 +8,7 @@ table room_info
   capacity: ushort;
   current: ushort;
   uuid: string;
+  created: ulong;   // 생성 시간
 }
 
 table syn_runner_up

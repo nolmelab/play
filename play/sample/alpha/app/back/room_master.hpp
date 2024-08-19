@@ -1,6 +1,6 @@
 #pragma once
 
-#include <alpha/app/back/room_proxy.hpp>
+#include <alpha/app/back/room/room_page_index.hpp>
 #include <alpha/app/back/room_runner_proxy.hpp>
 #include <alpha/app/service.hpp>
 #include <play/app/actor_container.hpp>
@@ -25,7 +25,6 @@ public:
   }
 
 private:
-  using room_container = play::actor_container<room_proxy, true, false, true>;  // id, name, uuid
   using room_runner_container =
       play::actor_container<room_runner_proxy, true, true, false>;  // id, name, session
 
@@ -54,8 +53,8 @@ private:
 
 private:
   std::unique_ptr<app::pulse> pulse_;
-  room_container rooms_;
   room_runner_container room_runners_;
+  room_page_index room_page_index_;
 };
 
 }  // namespace alpha

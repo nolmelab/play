@@ -9,7 +9,7 @@ namespace alpha {
 bool room_runner_proxy::on_start()
 {
   pulse_ = std::make_unique<app::pulse>();
-  pulse_->as_child(master_.get_pulse()).with_strand(get_id()).mark_final().start();
+  pulse_->as_child(master_.get_pulse()).with_strand(master_.get_id()).mark_final().start();
 
   return true;
 }
