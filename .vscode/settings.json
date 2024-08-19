@@ -1,5 +1,5 @@
 {
-  "cmake.sourceDirectory": "/home/kdpark/play/play",
+  "cmake.sourceDirectory": "/workspaces/play/play",
   "__cmake.sourceDirectory": "/home/kdpark/playrobust/play",
   "cmake.configureSettings": {
     "_CMAKE_TOOLCHAIN_FILE": "c:/app/vcpkg/scripts/buildsystems/vcpkg.cmake",

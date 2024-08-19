@@ -152,6 +152,13 @@ void pulse<Protocol, Frame>::stop()
 
   stop_ = true;
 
+  if (!childs_.empty())
+  {
+    throw error::create(
+        "pulse should not have any child bound when stop. this still has {} children bound.",
+        childs_.size());
+  }
+
   switch (mode_)
   {
     case mode::server:

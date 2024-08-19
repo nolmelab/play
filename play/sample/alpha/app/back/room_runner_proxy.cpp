@@ -9,7 +9,11 @@ namespace alpha {
 bool room_runner_proxy::on_start()
 {
   pulse_ = std::make_unique<app::pulse>();
-  pulse_->as_child(master_.get_pulse()).with_strand(master_.get_id()).mark_final().start();
+  pulse_->as_child(master_.get_pulse())
+      .with_strand(master_.get_id())
+      .with_session(session_)
+      .sub(topic::room_res_create_f2b, PULSE_FN(on_room_res_create_f2b))
+      .start();
 
   return true;
 }
@@ -17,6 +21,11 @@ bool room_runner_proxy::on_start()
 void room_runner_proxy::on_stop()
 {
   pulse_.reset();
+}
+
+void room_runner_proxy::on_room_res_create_f2b(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
+{
+  // TODO
 }
 
 }  // namespace alpha

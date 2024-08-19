@@ -42,7 +42,9 @@ void room_master::on_room_req_create_f2b(app::pulse::session_ptr se, app::pulse:
 
 void room_master::on_room_res_create_f2b(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  // user_master 서비스에 post()하여 전송
+  // room_runner_proxy에서도 구독하여 자체적으로 추가 / 삭제 처리
+  // 여기서는 room 페이지 관련 처리
+  // 사용자 전송은 room_runner_proxy에서 처리
 }
 
 void room_master::on_room_req_page_f2b(app::pulse::session_ptr se, app::pulse::frame_ptr fr)

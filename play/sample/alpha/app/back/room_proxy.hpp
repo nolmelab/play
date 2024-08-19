@@ -5,30 +5,25 @@
 
 namespace alpha {
 
-class room_master;
+class room_runner_proxy;
 
 // 리모트 tcp 주소로 이름을 사용하고 전송 용도와 방 개수 등 저장에만 사용
-class room_runner_proxy : public actor
+class room_proxy : public actor
 {
 public:
   using ptr = std::shared_ptr<room_runner_proxy>;
 
 public:
-  room_runner_proxy(room_master& master, const std::string& remote_addr, app::pulse::session_ptr se)
-      : master_{master},
-        remote_addr_{remote_addr},
+  room_proxy(room_runner_proxy& runner_proxy, const std::string& name, app::pulse::session_ptr se)
+      : runner_proxy_{runner_proxy},
+        name_{name},
         session_{se}
   {
   }
 
-  room_master& get_master()
-  {
-    return master_;
-  }
-
   const std::string& get_name() const
   {
-    return remote_addr_;
+    return name_;
   }
 
   uintptr_t get_session_key() const
@@ -46,11 +41,13 @@ private:
 
   void on_stop() final;
 
-  void on_room_res_create_f2b(app::pulse::session_ptr se, app::pulse::frame_ptr fr);
+  void on_room_syn_leave_f2b(app::pulse::session_ptr se, app::pulse::frame_ptr fr);
+
+  void on_room_res_reserve_f2b(app::pulse::session_ptr se, app::pulse::frame_ptr fr);
 
 private:
-  room_master& master_;
-  std::string remote_addr_;
+  room_runner_proxy& runner_proxy_;
+  std::string name_;
   app::pulse::session_ptr session_;
   std::unique_ptr<app::pulse> pulse_;
 };
