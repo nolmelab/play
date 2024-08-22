@@ -8,6 +8,13 @@
 
 namespace alpha {
 
+// 방 관리자. 방 생성과 소멸을 제어. 
+/**
+ * implementation note: 하위 액터 사용을 하지 않고 
+ * room_master 자체의 자료 구조로 관리한다. 
+ * room_master 내부의 struct로 관리하도록 한다. 
+ * c 스타일에 가깝게 코딩한다. 
+ */
 class room_master : public service
 {
 public:
