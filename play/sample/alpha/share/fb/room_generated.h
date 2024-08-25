@@ -84,6 +84,7 @@ struct room_infoT : public ::flatbuffers::NativeTable {
   uint16_t capacity = 0;
   uint16_t current = 0;
   std::string uuid{};
+  uint64_t created = 0;
 };
 
 struct room_info FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -93,7 +94,8 @@ struct room_info FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_NAME = 4,
     VT_CAPACITY = 6,
     VT_CURRENT = 8,
-    VT_UUID = 10
+    VT_UUID = 10,
+    VT_CREATED = 12
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
@@ -107,6 +109,9 @@ struct room_info FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const ::flatbuffers::String *uuid() const {
     return GetPointer<const ::flatbuffers::String *>(VT_UUID);
   }
+  uint64_t created() const {
+    return GetField<uint64_t>(VT_CREATED, 0);
+  }
   bool Verify(::flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
@@ -115,6 +120,7 @@ struct room_info FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint16_t>(verifier, VT_CURRENT, 2) &&
            VerifyOffset(verifier, VT_UUID) &&
            verifier.VerifyString(uuid()) &&
+           VerifyField<uint64_t>(verifier, VT_CREATED, 8) &&
            verifier.EndTable();
   }
   room_infoT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -138,6 +144,9 @@ struct room_infoBuilder {
   void add_uuid(::flatbuffers::Offset<::flatbuffers::String> uuid) {
     fbb_.AddOffset(room_info::VT_UUID, uuid);
   }
+  void add_created(uint64_t created) {
+    fbb_.AddElement<uint64_t>(room_info::VT_CREATED, created, 0);
+  }
   explicit room_infoBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -154,8 +163,10 @@ inline ::flatbuffers::Offset<room_info> Createroom_info(
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
     uint16_t capacity = 0,
     uint16_t current = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> uuid = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> uuid = 0,
+    uint64_t created = 0) {
   room_infoBuilder builder_(_fbb);
+  builder_.add_created(created);
   builder_.add_uuid(uuid);
   builder_.add_name(name);
   builder_.add_current(current);
@@ -168,7 +179,8 @@ inline ::flatbuffers::Offset<room_info> Createroom_infoDirect(
     const char *name = nullptr,
     uint16_t capacity = 0,
     uint16_t current = 0,
-    const char *uuid = nullptr) {
+    const char *uuid = nullptr,
+    uint64_t created = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
   auto uuid__ = uuid ? _fbb.CreateString(uuid) : 0;
   return alpha::room::Createroom_info(
@@ -176,7 +188,8 @@ inline ::flatbuffers::Offset<room_info> Createroom_infoDirect(
       name__,
       capacity,
       current,
-      uuid__);
+      uuid__,
+      created);
 }
 
 ::flatbuffers::Offset<room_info> Createroom_info(::flatbuffers::FlatBufferBuilder &_fbb, const room_infoT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1254,6 +1267,7 @@ inline void room_info::UnPackTo(room_infoT *_o, const ::flatbuffers::resolver_fu
   { auto _e = capacity(); _o->capacity = _e; }
   { auto _e = current(); _o->current = _e; }
   { auto _e = uuid(); if (_e) _o->uuid = _e->str(); }
+  { auto _e = created(); _o->created = _e; }
 }
 
 inline ::flatbuffers::Offset<room_info> room_info::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const room_infoT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1268,12 +1282,14 @@ inline ::flatbuffers::Offset<room_info> Createroom_info(::flatbuffers::FlatBuffe
   auto _capacity = _o->capacity;
   auto _current = _o->current;
   auto _uuid = _o->uuid.empty() ? 0 : _fbb.CreateString(_o->uuid);
+  auto _created = _o->created;
   return alpha::room::Createroom_info(
       _fbb,
       _name,
       _capacity,
       _current,
-      _uuid);
+      _uuid,
+      _created);
 }
 
 inline syn_runner_upT *syn_runner_up::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

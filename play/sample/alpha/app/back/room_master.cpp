@@ -30,14 +30,41 @@ void room_master::on_stop()
 
 void room_master::on_room_syn_runner_up(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  auto proxy = std::make_shared<room_runner_proxy>(se->get_remote_addr(), se);
-  proxy->start();
-  room_runners_.add(proxy);
+  auto req = std::static_pointer_cast<room::syn_runner_upT>(fr);
+  auto runner = room_runner_property(se->get_remote_addr(), se);
+  auto session_key = reinterpret_cast<uintptr_t>(se.get());
+  room_runners_.insert(std::pair{session_key, runner});
 }
 
 void room_master::on_room_req_create_f2b(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  // 방 개수가 가장 적은 room_runner_proxy를 찾아서 생성 요청
+  // 방 개수가 가장 적은 room_runner를 찾아서 생성 요청
+  auto req = std::static_pointer_cast<room::req_createT>(fr);
+
+  if (room_runners_.empty())
+  {
+    room::res_createT res;
+    res.ec = error_code::fail_room_runner_not_found;
+    res.user_name = req->user_name;
+    res.room = std::move(req->room);
+    pulse_->send<room::res_create>(topic::room_res_create_b2f, res);
+    return;
+  }
+
+  // TODO: 더 효율적으로 처리할 방법은?
+  std::vector<room_runner_property*> runners;
+  for (auto& kv : room_runners_)
+  {
+    runners.push_back(&kv.second);
+  }
+
+  std::sort(runners.begin(), runners.end(),
+            [](const room_runner_property* r1, const room_runner_property* r2)
+            {
+              return r1->get_room_count() > r2->get_room_count();
+            });
+
+  PLAY_CHECK(!runners.empty());
 }
 
 void room_master::on_room_res_create_f2b(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
@@ -74,9 +101,6 @@ void room_master::on_front_established(app::pulse::session_ptr se, app::pulse::f
 
 void room_master::on_front_closed(app::pulse::session_ptr se, app::pulse::frame_ptr fr)
 {
-  auto session_key = reinterpret_cast<uintptr_t>(se.get());
-  room_runners_.del_by_session(session_key);
-
   // TODO: room index에 반영
 }
 

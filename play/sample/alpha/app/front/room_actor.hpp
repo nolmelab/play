@@ -93,6 +93,7 @@ private:
         {
           up->get_pulse()->send<FlatBufferObj>(topic_in, obj, encrypt);
         });
+    return true;
   }
 
 private:

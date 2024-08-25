@@ -9,5 +9,6 @@ enum error_code : ushort
   fail_room_not_found,
   fail_room_full,
   fail_room_user_not_found,
+  fail_room_runner_not_found,
   // add all errors here
 }
